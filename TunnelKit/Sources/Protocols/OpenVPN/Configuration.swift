@@ -3,7 +3,7 @@
 //  TunnelKit
 //
 //  Created by Davide De Rosa on 8/23/18.
-//  Copyright (c) 2021 Davide De Rosa. All rights reserved.
+//  Copyright (c) 2021 Davide De Rosa, Sam Foxman. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
 //
@@ -216,6 +216,9 @@ extension OpenVPN {
         /// The number of seconds after which a renegotiation should be initiated. If `nil`, the client will never initiate a renegotiation.
         public var renegotiatesAfter: TimeInterval?
         
+        /// A byte to xor all packet payloads with.
+        public var xorMask: UInt8?
+        
         // MARK: Client
         
         /// The server hostname (picked from first remote).
@@ -324,6 +327,7 @@ extension OpenVPN {
                 keepAliveInterval: keepAliveInterval,
                 keepAliveTimeout: keepAliveTimeout,
                 renegotiatesAfter: renegotiatesAfter,
+                xorMask: xorMask,
                 hostname: hostname,
                 endpointProtocols: endpointProtocols,
                 checksEKU: checksEKU,
@@ -414,6 +418,9 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.renegotiatesAfter`
         public let renegotiatesAfter: TimeInterval?
 
+        /// - Seealso: `ConfigurationBuilder.xorMask`
+        public let xorMask: UInt8?
+        
         /// - Seealso: `ConfigurationBuilder.hostname`
         public let hostname: String?
         
@@ -545,6 +552,7 @@ extension OpenVPN.Configuration {
         builder.proxyAutoConfigurationURL = proxyAutoConfigurationURL
         builder.proxyBypassDomains = proxyBypassDomains
         builder.routingPolicies = routingPolicies
+        builder.xorMask = xorMask
         return builder
     }
 }
