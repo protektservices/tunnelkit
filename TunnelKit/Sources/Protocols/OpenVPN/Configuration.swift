@@ -168,6 +168,8 @@ extension OpenVPN {
         static let digest: Digest = .sha1
         
         static let compressionFraming: CompressionFraming = .disabled
+        
+        static let compressionAlgorithm: CompressionAlgorithm = .disabled
     }
     
     /// The way to create a `Configuration` object for a `OpenVPNSession`.
@@ -350,6 +352,11 @@ extension OpenVPN {
         /// :nodoc:
         public var fallbackCompressionFraming: CompressionFraming {
             return compressionFraming ?? Fallback.compressionFraming
+        }
+        
+        /// :nodoc:
+        public var fallbackCompressionAlgorithm: CompressionAlgorithm {
+            return compressionAlgorithm ?? Fallback.compressionAlgorithm
         }
     }
     
