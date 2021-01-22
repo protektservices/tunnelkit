@@ -692,10 +692,35 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             dnsServers = fallbackDNSServers
         }
 
-        let dnsSettings = NEDNSSettings(servers: dnsServers)
+        var dnsSettings = NEDNSSettings(servers: dnsServers)
+        if #available(iOS 14, macOS 11, *) {
+            switch cfg.sessionConfiguration.dnsProtocol {
+            case .https:
+                guard let serverURL = cfg.sessionConfiguration.dnsHTTPSURL else {
+                    break
+                }
+                let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
+                specific.serverURL = serverURL
+                dnsSettings = specific
+                
+            case .tls:
+                guard let serverName = cfg.sessionConfiguration.dnsTLSServerName else {
+                    break
+                }
+                let specific = NEDNSOverTLSSettings(servers: dnsServers)
+                specific.serverName = serverName
+                dnsSettings = specific
+
+            default:
+                break
+            }
+        }
+
+        // "hack" for split DNS (i.e. use VPN only for DNS)
         if !isGateway {
             dnsSettings.matchDomains = [""]
         }
+        
         if let searchDomains = cfg.sessionConfiguration.searchDomains ?? options.searchDomains {
             log.info("DNS: Using search domains \(searchDomains.maskedDescription)")
             dnsSettings.domainName = searchDomains.first
