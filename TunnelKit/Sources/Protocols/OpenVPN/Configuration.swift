@@ -613,10 +613,27 @@ extension OpenVPN.Configuration {
         } else {
             log.info("\tGateway: not configured")
         }
-        if let dnsServers = dnsServers, !dnsServers.isEmpty {
-            log.info("\tDNS: \(dnsServers.maskedDescription)")
-        } else {
-            log.info("\tDNS: not configured")
+        switch dnsProtocol {
+        case .https:
+            if let dnsHTTPSURL = dnsHTTPSURL {
+                log.info("\tDNS over HTTPS: \(dnsHTTPSURL.maskedDescription)")
+            } else {
+                log.info("\tDNS: not configured")
+            }
+
+        case .tls:
+            if let dnsTLSServerName = dnsTLSServerName {
+                log.info("\tDNS over TLS: \(dnsTLSServerName.maskedDescription)")
+            } else {
+                log.info("\tDNS: not configured")
+            }
+
+        default:
+            if let dnsServers = dnsServers, !dnsServers.isEmpty {
+                log.info("\tDNS: \(dnsServers.maskedDescription)")
+            } else {
+                log.info("\tDNS: not configured")
+            }
         }
         if let searchDomains = searchDomains, !searchDomains.isEmpty {
             log.info("\tSearch domains: \(searchDomains.maskedDescription)")
