@@ -258,9 +258,18 @@ extension OpenVPN {
         /// The settings for IPv6. `OpenVPNSession` only evaluates this server-side.
         public var ipv6: IPv6Settings?
         
-        /// The DNS servers.
+        /// The DNS protocol, defaults to `.plain` (iOS 14+ / macOS 11+).
+        public var dnsProtocol: DNSProtocol?
+
+        /// The DNS servers if `dnsProtocol = .plain` or nil.
         public var dnsServers: [String]?
         
+        /// The server URL if `dnsProtocol = .https`.
+        public var dnsHTTPSURL: URL?
+
+        /// The server name if `dnsProtocol = .tls`.
+        public var dnsTLSServerName: String?
+
         /// The search domain.
         @available(*, deprecated, message: "Use searchDomains instead")
         public var searchDomain: String? {
@@ -327,7 +336,10 @@ extension OpenVPN {
                 peerId: peerId,
                 ipv4: ipv4,
                 ipv6: ipv6,
+                dnsProtocol: dnsProtocol,
                 dnsServers: dnsServers,
+                dnsHTTPSURL: dnsHTTPSURL,
+                dnsTLSServerName: dnsTLSServerName,
                 searchDomains: searchDomains,
                 httpProxy: httpProxy,
                 httpsProxy: httpsProxy,
@@ -438,8 +450,17 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.ipv6`
         public let ipv6: IPv6Settings?
 
+        /// - Seealso: `ConfigurationBuilder.dnsProtocol`
+        public let dnsProtocol: DNSProtocol?
+        
         /// - Seealso: `ConfigurationBuilder.dnsServers`
         public let dnsServers: [String]?
+        
+        /// - Seealso: `ConfigurationBuilder.dnsHTTPSURL`
+        public let dnsHTTPSURL: URL?
+        
+        /// - Seealso: `ConfigurationBuilder.dnsTLSServerName`
+        public let dnsTLSServerName: String?
         
         /// - Seealso: `ConfigurationBuilder.searchDomains`
         public let searchDomains: [String]?
@@ -514,7 +535,10 @@ extension OpenVPN.Configuration {
         builder.peerId = peerId
         builder.ipv4 = ipv4
         builder.ipv6 = ipv6
+        builder.dnsProtocol = dnsProtocol
         builder.dnsServers = dnsServers
+        builder.dnsHTTPSURL = dnsHTTPSURL
+        builder.dnsTLSServerName = dnsTLSServerName
         builder.searchDomains = searchDomains
         builder.httpProxy = httpProxy
         builder.httpsProxy = httpsProxy
