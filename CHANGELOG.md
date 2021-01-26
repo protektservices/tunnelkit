@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handle `--data-ciphers` and `data-ciphers-fallback` from OpenVPN 2.5
 - Support DNS over HTTPS (DoH) and TLS (DoT).
 
+### Fixed
+
+- Do not override network DNS settings when not provided by VPN. [#197](https://github.com/passepartoutvpn/tunnelkit/issues/197)
+
 ## 3.2.0 (2021-01-07)
 
 ### Changed

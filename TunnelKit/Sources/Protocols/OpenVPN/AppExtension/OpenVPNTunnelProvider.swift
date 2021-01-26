@@ -682,17 +682,9 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             return
         }
         
-        var dnsServers = cfg.sessionConfiguration.dnsServers ?? options.dnsServers ?? []
+        let dnsServers = cfg.sessionConfiguration.dnsServers ?? options.dnsServers ?? []
 
-        // fall back
-        if !dnsServers.isEmpty {
-            log.info("DNS: Using servers \(dnsServers.maskedDescription)")
-        } else {
-            log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
-            dnsServers = fallbackDNSServers
-        }
-
-        var dnsSettings = NEDNSSettings(servers: dnsServers)
+        var dnsSettings: NEDNSSettings?
         if #available(iOS 14, macOS 11, *) {
             switch cfg.sessionConfiguration.dnsProtocol {
             case .https:
@@ -702,7 +694,8 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                 let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
                 specific.serverURL = serverURL
                 dnsSettings = specific
-                
+                log.info("DNS: Using HTTPS server \(serverURL.maskedDescription)")
+
             case .tls:
                 guard let serverName = cfg.sessionConfiguration.dnsTLSServerName else {
                     break
@@ -710,23 +703,34 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                 let specific = NEDNSOverTLSSettings(servers: dnsServers)
                 specific.serverName = serverName
                 dnsSettings = specific
+                log.info("DNS: Using TLS server name \(serverName.maskedDescription)")
 
             default:
                 break
             }
         }
 
+        // fall back
+        if dnsSettings == nil && !dnsServers.isEmpty {
+            log.info("DNS: Using servers \(dnsServers.maskedDescription)")
+            dnsSettings = NEDNSSettings(servers: dnsServers)
+        } else {
+//            log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
+//            dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
+            log.warning("DNS: No settings provided, using current network settings")
+        }
+
         // "hack" for split DNS (i.e. use VPN only for DNS)
         if !isGateway {
-            dnsSettings.matchDomains = [""]
+            dnsSettings?.matchDomains = [""]
         }
         
         if let searchDomains = cfg.sessionConfiguration.searchDomains ?? options.searchDomains {
             log.info("DNS: Using search domains \(searchDomains.maskedDescription)")
-            dnsSettings.domainName = searchDomains.first
-            dnsSettings.searchDomains = searchDomains
+            dnsSettings?.domainName = searchDomains.first
+            dnsSettings?.searchDomains = searchDomains
             if !isGateway {
-                dnsSettings.matchDomains = dnsSettings.searchDomains
+                dnsSettings?.matchDomains = dnsSettings?.searchDomains
             }
         }
         
