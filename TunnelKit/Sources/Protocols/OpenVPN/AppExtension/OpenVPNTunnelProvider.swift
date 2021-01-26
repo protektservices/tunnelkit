@@ -682,28 +682,34 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             return
         }
         
-        let dnsServers = cfg.sessionConfiguration.dnsServers ?? options.dnsServers ?? []
-
+        var dnsServers: [String] = []
         var dnsSettings: NEDNSSettings?
         if #available(iOS 14, macOS 11, *) {
             switch cfg.sessionConfiguration.dnsProtocol {
             case .https:
+                dnsServers = cfg.sessionConfiguration.dnsServers ?? []
                 guard let serverURL = cfg.sessionConfiguration.dnsHTTPSURL else {
                     break
                 }
                 let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
                 specific.serverURL = serverURL
                 dnsSettings = specific
-                log.info("DNS: Using HTTPS server \(serverURL.maskedDescription)")
+                log.info("DNS over HTTPS: Using servers \(dnsServers.maskedDescription)")
+                log.info("\tHTTPS URL: \(serverURL.maskedDescription)")
 
             case .tls:
+                guard let dnsServers = cfg.sessionConfiguration.dnsServers else {
+                    session?.shutdown(error: ProviderError.dnsFailure)
+                    return
+                }
                 guard let serverName = cfg.sessionConfiguration.dnsTLSServerName else {
                     break
                 }
                 let specific = NEDNSOverTLSSettings(servers: dnsServers)
                 specific.serverName = serverName
                 dnsSettings = specific
-                log.info("DNS: Using TLS server name \(serverName.maskedDescription)")
+                log.info("DNS over TLS: Using servers \(dnsServers.maskedDescription)")
+                log.info("\tTLS server name: \(serverName.maskedDescription)")
 
             default:
                 break
@@ -712,6 +718,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
 
         // fall back
         if dnsSettings == nil {
+            dnsServers = cfg.sessionConfiguration.dnsServers ?? options.dnsServers ?? []
             if !dnsServers.isEmpty {
                 log.info("DNS: Using servers \(dnsServers.maskedDescription)")
                 dnsSettings = NEDNSSettings(servers: dnsServers)
