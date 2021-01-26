@@ -18,6 +18,7 @@ custom_categories:
       children:
         - BidirectionalState
         - ConfigurationError
+        - DNSProtocol
         - DNSResolver
         - DNSRecord
         - EndpointProtocol
