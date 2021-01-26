@@ -711,13 +711,15 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         }
 
         // fall back
-        if dnsSettings == nil && !dnsServers.isEmpty {
-            log.info("DNS: Using servers \(dnsServers.maskedDescription)")
-            dnsSettings = NEDNSSettings(servers: dnsServers)
-        } else {
-//            log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
-//            dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
-            log.warning("DNS: No settings provided, using current network settings")
+        if dnsSettings == nil {
+            if !dnsServers.isEmpty {
+                log.info("DNS: Using servers \(dnsServers.maskedDescription)")
+                dnsSettings = NEDNSSettings(servers: dnsServers)
+            } else {
+//                log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
+//                dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
+                log.warning("DNS: No settings provided, using current network settings")
+            }
         }
 
         // "hack" for split DNS (i.e. use VPN only for DNS)
