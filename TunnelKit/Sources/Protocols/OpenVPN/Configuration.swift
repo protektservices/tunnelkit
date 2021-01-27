@@ -581,17 +581,17 @@ extension OpenVPN.Configuration {
             log.info("\tTLS security level: default")
         }
         if let keepAliveSeconds = keepAliveInterval, keepAliveSeconds > 0 {
-            log.info("\tKeep-alive interval: \(keepAliveSeconds) seconds")
+            log.info("\tKeep-alive interval: \(keepAliveSeconds.asTimeString)")
         } else {
             log.info("\tKeep-alive interval: never")
         }
         if let keepAliveTimeoutSeconds = keepAliveTimeout, keepAliveTimeoutSeconds > 0 {
-            log.info("\tKeep-alive timeout: \(keepAliveTimeoutSeconds) seconds")
+            log.info("\tKeep-alive timeout: \(keepAliveTimeoutSeconds.asTimeString)")
         } else {
             log.info("\tKeep-alive timeout: never")
         }
         if let renegotiatesAfterSeconds = renegotiatesAfter, renegotiatesAfterSeconds > 0 {
-            log.info("\tRenegotiation: \(renegotiatesAfterSeconds) seconds")
+            log.info("\tRenegotiation: \(renegotiatesAfterSeconds.asTimeString)")
         } else {
             log.info("\tRenegotiation: never")
         }

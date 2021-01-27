@@ -573,10 +573,10 @@ public class OpenVPNSession: Session {
         let interval: TimeInterval
         if let keepAliveInterval = keepAliveInterval {
             interval = keepAliveInterval
-            log.verbose("Schedule ping after \(interval) seconds")
+            log.verbose("Schedule ping after \(interval.asTimeString)")
         } else {
             interval = CoreConfiguration.OpenVPN.pingTimeoutCheckInterval
-            log.verbose("Schedule ping timeout check after \(interval) seconds")
+            log.verbose("Schedule ping timeout check after \(interval.asTimeString)")
         }
         queue.asyncAfter(deadline: .now() + interval) { [weak self] in
             log.verbose("Running ping block")
@@ -739,7 +739,7 @@ public class OpenVPNSession: Session {
         
         let elapsed = -negotiationKey.startTime.timeIntervalSinceNow
         if (elapsed > renegotiatesAfter) {
-            log.debug("Renegotiating after \(elapsed) seconds")
+            log.debug("Renegotiating after \(elapsed.asTimeString)")
             softReset(isServerInitiated: false)
         }
     }
@@ -1099,10 +1099,10 @@ public class OpenVPNSession: Session {
             log.info("\tNegotiated compression algorithm: \(negCompression)")
         }
         if let negPing = pushReply.options.keepAliveInterval {
-            log.info("\tNegotiated keep-alive interval: \(negPing) seconds")
+            log.info("\tNegotiated keep-alive interval: \(negPing.asTimeString)")
         }
         if let negPingRestart = pushReply.options.keepAliveTimeout {
-            log.info("\tNegotiated keep-alive timeout: \(negPingRestart) seconds")
+            log.info("\tNegotiated keep-alive timeout: \(negPingRestart.asTimeString)")
         }
 
         let bridge: OpenVPN.EncryptionBridge

@@ -57,6 +57,7 @@ class AppExtensionTests: XCTestCase {
         let identifier = "com.example.Provider"
         let appGroup = "group.com.algoritmico.TunnelKit"
         let hostname = "example.com"
+        let context = "foobar"
         let credentials = OpenVPN.Credentials("foo", "bar")
 
         var sessionBuilder = OpenVPN.ConfigurationBuilder()
@@ -71,13 +72,18 @@ class AppExtensionTests: XCTestCase {
 
         cfg = builder.build()
 
-        let proto = try? cfg.generatedTunnelProtocol(withBundleIdentifier: identifier, appGroup: appGroup, credentials: credentials)
+        let proto = try? cfg.generatedTunnelProtocol(
+            withBundleIdentifier: identifier,
+            appGroup: appGroup,
+            context: context,
+            username: credentials.username
+        )
         XCTAssertNotNil(proto)
         
         XCTAssertEqual(proto?.providerBundleIdentifier, identifier)
         XCTAssertEqual(proto?.serverAddress, hostname)
         XCTAssertEqual(proto?.username, credentials.username)
-        XCTAssertEqual(proto?.passwordReference, try? Keychain(group: appGroup).passwordReference(for: credentials.username))
+        XCTAssertEqual(proto?.passwordReference, try? Keychain(group: appGroup).passwordReference(for: credentials.username, context: context))
 
         guard let pc = proto?.providerConfiguration else {
             return
