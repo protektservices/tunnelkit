@@ -273,24 +273,25 @@ extension OpenVPNTunnelProvider {
          
          - Parameter bundleIdentifier: The provider bundle identifier required to locate the tunnel extension.
          - Parameter appGroup: The name of the app group in which the tunnel extension lives in.
-         - Parameter credentials: The optional credentials to authenticate with.
+         - Parameter context: The keychain context where to look for the password reference.
+         - Parameter username: The username to authenticate with.
          - Returns: The generated `NETunnelProviderProtocol` object.
          - Throws: `ProviderError.credentials` if unable to store `credentials.password` to the `appGroup` keychain.
          */
-        public func generatedTunnelProtocol(withBundleIdentifier bundleIdentifier: String, appGroup: String, credentials: OpenVPN.Credentials? = nil) throws -> NETunnelProviderProtocol {
-            let protocolConfiguration = NETunnelProviderProtocol()
+        public func generatedTunnelProtocol(
+            withBundleIdentifier bundleIdentifier: String,
+            appGroup: String,
+            context: String,
+            username: String?) throws -> NETunnelProviderProtocol {
             
+            let protocolConfiguration = NETunnelProviderProtocol()
+            let keychain = Keychain(group: appGroup)
+
             protocolConfiguration.providerBundleIdentifier = bundleIdentifier
             protocolConfiguration.serverAddress = sessionConfiguration.hostname ?? resolvedAddresses?.first
-            if let username = credentials?.username, let password = credentials?.password {
-                let keychain = Keychain(group: appGroup)
-                do {
-                    try keychain.set(password: password, for: username, context: bundleIdentifier)
-                } catch _ {
-                    throw ProviderConfigurationError.credentials(details: "keychain.set()")
-                }
+            if let username = username {
                 protocolConfiguration.username = username
-                protocolConfiguration.passwordReference = try? keychain.passwordReference(for: username, context: bundleIdentifier)
+                protocolConfiguration.passwordReference = try? keychain.passwordReference(for: username, context: context)
             }
             protocolConfiguration.providerConfiguration = generatedProviderConfiguration(appGroup: appGroup)
             
