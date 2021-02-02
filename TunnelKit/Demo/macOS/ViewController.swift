@@ -45,6 +45,8 @@ class ViewController: NSViewController {
     
     private let vpn = OpenVPNProvider(bundleIdentifier: tunnelIdentifier)
 
+    private let keychain = Keychain(group: appGroup)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -84,10 +86,12 @@ class ViewController: NSViewController {
 
         let credentials = OpenVPN.Credentials(textUsername.stringValue, textPassword.stringValue)
         let cfg = Configuration.make(hostname: hostname, port: port, socketType: .udp)
+        try? keychain.set(password: credentials.password, for: credentials.username, context: tunnelIdentifier)
         let proto = try! cfg.generatedTunnelProtocol(
             withBundleIdentifier: tunnelIdentifier,
             appGroup: appGroup,
-            credentials: credentials
+            context: tunnelIdentifier,
+            username: credentials.username
         )
         let neCfg = NetworkExtensionVPNConfiguration(title: "BasicTunnel", protocolConfiguration: proto, onDemandRules: [])
         vpn.reconnect(configuration: neCfg) { (error) in
