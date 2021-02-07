@@ -320,6 +320,9 @@ public class Keychain {
     private func setScope(query: inout [String: Any], context: String?) {
         if let accessGroup = accessGroup {
             query[kSecAttrAccessGroup as String] = accessGroup
+            #if os(macOS)
+            query[kSecUseDataProtectionKeychain as String] = true
+            #endif
         }
         if let context = context {
             query[kSecAttrService as String] = context
