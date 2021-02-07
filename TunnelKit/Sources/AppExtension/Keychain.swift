@@ -201,12 +201,10 @@ public class Keychain {
      - Returns: The password for the input username and reference.
      - Throws: `KeychainError.notFound` if unable to find the password in the keychain.
      **/
-    public static func password(for username: String, reference: Data, context: String? = nil) throws -> String {
+    public func password(for username: String, reference: Data, context: String? = nil) throws -> String {
         var query = [String: Any]()
+        setScope(query: &query, context: context)
         query[kSecClass as String] = kSecClassGenericPassword
-        if let context = context {
-            query[kSecAttrService as String] = context
-        }
         query[kSecAttrAccount as String] = username
         query[kSecMatchItemList as String] = [reference]
         query[kSecReturnData as String] = true
