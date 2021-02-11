@@ -169,4 +169,9 @@ class PushTests: XCTestCase {
         let reply = try? OpenVPN.PushReply(message: msg)!
         reply?.debug()
     }
+    
+    func testPeerInfo() {
+        let peerInfo = CoreConfiguration.OpenVPN.peerInfo()
+        print(peerInfo)
+    }
 }

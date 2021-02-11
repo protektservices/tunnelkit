@@ -65,6 +65,7 @@ extension CoreConfiguration {
         
         static func peerInfo(extra: [String: String]? = nil) -> String {
             let platform: String
+            let platformVersion = ProcessInfo.processInfo.operatingSystemVersion
             #if os(iOS)
             platform = "ios"
             #else
@@ -77,11 +78,17 @@ extension CoreConfiguration {
                 "IV_UI_VER=\(uiVersion)",
                 "IV_PROTO=2",
                 "IV_NCP=2",
-                "IV_SSL=\(CryptoBox.version())",
                 "IV_LZO_STUB=1",
             ]
             if LZOIsSupported() {
                 info.append("IV_LZO=1")
+            }
+            // XXX: always do --push-peer-info
+            // however, MAC is inaccessible and IFAD is deprecated, skip IV_HWADDR
+//            if pushPeerInfo {
+            if true {
+                info.append("IV_SSL=\(CryptoBox.version())")
+                info.append("IV_PLAT_VER=\(platformVersion.majorVersion).\(platformVersion.minorVersion)")
             }
             if let extra = extra {
                 info.append(contentsOf: extra.map { "\($0)=\($1)" })
