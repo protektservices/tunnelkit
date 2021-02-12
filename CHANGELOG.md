@@ -5,15 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Clean up cached PEMs at the end of a Session. [#203](https://github.com/passepartoutvpn/tunnelkit/pull/203)
+
 ## 3.3.1 (2021-02-12)
 
 ### Changed
 
-- Skip keychain password prompt on macOS. [#200](https://github.com/passepartoutvpn/tunnelkit/issues/200)
+- Skip keychain password prompt on macOS. [#200](https://github.com/passepartoutvpn/tunnelkit/pull/200)
 
 ### Fixed
 
-- Restore app group in keychain queries about password references. [#201](https://github.com/passepartoutvpn/tunnelkit/issues/201)
+- Restore app group in keychain queries about password references. [#201](https://github.com/passepartoutvpn/tunnelkit/pull/201)
 
 ## 3.3.0 (2021-01-28)
 
