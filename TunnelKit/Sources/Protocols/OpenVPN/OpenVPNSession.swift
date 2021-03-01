@@ -243,11 +243,7 @@ public class OpenVPNSession: Session {
     /// :nodoc:
     deinit {
         cleanup()
-
-        let fm = FileManager.default
-        for url in [caURL, clientCertificateURL, clientKeyURL] {
-            try? fm.removeItem(at: url)
-        }
+        cleanupCache()
     }
     
     // MARK: Session
@@ -356,6 +352,13 @@ public class OpenVPNSession: Session {
         
         isStopping = false
         stopError = nil
+    }
+
+    func cleanupCache() {
+        let fm = FileManager.default
+        for url in [caURL, clientCertificateURL, clientKeyURL] {
+            try? fm.removeItem(at: url)
+        }
     }
 
     // MARK: Loop
@@ -1249,6 +1252,7 @@ public class OpenVPNSession: Session {
             switch method {
             case .shutdown:
                 self?.doShutdown(error: error)
+                self?.cleanupCache()
                 
             case .reconnect:
                 self?.doReconnect(error: error)
