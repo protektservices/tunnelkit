@@ -214,6 +214,8 @@
 		0ECAF84B246697DA00D8266A /* TunnelKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0E17D7F91F730D9F009EE129 /* TunnelKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0ECC60D82254981A0020BEAC /* ConfigurationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECC60D72254981A0020BEAC /* ConfigurationError.swift */; };
 		0ECC60D92254981A0020BEAC /* ConfigurationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECC60D72254981A0020BEAC /* ConfigurationError.swift */; };
+		0ECCEA7F2622F2F00007DA28 /* NativeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECCEA7E2622F2F00007DA28 /* NativeProvider.swift */; };
+		0ECCEA802622F2F00007DA28 /* NativeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECCEA7E2622F2F00007DA28 /* NativeProvider.swift */; };
 		0ECEB1152252C8E900E9E551 /* tunnelbear.enc.8.ovpn in Resources */ = {isa = PBXBuildFile; fileRef = 0ECEB1132252C8E900E9E551 /* tunnelbear.enc.8.ovpn */; };
 		0ECEB1162252C8E900E9E551 /* tunnelbear.enc.8.ovpn in Resources */ = {isa = PBXBuildFile; fileRef = 0ECEB1132252C8E900E9E551 /* tunnelbear.enc.8.ovpn */; };
 		0ECEB1172252C8E900E9E551 /* tunnelbear.enc.8.key in Resources */ = {isa = PBXBuildFile; fileRef = 0ECEB1142252C8E900E9E551 /* tunnelbear.enc.8.key */; };
@@ -591,6 +593,7 @@
 		0EAC57362494277A00D0FCE0 /* VPN.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VPN.swift; sourceTree = "<group>"; };
 		0EB03E0E2290CF52006D03A0 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		0ECC60D72254981A0020BEAC /* ConfigurationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationError.swift; sourceTree = "<group>"; };
+		0ECCEA7E2622F2F00007DA28 /* NativeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeProvider.swift; sourceTree = "<group>"; };
 		0ECEB1132252C8E900E9E551 /* tunnelbear.enc.8.ovpn */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tunnelbear.enc.8.ovpn; sourceTree = "<group>"; };
 		0ECEB1142252C8E900E9E551 /* tunnelbear.enc.8.key */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tunnelbear.enc.8.key; sourceTree = "<group>"; };
 		0ECEB11A2252CDAD00E9E551 /* tunnelbear.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tunnelbear.crt; sourceTree = "<group>"; };
@@ -938,6 +941,7 @@
 		0E23B3E022982AF800304C30 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				0ECCEA7D2622F2D30007DA28 /* Native */,
 				0E23B3E122982AF800304C30 /* OpenVPN */,
 			);
 			path = Protocols;
@@ -1055,6 +1059,14 @@
 				0EAC57332494277A00D0FCE0 /* VPNStatus.swift */,
 			);
 			path = Manager;
+			sourceTree = "<group>";
+		};
+		0ECCEA7D2622F2D30007DA28 /* Native */ = {
+			isa = PBXGroup;
+			children = (
+				0ECCEA7E2622F2F00007DA28 /* NativeProvider.swift */,
+			);
+			path = Native;
 			sourceTree = "<group>";
 		};
 		0EE2F9DD22918DA100F56F49 /* AppExtension */ = {
@@ -2056,6 +2068,7 @@
 				0E23B48522982AF800304C30 /* ReplayProtector.m in Sources */,
 				0E7F3F6A246ABA0F006BE77F /* IPHeader.swift in Sources */,
 				0E23B44122982AF800304C30 /* OpenVPNSession+PIA.swift in Sources */,
+				0ECCEA7F2622F2F00007DA28 /* NativeProvider.swift in Sources */,
 				0E23B42D22982AF800304C30 /* ControlChannelSerializer.swift in Sources */,
 				0EE2F9F622918DA100F56F49 /* NEUDPSocket.swift in Sources */,
 				0E94E8EA25BACEBD0040BC30 /* DNSProtocol.swift in Sources */,
@@ -2150,6 +2163,7 @@
 				0E23B48622982AF800304C30 /* ReplayProtector.m in Sources */,
 				0E7F3F6B246ABA0F006BE77F /* IPHeader.swift in Sources */,
 				0E23B44222982AF800304C30 /* OpenVPNSession+PIA.swift in Sources */,
+				0ECCEA802622F2F00007DA28 /* NativeProvider.swift in Sources */,
 				0E23B42E22982AF800304C30 /* ControlChannelSerializer.swift in Sources */,
 				0EE2F9F722918DA100F56F49 /* NEUDPSocket.swift in Sources */,
 				0E94E8EB25BACEBD0040BC30 /* DNSProtocol.swift in Sources */,

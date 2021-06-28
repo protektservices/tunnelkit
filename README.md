@@ -5,7 +5,7 @@
 
 # TunnelKit
 
-This library provides a simplified Swift/Obj-C implementation of the OpenVPN® protocol for the Apple platforms. The crypto layer is built on top of [OpenSSL 1.1.1][dep-openssl], which in turn enables support for a certain range of encryption and digest algorithms.
+This library provides a generic framework for VPN development and a simplified Swift/Obj-C implementation of the OpenVPN® protocol for the Apple platforms. The crypto layer is built on top of [OpenSSL 1.1.1][dep-openssl], which in turn enables support for a certain range of encryption and digest algorithms.
 
 ## Getting started
 
@@ -161,15 +161,19 @@ Provides a layer on top of the NetworkExtension framework. Most importantly, bri
 This subspec includes convenient classes to control the VPN tunnel from your app without the NetworkExtension headaches. Have a look at `VPNProvider` implementations:
 
 - `MockVPNProvider` (default, useful to test on simulator)
-- `OpenVPNProvider`
+- `NetworkExtensionVPNProvider` (for IPSec/IKEv2)
+
+### Protocols/Native
+
+Here you find `NativeProvider`, a generic way to manage a VPN profile based on the native IPSec/IKEv2 protocols. Just wrap a `NEVPNProtocolIPSec` or `NEVPNProtocolIKEv2` object in a `NetworkExtensionVPNConfiguration` and use it to install or connect to the VPN.
 
 ### Protocols/OpenVPN
 
-Here you will find the low-level entities on top of which an OpenVPN connection is established. Code is mixed Swift and Obj-C, most of it is not exposed to consumers. The module depends on OpenSSL.
+Here are the low-level entities on top of which an OpenVPN connection is established. Code is mixed Swift and Obj-C, most of it is not exposed to consumers. The module depends on OpenSSL.
 
 The entry point is the `OpenVPNSession` class. The networking layer is fully abstract and delegated externally with the use of opaque `IOInterface` (`LinkInterface` and `TunnelInterface`) and `OpenVPNSessionDelegate` protocols.
 
-Another goal of this module is packaging up a black box implementation of a [NEPacketTunnelProvider][ne-ptp], which is the essential part of a Packet Tunnel Provider app extension. You will find the main implementation in the `OpenVPNTunnelProvider` class.
+Another goal of this module is packaging up a black box implementation of a [NEPacketTunnelProvider][ne-ptp], which is the essential part of a Packet Tunnel Provider app extension. You will find the main implementation in the `OpenVPNTunnelProvider` class. On the client side, you manage the VPN profile with the `OpenVPNProvider` class, which is a specific implementation of `NetworkExtensionVPNProvider`.
 
 A debug log snapshot is optionally maintained and shared by the tunnel provider to host apps via the App Group container.
 

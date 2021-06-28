@@ -56,6 +56,9 @@ custom_categories:
         - NetworkExtensionVPNConfiguration
         - NetworkExtensionVPNProvider
         - MockVPNProvider
+    - name: Protocols/Native
+      children:
+        - NativeProvider
     - name: Protocols/OpenVPN
       children:
         - OpenVPN

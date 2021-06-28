@@ -38,9 +38,17 @@ Pod::Spec.new do |s|
         p.frameworks            = "NetworkExtension"
 
         p.dependency "SwiftyBeaver"
+        p.dependency "TunnelKit/Core"
     end
 
     s.subspec "Protocols" do |t|
+        t.subspec "Native" do |p|
+            p.source_files          = "TunnelKit/Sources/Protocols/Native/**/*.swift"
+            p.pod_target_xcconfig   = { "SWIFT_INCLUDE_PATHS" => "${PODS_TARGET_SRCROOT}/TunnelKit/Sources/Protocols/Native" }
+
+            p.dependency "TunnelKit/Manager"
+        end
+
         t.subspec "OpenVPN" do |p|
             p.source_files          = "TunnelKit/Sources/Protocols/OpenVPN/**/*.{h,m,swift}"
             p.private_header_files  = "TunnelKit/Sources/Protocols/OpenVPN/**/*.h"
@@ -50,7 +58,6 @@ Pod::Spec.new do |s|
                                         "APPLICATION_EXTENSION_API_ONLY" => "YES" }
 
             p.dependency "OpenSSL-Apple", "~> 1.1.1l.11"
-            p.dependency "TunnelKit/Core"
             p.dependency "TunnelKit/AppExtension"
             p.dependency "TunnelKit/Manager"
         end

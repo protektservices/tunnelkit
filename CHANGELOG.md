@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Support for IPSec/IKEv2 providers.
+
 ### Changed
 
 - Avoid caching PEMs on disk (roop). [#213](https://github.com/passepartoutvpn/tunnelkit/pull/213)
