@@ -144,7 +144,7 @@ public class OpenVPNProvider: VPNProvider {
         }
         install(configuration: configuration) { (error) in
             guard error == nil else {
-                completionHandler?(nil)
+                completionHandler?(error)
                 return
             }
             let connectBlock = {
