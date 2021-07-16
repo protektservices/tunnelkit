@@ -62,6 +62,9 @@ typedef NS_ENUM(uint8_t, PacketCode) {
 #define DataPacketNoCompressSwap    0xfb
 #define DataPacketLZOCompress       0x66
 
+#define DataPacketV2Indicator       0x50
+#define DataPacketV2Uncompressed    0x00
+
 extern const uint8_t DataPacketPingData[16];
 
 static inline void PacketOpcodeGet(const uint8_t *from, PacketCode *_Nullable code, uint8_t *_Nullable key)
