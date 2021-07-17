@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Return error in install completion handler. [#206](https://github.com/passepartoutvpn/tunnelkit/issues/206)
+- Relax handling of whitespaces in configuration file.
 
 ## 3.3.2 (2021-06-26)
 

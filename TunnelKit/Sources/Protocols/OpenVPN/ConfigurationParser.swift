@@ -863,6 +863,7 @@ private extension String {
     func trimmedLines() -> [String] {
         return components(separatedBy: .newlines).map {
             $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: "\\s", with: " ", options: .regularExpression)
         }.filter {
             !$0.isEmpty
         }
