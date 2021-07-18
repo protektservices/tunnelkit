@@ -39,6 +39,9 @@ extension OpenVPN {
 
         /// Framing compatible with 2.4 `compress`.
         case compress
+
+        /// Framing compatible with 2.4 `compress` (version 2, e.g. stub-v2).
+        case compressV2
         
         var native: CompressionFramingNative {
             guard let val = CompressionFramingNative(rawValue: rawValue) else {
@@ -56,6 +59,9 @@ extension OpenVPN {
                 return "disabled"
                 
             case .compress:
+                return "compress"
+                
+            case .compressV2:
                 return "compress"
                 
             case .compLZO:

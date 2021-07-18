@@ -28,5 +28,6 @@
 typedef NS_ENUM(NSInteger, CompressionFramingNative) {
     CompressionFramingNativeDisabled,
     CompressionFramingNativeCompLZO,
-    CompressionFramingNativeCompress
+    CompressionFramingNativeCompress,
+    CompressionFramingNativeCompressV2
 };

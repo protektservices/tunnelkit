@@ -195,12 +195,30 @@
                 *payloadOffset = 1;
                 break;
                 
+            case DataPacketV2Indicator:
+                if (compressionFraming == CompressionFramingNativeCompressV2) {
+                    if (payload[1] != DataPacketV2Uncompressed) {
+                        if (error) {
+                            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathCompression);
+                        }
+                        return NO;
+                    }
+                    *payloadOffset = 2;
+                } else {
+                    *payloadOffset = 0;
+                    *headerLength = 0;
+                }
+                break;
+
             default:
                 // @"Expected NO_COMPRESS (found %X != %X)", payload[0], DataPacketNoCompress);
-                if (error) {
-                    *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathCompression);
-                }
-                return NO;
+//                if (error) {
+//                    *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathCompression);
+//                }
+//                return NO;
+                *payloadOffset = 0;
+                *headerLength = 0;
+                break;
         }
         return YES;
     };
@@ -240,6 +258,25 @@
                         packetDest[0] = DataPacketNoCompressSwap;
                     }
                 }
+            };
+            self.parsePayloadBlock = parseCompressedBlock;
+            break;
+        }
+        case CompressionFramingNativeCompressV2: {
+            self.assemblePayloadBlock = ^(uint8_t * packetDest, NSInteger * packetLengthOffset, NSData * payload) {
+
+                // assume no compression (v2 algorithms unsupported)
+
+                // prepend headers only in case of byte ambiguity
+                const uint8_t first = *(uint8_t *)payload.bytes;
+                if (first == DataPacketV2Indicator) {
+                    *packetLengthOffset = 2;
+                    packetDest[0] = DataPacketV2Indicator;
+                    packetDest[1] = DataPacketV2Uncompressed;
+                } else {
+                    *packetLengthOffset = 0;
+                }
+                memcpy(packetDest + *packetLengthOffset, payload.bytes, payload.length);
             };
             self.parsePayloadBlock = parseCompressedBlock;
             break;

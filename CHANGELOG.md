@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Support for `--compress stub-v2`.
+
 ### Fixed
 
 - Return error in install completion handler. [#206](https://github.com/passepartoutvpn/tunnelkit/issues/206)

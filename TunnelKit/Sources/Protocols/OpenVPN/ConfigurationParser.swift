@@ -412,7 +412,20 @@ extension OpenVPN {
                         }
                     } else {
                         if let arg = $0.first {
-                            optCompressionAlgorithm = (arg == "lzo") ? .LZO : .other
+                            switch arg {
+                            case "lzo":
+                                optCompressionAlgorithm = .LZO
+                                
+                            case "stub":
+                                optCompressionAlgorithm = .disabled
+                                
+                            case "stub-v2":
+                                optCompressionFraming = .compressV2
+                                optCompressionAlgorithm = .disabled
+
+                            default:
+                                optCompressionAlgorithm = .other
+                            }
                         } else {
                             optCompressionAlgorithm = .disabled
                         }
