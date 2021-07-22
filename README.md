@@ -201,8 +201,9 @@ For more details please see [CONTRIBUTING][contrib-readme].
 
 - [lzo][dep-lzo-website] - Copyright (c) 1996-2017 Markus F.X.J. Oberhumer
 - [PIATunnel][dep-piatunnel-repo] - Copyright (c) 2018-Present Private Internet Access
-- [SURFnet][surfnet]
+- [SURFnet][ppl-surfnet]
 - [SwiftyBeaver][dep-swiftybeaver-repo] - Copyright (c) 2015 Sebastian Kreutzberger
+- [XMB5][ppl-xmb5] for the [XOR patch][ppl-xmb5-xor] - Copyright (c) 2020 Sam Foxman
 
 This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. ([https://www.openssl.org/][dep-openssl])
 
@@ -236,7 +237,9 @@ Website: [passepartoutvpn.app][about-website]
 [dep-piatunnel-repo]: https://github.com/pia-foss/tunnel-apple
 [dep-swiftybeaver-repo]: https://github.com/SwiftyBeaver/SwiftyBeaver
 [dep-lzo-website]: http://www.oberhumer.com/opensource/lzo/
-[surfnet]: https://www.surf.nl/en/about-surf/subsidiaries/surfnet
+[ppl-surfnet]: https://www.surf.nl/en/about-surf/subsidiaries/surfnet
+[ppl-xmb5]: https://github.com/XMB5
+[ppl-xmb5-xor]: https://github.com/passepartoutvpn/tunnelkit/pull/170
 
 [about-twitter]: https://twitter.com/keeshux
 [about-website]: https://passepartoutvpn.app
