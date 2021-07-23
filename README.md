@@ -39,9 +39,16 @@ The library therefore supports compression framing, just not newer compression. 
 
 ### Support for .ovpn configuration
 
-TunnelKit can parse .ovpn configuration files. Below are a few limitations worth mentioning.
+TunnelKit can parse .ovpn configuration files. Below are a few details worth mentioning.
 
-Unsupported:
+#### Non-standard
+
+- Single-byte XOR masking
+    - Via `--scramble xormask <character>`
+    - XOR all incoming and outgoing bytes by the ASCII value of the character argument
+    - See [Tunnelblick website][about-tunnelblick-xor] for more details
+
+#### Unsupported
 
 - UDP fragmentation, i.e. `--fragment`
 - Compression via `--compress` other than empty or `lzo`
@@ -51,7 +58,7 @@ Unsupported:
 - `<connection>` blocks
 - `vpn_gateway` and `net_gateway` literals in routes
 
-Ignored:
+#### Ignored
 
 - Some MTU overrides
     - `--link-mtu` and variants
@@ -240,6 +247,7 @@ Website: [passepartoutvpn.app][about-website]
 [ppl-surfnet]: https://www.surf.nl/en/about-surf/subsidiaries/surfnet
 [ppl-xmb5]: https://github.com/XMB5
 [ppl-xmb5-xor]: https://github.com/passepartoutvpn/tunnelkit/pull/170
+[about-tunnelblick-xor]: https://tunnelblick.net/cOpenvpn_xorpatch.html
 
 [about-twitter]: https://twitter.com/keeshux
 [about-website]: https://passepartoutvpn.app
