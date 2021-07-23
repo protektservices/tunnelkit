@@ -454,10 +454,10 @@ extension OpenVPNTunnelProvider: GenericSocketDelegate {
             return
         }
         if session.canRebindLink() {
-            session.rebindLink(producer.link())
+            session.rebindLink(producer.link(xorMask: cfg.sessionConfiguration.xorMask))
             reasserting = false
         } else {
-            session.setLink(producer.link())
+            session.setLink(producer.link(xorMask: cfg.sessionConfiguration.xorMask))
         }
     }
     

@@ -47,4 +47,7 @@ public protocol LinkInterface: IOInterface {
 
     /// The number of packets that this interface is able to bufferize.
     var packetBufferSize: Int { get }
+    
+    /// A byte to xor all packet payloads with.
+    var xorMask: UInt8 { get }
 }

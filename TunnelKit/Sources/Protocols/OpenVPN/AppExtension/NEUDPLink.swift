@@ -31,9 +31,12 @@ class NEUDPLink: LinkInterface {
     
     private let maxDatagrams: Int
     
-    init(impl: NWUDPSession, maxDatagrams: Int? = nil) {
+    let xorMask: UInt8
+    
+    init(impl: NWUDPSession, maxDatagrams: Int? = nil, xorMask: UInt8?) {
         self.impl = impl
         self.maxDatagrams = maxDatagrams ?? 200
+        self.xorMask = xorMask ?? 0
     }
     
     // MARK: LinkInterface
@@ -51,24 +54,46 @@ class NEUDPLink: LinkInterface {
     func setReadHandler(queue: DispatchQueue, _ handler: @escaping ([Data]?, Error?) -> Void) {
         
         // WARNING: runs in Network.framework queue
-        impl.setReadHandler({ [weak self] (packets, error) in
-            guard let _ = self else {
+        impl.setReadHandler({ [weak self] packets, error in
+            guard let self = self else {
                 return
             }
-            queue.sync {
-                handler(packets, error)
+            var packetsToUse: [Data]?
+            if let packets = packets, self.xorMask != 0 {
+                packetsToUse = packets.map { packet in
+                    Data(bytes: packet.map { $0 ^ self.xorMask }, count: packet.count)
+                }
+            } else {
+                packetsToUse = packets
             }
-            }, maxDatagrams: maxDatagrams)
+            queue.sync {
+                handler(packetsToUse, error)
+            }
+        }, maxDatagrams: maxDatagrams)
     }
     
     func writePacket(_ packet: Data, completionHandler: ((Error?) -> Void)?) {
-        impl.writeDatagram(packet) { (error) in
+        var dataToUse: Data
+        if xorMask != 0 {
+            dataToUse = Data(bytes: packet.map { $0 ^ xorMask }, count: packet.count)
+        } else {
+            dataToUse = packet
+        }
+        impl.writeDatagram(dataToUse) { error in
             completionHandler?(error)
         }
     }
     
     func writePackets(_ packets: [Data], completionHandler: ((Error?) -> Void)?) {
-        impl.writeMultipleDatagrams(packets) { (error) in
+        var packetsToUse: [Data]
+        if xorMask != 0 {
+            packetsToUse = packets.map { packet in
+                Data(bytes: packet.map { $0 ^ xorMask }, count: packet.count)
+            }
+        } else {
+            packetsToUse = packets
+        }
+        impl.writeMultipleDatagrams(packetsToUse) { error in
             completionHandler?(error)
         }
     }
@@ -76,7 +101,7 @@ class NEUDPLink: LinkInterface {
 
 /// :nodoc:
 extension NEUDPSocket: LinkProducer {
-    public func link() -> LinkInterface {
-        return NEUDPLink(impl: impl)
+    public func link(xorMask: UInt8?) -> LinkInterface {
+        return NEUDPLink(impl: impl, maxDatagrams: nil, xorMask: xorMask)
     }
 }

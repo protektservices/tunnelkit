@@ -39,9 +39,16 @@ The library therefore supports compression framing, just not newer compression. 
 
 ### Support for .ovpn configuration
 
-TunnelKit can parse .ovpn configuration files. Below are a few limitations worth mentioning.
+TunnelKit can parse .ovpn configuration files. Below are a few details worth mentioning.
 
-Unsupported:
+#### Non-standard
+
+- Single-byte XOR masking
+    - Via `--scramble xormask <character>`
+    - XOR all incoming and outgoing bytes by the ASCII value of the character argument
+    - See [Tunnelblick website][about-tunnelblick-xor] for more details
+
+#### Unsupported
 
 - UDP fragmentation, i.e. `--fragment`
 - Compression via `--compress` other than empty or `lzo`
@@ -51,7 +58,7 @@ Unsupported:
 - `<connection>` blocks
 - `vpn_gateway` and `net_gateway` literals in routes
 
-Ignored:
+#### Ignored
 
 - Some MTU overrides
     - `--link-mtu` and variants
@@ -201,8 +208,9 @@ For more details please see [CONTRIBUTING][contrib-readme].
 
 - [lzo][dep-lzo-website] - Copyright (c) 1996-2017 Markus F.X.J. Oberhumer
 - [PIATunnel][dep-piatunnel-repo] - Copyright (c) 2018-Present Private Internet Access
-- [SURFnet][surfnet]
+- [SURFnet][ppl-surfnet]
 - [SwiftyBeaver][dep-swiftybeaver-repo] - Copyright (c) 2015 Sebastian Kreutzberger
+- [XMB5][ppl-xmb5] for the [XOR patch][ppl-xmb5-xor] - Copyright (c) 2020 Sam Foxman
 
 This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. ([https://www.openssl.org/][dep-openssl])
 
@@ -236,7 +244,10 @@ Website: [passepartoutvpn.app][about-website]
 [dep-piatunnel-repo]: https://github.com/pia-foss/tunnel-apple
 [dep-swiftybeaver-repo]: https://github.com/SwiftyBeaver/SwiftyBeaver
 [dep-lzo-website]: http://www.oberhumer.com/opensource/lzo/
-[surfnet]: https://www.surf.nl/en/about-surf/subsidiaries/surfnet
+[ppl-surfnet]: https://www.surf.nl/en/about-surf/subsidiaries/surfnet
+[ppl-xmb5]: https://github.com/XMB5
+[ppl-xmb5-xor]: https://github.com/passepartoutvpn/tunnelkit/pull/170
+[about-tunnelblick-xor]: https://tunnelblick.net/cOpenvpn_xorpatch.html
 
 [about-twitter]: https://twitter.com/keeshux
 [about-website]: https://passepartoutvpn.app

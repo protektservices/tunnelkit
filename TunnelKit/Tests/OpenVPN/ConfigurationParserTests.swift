@@ -114,6 +114,16 @@ class ConfigurationParserTests: XCTestCase {
         try privateTestEncryptedCertificateKey(pkcs: "8")
     }
     
+    func testXOR() throws {
+        let cfg = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble xormask F"])
+        XCTAssertNil(cfg.warning)
+        XCTAssertEqual(cfg.configuration.xorMask, Character("F").asciiValue)
+
+        let cfg2 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble xormask FFFF"])
+        XCTAssertNil(cfg.warning)
+        XCTAssertNil(cfg2.configuration.xorMask)
+    }
+    
     private func privateTestEncryptedCertificateKey(pkcs: String) throws {
         let cfgURL = url(withName: "tunnelbear.enc.\(pkcs)")
         XCTAssertThrowsError(try OpenVPN.ConfigurationParser.parsed(fromURL: cfgURL))

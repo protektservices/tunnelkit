@@ -30,6 +30,8 @@ public protocol LinkProducer {
 
     /**
      Returns a `LinkInterface`.
+ 
+     - Parameter xorMask: The XOR mask.
      **/
-    func link() -> LinkInterface
+    func link(xorMask: UInt8?) -> LinkInterface
 }
