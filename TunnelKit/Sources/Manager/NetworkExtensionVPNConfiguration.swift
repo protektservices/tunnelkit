@@ -32,14 +32,14 @@ public struct NetworkExtensionVPNConfiguration: VPNConfiguration {
     /// :nodoc:
     public var title: String
 
-    /// The `NETunnelProviderProtocol` object embedding tunnel configuration.
-    public let protocolConfiguration: NETunnelProviderProtocol
+    /// The `NEVPNProtocol` object embedding tunnel configuration.
+    public let protocolConfiguration: NEVPNProtocol
     
     /// The on-demand rules to establish.
     public let onDemandRules: [NEOnDemandRule]
     
     /// :nodoc:
-    public init(title: String, protocolConfiguration: NETunnelProviderProtocol, onDemandRules: [NEOnDemandRule]) {
+    public init(title: String, protocolConfiguration: NEVPNProtocol, onDemandRules: [NEOnDemandRule]) {
         self.title = title
         self.protocolConfiguration = protocolConfiguration
         self.onDemandRules = onDemandRules
