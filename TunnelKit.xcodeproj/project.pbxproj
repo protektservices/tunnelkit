@@ -190,6 +190,8 @@
 		0E94E8EB25BACEBD0040BC30 /* DNSProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E94E8E925BACEBD0040BC30 /* DNSProtocol.swift */; };
 		0EA82A282190B220007960EB /* TunnelKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E3251C51F95770D00C108D9 /* TunnelKit.framework */; };
 		0EA82A3E2190B2BC007960EB /* pia-2048.pem in Resources */ = {isa = PBXBuildFile; fileRef = 0E749F612178911C00BB2701 /* pia-2048.pem */; };
+		0EA9F28926D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9F28826D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift */; };
+		0EA9F28A26D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9F28826D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift */; };
 		0EAC57372494277A00D0FCE0 /* OpenVPNProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EAC57312494277A00D0FCE0 /* OpenVPNProvider.swift */; };
 		0EAC57382494277A00D0FCE0 /* OpenVPNProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EAC57312494277A00D0FCE0 /* OpenVPNProvider.swift */; };
 		0EAC57392494277A00D0FCE0 /* MockVPNProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EAC57322494277A00D0FCE0 /* MockVPNProvider.swift */; };
@@ -571,6 +573,7 @@
 		0E85A25B202CCA3D0059E9F9 /* Host.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Host.entitlements; sourceTree = "<group>"; };
 		0E94E8E925BACEBD0040BC30 /* DNSProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProtocol.swift; sourceTree = "<group>"; };
 		0EA82A232190B220007960EB /* TunnelKitTests-macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TunnelKitTests-macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0EA9F28826D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkExtensionVPNConfiguration.swift; sourceTree = "<group>"; };
 		0EAC57312494277A00D0FCE0 /* OpenVPNProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenVPNProvider.swift; sourceTree = "<group>"; };
 		0EAC57322494277A00D0FCE0 /* MockVPNProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockVPNProvider.swift; sourceTree = "<group>"; };
 		0EAC57332494277A00D0FCE0 /* VPNStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VPNStatus.swift; sourceTree = "<group>"; };
@@ -1033,6 +1036,7 @@
 			isa = PBXGroup;
 			children = (
 				0EAC57322494277A00D0FCE0 /* MockVPNProvider.swift */,
+				0EA9F28826D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift */,
 				0EAC57362494277A00D0FCE0 /* VPN.swift */,
 				0EAC57342494277A00D0FCE0 /* VPNConfiguration.swift */,
 				0EAC57352494277A00D0FCE0 /* VPNProvider.swift */,
@@ -2027,6 +2031,7 @@
 				0E23B43522982AF800304C30 /* CoreConfiguration+OpenVPN.swift in Sources */,
 				0EFEB46D2006D3C800F81029 /* Data+Manipulation.swift in Sources */,
 				0E23B46B22982AF800304C30 /* CryptoCBC.m in Sources */,
+				0EA9F28926D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift in Sources */,
 				0E23B46522982AF800304C30 /* EncryptionBridge.swift in Sources */,
 				0EE2F9F422918DA100F56F49 /* NWTCPConnectionState+Description.swift in Sources */,
 				0EFEB4742006D3C800F81029 /* CoreConfiguration.swift in Sources */,
@@ -2117,6 +2122,7 @@
 				0E23B43622982AF800304C30 /* CoreConfiguration+OpenVPN.swift in Sources */,
 				0EFB902C22788512006405E4 /* RoutingTable.m in Sources */,
 				0E23B46C22982AF800304C30 /* CryptoCBC.m in Sources */,
+				0EA9F28A26D69FAE00E806E1 /* NetworkExtensionVPNConfiguration.swift in Sources */,
 				0E23B46622982AF800304C30 /* EncryptionBridge.swift in Sources */,
 				0EFEB4952006D7F300F81029 /* SecureRandom.swift in Sources */,
 				0EE2F9F522918DA100F56F49 /* NWTCPConnectionState+Description.swift in Sources */,

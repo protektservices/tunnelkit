@@ -1,8 +1,8 @@
 //
-//  VPNConfiguration.swift
+//  NetworkExtensionVPNConfiguration.swift
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 9/18/18.
+//  Created by Davide De Rosa on 8/25/21.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -24,10 +24,24 @@
 //
 
 import Foundation
+import NetworkExtension
 
-/// Generic marker for objects able to configure a `VPNProvider`.
-public protocol VPNConfiguration {
+/// A `VPNConfiguration` built on top of NetworkExtension entities.
+public struct NetworkExtensionVPNConfiguration: VPNConfiguration {
+    
+    /// :nodoc:
+    public var title: String
 
-    /// The profile title in device settings.
-    var title: String { get }
+    /// The `NETunnelProviderProtocol` object embedding tunnel configuration.
+    public let protocolConfiguration: NETunnelProviderProtocol
+    
+    /// The on-demand rules to establish.
+    public let onDemandRules: [NEOnDemandRule]
+    
+    /// :nodoc:
+    public init(title: String, protocolConfiguration: NETunnelProviderProtocol, onDemandRules: [NEOnDemandRule]) {
+        self.title = title
+        self.protocolConfiguration = protocolConfiguration
+        self.onDemandRules = onDemandRules
+    }
 }
