@@ -26,10 +26,15 @@
 import Foundation
 import NetworkExtension
 
-/// :nodoc:
+/// `VPNProvider` for OpenVPN protocol.
 public class OpenVPNProvider: VPNProvider, VPNProviderIPC {
     private let provider: NetworkExtensionVPNProvider
     
+    /**
+     Initializes a provider with the bundle identifier of the `OpenVPNTunnelProvider`.
+     
+     - Parameter bundleIdentifier: The bundle identifier of the `OpenVPNTunnelProvider`.
+     */
     public init(bundleIdentifier: String) {
         provider = NetworkExtensionVPNProvider(locator: NetworkExtensionTunnelLocator(bundleIdentifier: bundleIdentifier))
     }

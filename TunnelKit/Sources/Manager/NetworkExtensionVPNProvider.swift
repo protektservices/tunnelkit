@@ -29,6 +29,7 @@ import SwiftyBeaver
 
 private let log = SwiftyBeaver.self
 
+/// `VPNProvider` based on the NetworkExtension framework.
 public class NetworkExtensionVPNProvider: VPNProvider {
     private var manager: NEVPNManager?
     
@@ -36,6 +37,11 @@ public class NetworkExtensionVPNProvider: VPNProvider {
 
     private var lastNotifiedStatus: VPNStatus?
 
+    /**
+     Initializes a provider with a `NetworkExtensionLocator`.
+     
+     - Parameter locator: A `NetworkExtensionLocator` able to locate a `NEVPNManager`.
+     */
     public init(locator: NetworkExtensionLocator) {
         self.locator = locator
 
@@ -177,7 +183,7 @@ public class NetworkExtensionVPNProvider: VPNProvider {
     
     // MARK: Helpers
     
-    public func lookup(completionHandler: @escaping (NEVPNManager?, Error?) -> Void) {
+    func lookup(completionHandler: @escaping (NEVPNManager?, Error?) -> Void) {
         locator.lookup(completionHandler: completionHandler)
     }
 

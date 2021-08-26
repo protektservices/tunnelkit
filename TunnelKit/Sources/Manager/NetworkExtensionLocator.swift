@@ -26,6 +26,7 @@
 import Foundation
 import NetworkExtension
 
+/// Entity able to look up a `NEVPNManager`.
 public protocol NetworkExtensionLocator {
 
     /**
@@ -36,8 +37,10 @@ public protocol NetworkExtensionLocator {
     func lookup(completionHandler: @escaping (NEVPNManager?, Error?) -> Void)
 }
 
+/// Locator for native VPN protocols.
 public class NetworkExtensionNativeLocator: NetworkExtensionLocator {
 
+    /// :nodoc:
     public init() {
     }
 
@@ -55,9 +58,15 @@ public class NetworkExtensionNativeLocator: NetworkExtensionLocator {
     }
 }
 
+/// Locator for tunnel VPN protocols.
 public class NetworkExtensionTunnelLocator: NetworkExtensionLocator {
     private let bundleIdentifier: String
     
+    /**
+     Initializes the locator with the bundle identifier of the tunnel provider.
+     
+     - Parameter bundleIdentifier: The bundle identifier of the tunnel provider.
+     */
     public init(bundleIdentifier: String) {
         self.bundleIdentifier = bundleIdentifier
     }

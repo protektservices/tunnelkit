@@ -25,6 +25,7 @@
 
 import Foundation
 
+/// Common IPC functions supported by interactive VPN providers.
 public protocol VPNProviderIPC {
 
     /**
