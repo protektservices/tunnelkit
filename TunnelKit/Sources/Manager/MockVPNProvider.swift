@@ -27,6 +27,10 @@ import Foundation
 
 /// Simulates a VPN provider.
 public class MockVPNProvider: VPNProvider, VPNProviderIPC {
+    
+    /// :nodoc:
+    public init() {
+    }
 
     // MARK: VPNProvider
 
