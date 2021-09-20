@@ -164,8 +164,6 @@ This subspec includes convenient classes to control the VPN tunnel from your app
 - `MockVPNProvider` (default, useful to test on simulator)
 - `OpenVPNProvider`
 
-Set `VPN.shared` to either of them at app launch time.
-
 ### Protocols/OpenVPN
 
 Here you will find the low-level entities on top of which an OpenVPN connection is established. Code is mixed Swift and Obj-C, most of it is not exposed to consumers. The module depends on OpenSSL.

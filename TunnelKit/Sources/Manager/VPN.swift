@@ -36,7 +36,4 @@ public class VPN {
 
     /// The VPN profile did (re)install.
     public static let didReinstall = Notification.Name("VPNDidReinstall")
-
-    /// A singleton `VPNProvider` instance (default is a `MockVPNProvider`). Make sure to set this on app launch.
-    public static var shared: VPNProvider = MockVPNProvider()
 }
