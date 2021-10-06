@@ -1630,7 +1630,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ios-TunnelKitDemo-iOS/Pods-ios-TunnelKitDemo-iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver-iOS/SwiftyBeaver.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/openssl/openssl.framework/openssl",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Apple/openssl.framework/openssl",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1672,7 +1672,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ios-TunnelKitTests-iOS/Pods-ios-TunnelKitTests-iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver-iOS/SwiftyBeaver.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/openssl/openssl.framework/openssl",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Apple/openssl.framework/openssl",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1736,7 +1736,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ios-TunnelKitHost/Pods-ios-TunnelKitHost-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver-iOS/SwiftyBeaver.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/openssl/openssl.framework/openssl",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Apple/openssl.framework/openssl",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1822,7 +1822,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-macos-TunnelKitDemo-macOS/Pods-macos-TunnelKitDemo-macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver-macOS/SwiftyBeaver.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/openssl/openssl.framework/openssl",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Apple/openssl.framework/openssl",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1908,7 +1908,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-macos-TunnelKitTests-macOS/Pods-macos-TunnelKitTests-macOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver-macOS/SwiftyBeaver.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/openssl/openssl.framework/openssl",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Apple/openssl.framework/openssl",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
