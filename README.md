@@ -2,7 +2,6 @@
 ![macOS 10.15+](https://img.shields.io/badge/macos-10.15+-green.svg)
 [![OpenSSL 1.1.1l](https://img.shields.io/badge/openssl-1.1.1l-d69c68.svg)](https://www.openssl.org/news/openssl-1.1.1-notes.html)
 [![License GPLv3](https://img.shields.io/badge/license-GPLv3-lightgray.svg)](LICENSE)
-[![Travis-CI](https://api.travis-ci.org/passepartoutvpn/tunnelkit.svg?branch=master)](https://travis-ci.org/passepartoutvpn/tunnelkit)
 
 # TunnelKit
 
