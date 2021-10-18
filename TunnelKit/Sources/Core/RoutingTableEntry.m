@@ -411,7 +411,6 @@ char *routename(uint32_t in)
 char *routename6(struct sockaddr_in6 *sa6)
 {
     static char line[MAXHOSTNAMELEN];
-    int flag = NI_NUMERICHOST;
     /* use local variable for safety */
     struct sockaddr_in6 sa6_local = {sizeof(sa6_local), AF_INET6, };
     
@@ -481,10 +480,9 @@ char *netname(uint32_t in, uint32_t mask)
 
 char *netname6(struct sockaddr_in6 *sa6, struct sockaddr *sam)
 {
-    char host[MAXHOSTNAMELEN];
     static char line[MAXHOSTNAMELEN + 10];
     u_char *lim;
-    int masklen, illegal = 0, flag = NI_NUMERICHOST;
+    int masklen, illegal = 0;
     struct in6_addr *mask = sam ? &((struct sockaddr_in6 *)sam)->sin6_addr : 0;
     
     if (sam && sam->sa_len == 0) {
