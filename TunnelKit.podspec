@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name              = "TunnelKit"
-    s.version           = "3.5.0"
+    s.version           = "3.6.0"
     s.summary           = "VPN client library for Apple platforms."
 
     s.homepage          = "https://github.com/passepartoutvpn/tunnelkit"
