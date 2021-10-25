@@ -7,3 +7,5 @@
 Pods
 docs
 build
+.swiftpm
+.build

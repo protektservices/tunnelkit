@@ -5,14 +5,6 @@ author_url: "https://github.com/passepartoutvpn/tunnelkit"
 
 theme: fullwidth
 
-xcodebuild_arguments:
-    - "-workspace"
-    - "TunnelKit.xcworkspace"
-    - "-scheme"
-    - "TunnelKit-iOS"
-    - "-sdk"
-    - "iphoneos"
-
 custom_categories:
     - name: Core
       children:
