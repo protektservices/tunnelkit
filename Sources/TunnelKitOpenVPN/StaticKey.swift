@@ -25,7 +25,7 @@
 
 import Foundation
 import TunnelKitCore
-import TunnelKitCoreObjC
+import _TunnelKitCoreObjC
 
 extension OpenVPN {
 

@@ -42,7 +42,7 @@ import SystemConfiguration.CaptiveNetwork
 import CoreWLAN
 #endif
 import TunnelKitCore
-import TunnelKitCoreObjC
+import _TunnelKitCoreObjC
 import TunnelKitAppExtension
 
 private let log = SwiftyBeaver.self

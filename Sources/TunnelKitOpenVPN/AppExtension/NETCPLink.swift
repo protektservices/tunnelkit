@@ -27,7 +27,7 @@ import Foundation
 import NetworkExtension
 import TunnelKitCore
 import TunnelKitAppExtension
-import TunnelKitOpenVPNObjC
+import _TunnelKitOpenVPNObjC
 
 class NETCPLink: LinkInterface {
     private let impl: NWTCPConnection

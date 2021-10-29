@@ -36,8 +36,8 @@
 
 import Foundation
 import Security.SecRandom
-import TunnelKitCoreObjC
-import InternalUtils
+import _TunnelKitCoreObjC
+import _TunnelKitUtils
 
 /// :nodoc:
 public enum SecureRandomError: Error {

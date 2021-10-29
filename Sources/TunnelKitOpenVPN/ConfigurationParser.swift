@@ -26,8 +26,8 @@
 import Foundation
 import SwiftyBeaver
 import TunnelKitCore
-import TunnelKitCoreObjC
-import InternalUtils
+import _TunnelKitCoreObjC
+import _TunnelKitUtils
 
 private let log = SwiftyBeaver.self
 

@@ -36,8 +36,8 @@
 
 import XCTest
 @testable import TunnelKitCore
-import TunnelKitCoreObjC
-import TunnelKitOpenVPNObjC
+import _TunnelKitCoreObjC
+import _TunnelKitOpenVPNObjC
 import TunnelKitCoreTests
 
 class EncryptionPerformanceTests: XCTestCase {

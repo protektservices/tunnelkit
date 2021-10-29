@@ -36,8 +36,8 @@
 
 import Foundation
 @testable import TunnelKitCore
-import TunnelKitCoreObjC
-import TunnelKitOpenVPNObjC
+import _TunnelKitCoreObjC
+import _TunnelKitOpenVPNObjC
 
 extension Encrypter {
     func encryptData(_ data: Data, flags: UnsafePointer<CryptoFlags>?) throws -> Data {

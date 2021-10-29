@@ -37,7 +37,7 @@
 import XCTest
 @testable import TunnelKitCore
 @testable import TunnelKitOpenVPN
-import TunnelKitOpenVPNObjC
+import _TunnelKitOpenVPNObjC
 import TunnelKitCoreTests
 
 class DataPathPerformanceTests: XCTestCase {

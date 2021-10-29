@@ -36,8 +36,8 @@
 
 import XCTest
 @testable import TunnelKitCore
-import TunnelKitCoreObjC
-import TunnelKitOpenVPNObjC
+import _TunnelKitCoreObjC
+import _TunnelKitOpenVPNObjC
 
 class DataPathEncryptionTests: XCTestCase {
     private let cipherKey = try! SecureRandom.safeData(length: 32)

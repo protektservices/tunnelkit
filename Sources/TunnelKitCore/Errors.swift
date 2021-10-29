@@ -24,7 +24,7 @@
 //
 
 import Foundation
-import TunnelKitCoreObjC
+import _TunnelKitCoreObjC
 
 extension Error {
     public func isTunnelKitError() -> Bool {

@@ -35,7 +35,7 @@
 //
 
 import Foundation
-import TunnelKitOpenVPNObjC
+import _TunnelKitOpenVPNObjC
 
 extension OpenVPN {
 

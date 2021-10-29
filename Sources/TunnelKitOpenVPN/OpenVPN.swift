@@ -25,8 +25,8 @@
 
 import Foundation
 import TunnelKitCore
-import TunnelKitCoreObjC
-import TunnelKitOpenVPNObjC
+import _TunnelKitCoreObjC
+import _TunnelKitOpenVPNObjC
 
 /// Container for OpenVPN classes.
 public class OpenVPN {

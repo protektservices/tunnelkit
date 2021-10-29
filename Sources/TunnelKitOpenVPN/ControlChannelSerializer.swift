@@ -26,8 +26,8 @@
 import Foundation
 import SwiftyBeaver
 import TunnelKitCore
-import TunnelKitCoreObjC
-import TunnelKitOpenVPNObjC
+import _TunnelKitCoreObjC
+import _TunnelKitOpenVPNObjC
 
 private let log = SwiftyBeaver.self
 

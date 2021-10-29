@@ -36,9 +36,9 @@
 
 import XCTest
 @testable import TunnelKitCore
-import TunnelKitCoreObjC
+import _TunnelKitCoreObjC
 import TunnelKitOpenVPN
-import TunnelKitOpenVPNObjC
+import _TunnelKitOpenVPNObjC
 
 class EncryptionTests: XCTestCase {
     private var cipherEncKey: ZeroingData!

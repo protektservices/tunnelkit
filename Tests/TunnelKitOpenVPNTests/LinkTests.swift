@@ -36,7 +36,7 @@
 
 import XCTest
 @testable import TunnelKitCore
-@testable import TunnelKitCoreObjC
+@testable import _TunnelKitCoreObjC
 import TunnelKitCoreTests
 
 class LinkTests: XCTestCase {

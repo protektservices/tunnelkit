@@ -25,7 +25,7 @@
 
 import XCTest
 @testable import TunnelKitCore
-import TunnelKitCoreObjC
+import _TunnelKitCoreObjC
 import TunnelKitLZO
 
 class CompressionTests: XCTestCase {
