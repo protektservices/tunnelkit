@@ -1,6 +1,6 @@
 //
 //  DataPathPerformanceTests.swift
-//  TunnelKitTests
+//  TunnelKitOpenVPNTests
 //
 //  Created by Davide De Rosa on 7/7/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
@@ -38,7 +38,6 @@ import XCTest
 @testable import TunnelKitCore
 @testable import TunnelKitOpenVPN
 import _TunnelKitOpenVPNObjC
-import TunnelKitCoreTests
 
 class DataPathPerformanceTests: XCTestCase {
     private var dataPath: DataPath!

@@ -1,6 +1,6 @@
 //
 //  StaticKeyTests.swift
-//  TunnelKitTests
+//  TunnelKitOpenVPNTests
 //
 //  Created by Davide De Rosa on 9/11/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.

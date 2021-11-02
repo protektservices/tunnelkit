@@ -1,6 +1,6 @@
 //
 //  DataPathEncryptionTests.swift
-//  TunnelKitTests
+//  TunnelKitOpenVPNTests
 //
 //  Created by Davide De Rosa on 7/11/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.

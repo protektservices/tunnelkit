@@ -1,6 +1,6 @@
 //
 //  ConfigurationParserTests.swift
-//  TunnelKitTests
+//  TunnelKitOpenVPNTests
 //
 //  Created by Davide De Rosa on 11/10/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.

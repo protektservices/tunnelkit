@@ -89,13 +89,11 @@ let package = Package(
         .testTarget(
             name: "TunnelKitCoreTests",
             dependencies: [
-                "TunnelKitCore",
-                "_TunnelKitCoreObjC"
+                "TunnelKitCore"
             ]),
         .testTarget(
             name: "TunnelKitOpenVPNTests",
             dependencies: [
-                "TunnelKitCoreTests",
                 "TunnelKitOpenVPN",
                 "_TunnelKitOpenVPNObjC",
                 "TunnelKitLZO"
@@ -106,6 +104,7 @@ let package = Package(
         .testTarget(
             name: "TunnelKitLZOTests",
             dependencies: [
+                "TunnelKitCore",
                 "TunnelKitLZO"
             ]),
     ]

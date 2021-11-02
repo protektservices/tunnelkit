@@ -1,6 +1,6 @@
 //
-//  TestUtils+OpenVPN.swift
-//  TunnelKitTests
+//  TestUtils.swift
+//  TunnelKitCoreTests
 //
 //  Created by Davide De Rosa on 7/7/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
@@ -36,38 +36,16 @@
 
 import Foundation
 @testable import TunnelKitCore
-import _TunnelKitCoreObjC
-import _TunnelKitOpenVPNObjC
 
-extension Encrypter {
-    func encryptData(_ data: Data, flags: UnsafePointer<CryptoFlags>?) throws -> Data {
-        let srcLength = data.count
-        var dest: [UInt8] = Array(repeating: 0, count: srcLength + 256)
-        var destLength = 0
-        try data.withUnsafeBytes {
-            try encryptBytes($0.bytePointer, length: srcLength, dest: &dest, destLength: &destLength, flags: flags)
+public class TestUtils {
+    public static func generateDataSuite(_ size: Int, _ count: Int) -> [Data] {
+        var suite = [Data]()
+        for _ in 0..<count {
+            suite.append(try! SecureRandom.data(length: size))
         }
-        dest.removeSubrange(destLength..<dest.count)
-        return Data(dest)
-    }
-}
-
-extension Decrypter {
-    func decryptData(_ data: Data, flags: UnsafePointer<CryptoFlags>?) throws -> Data {
-        let srcLength = data.count
-        var dest: [UInt8] = Array(repeating: 0, count: srcLength + 256)
-        var destLength = 0
-        try data.withUnsafeBytes {
-            try decryptBytes($0.bytePointer, length: srcLength, dest: &dest, destLength: &destLength, flags: flags)
-        }
-        dest.removeSubrange(destLength..<dest.count)
-        return Data(dest)
+        return suite
     }
     
-    func verifyData(_ data: Data, flags: UnsafePointer<CryptoFlags>?) throws {
-        let srcLength = data.count
-        try data.withUnsafeBytes {
-            try verifyBytes($0.bytePointer, length: srcLength, flags: flags)
-        }
+    private init() {
     }
 }
