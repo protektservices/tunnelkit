@@ -143,24 +143,24 @@ class ViewController: UIViewController, URLSessionDataDelegate {
     }
     
     private func testFetchRef() {
-//        let keychain = Keychain(group: ViewController.APP_GROUP)
-//        let username = "foo"
-//        let password = "bar"
-//        
-//        guard let _ = try? keychain.set(password: password, for: username) else {
-//            print("Couldn't set password")
-//            return
-//        }
-//        guard let passwordReference = try? keychain.passwordReference(for: username) else {
-//            print("Couldn't get password reference")
-//            return
-//        }
-//        guard let fetchedPassword = try? Keychain.password(for: username, reference: passwordReference) else {
-//            print("Couldn't fetch password")
-//            return
-//        }
-//
-//        print("\(username) -> \(password)")
-//        print("\(username) -> \(fetchedPassword)")
+        let keychain = Keychain(group: appGroup)
+        let username = "foo"
+        let password = "bar"
+        
+        guard let _ = try? keychain.set(password: password, for: username, context: tunnelIdentifier) else {
+            print("Couldn't set password")
+            return
+        }
+        guard let passwordReference = try? keychain.passwordReference(for: username, context: tunnelIdentifier) else {
+            print("Couldn't get password reference")
+            return
+        }
+        guard let fetchedPassword = try? keychain.password(for: username, reference: passwordReference, context: tunnelIdentifier) else {
+            print("Couldn't fetch password")
+            return
+        }
+
+        print("\(username) -> \(password)")
+        print("\(username) -> \(fetchedPassword)")
     }
 }
