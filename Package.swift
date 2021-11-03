@@ -73,8 +73,8 @@ let package = Package(
         .target(
             name: "_TunnelKitOpenVPNObjC",
             dependencies: [
-                "_TunnelKitCoreObjC",
-                "openssl-apple"]),
+                "openssl-apple",
+                "_TunnelKitCoreObjC"]),
         .target(
             name: "TunnelKitLZO",
             dependencies: [],
@@ -95,7 +95,6 @@ let package = Package(
             name: "TunnelKitOpenVPNTests",
             dependencies: [
                 "TunnelKitOpenVPN",
-                "_TunnelKitOpenVPNObjC",
                 "TunnelKitLZO"
             ],
             resources: [
