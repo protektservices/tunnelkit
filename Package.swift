@@ -81,7 +81,8 @@ let package = Package(
             exclude: [
                 "lib/COPYING",
                 "lib/Makefile",
-                "lib/README.LZO"
+                "lib/README.LZO",
+                "lib/testmini.c"
             ]),
         .target(
             name: "_TunnelKitUtils",
