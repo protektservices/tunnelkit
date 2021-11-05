@@ -72,38 +72,20 @@ Many other flags are ignored too but it's normally not an issue.
 ### Requirements
 
 - iOS 12.0+ / macOS 10.15+
-- Xcode 11+ (Swift 5)
+- SwiftPM 5
 - Git (preinstalled with Xcode Command Line Tools)
-- Ruby (preinstalled with macOS)
-- [CocoaPods 1.6.0][dep-cocoapods]
 - [jazzy][dep-jazzy] (optional, for documentation)
-- [Disable Bitcode][issue-51]
 
-It's highly recommended to use the Git and Ruby packages provided by [Homebrew][dep-brew].
+It's highly recommended to use the Git package provided by [Homebrew][dep-brew].
 
-### CocoaPods
-
-To use with CocoaPods just add this to your Podfile:
-
-```ruby
-pod 'TunnelKit'
-```
-
-### Testing
+### Demo
 
 Download the library codebase locally:
 
     $ git clone https://github.com/passepartoutvpn/tunnelkit.git
 
-Assuming you have a [working CocoaPods environment][dep-cocoapods], setting up the library workspace only requires installing the pod dependencies:
 
-    $ pod install
-
-After that, open `TunnelKit.xcworkspace` in Xcode and run the unit tests found in the `TunnelKitTests` folder. A simple CMD+U while on `TunnelKit-(iOS|macOS)` should do that as well.
-
-#### Demo
-
-There are demo targets containing a simple app for testing the tunnel, called `BasicTunnel`.
+There are demo targets containing a simple app for testing the tunnel, called `BasicTunnel`. Open `Demo/TunnelKit.xcodeproject` in Xcode and run it on both iOS and macOS.
 
 For the VPN to work properly, the `BasicTunnel` demo requires:
 
@@ -112,7 +94,7 @@ For the VPN to work properly, the `BasicTunnel` demo requires:
 
 both in the main app and the tunnel extension target.
 
-In order to test connectivity in your own environment, modify the file `TunnelKit/Demo/Configuration.swift` to match your VPN server parameters.
+In order to test connectivity in your own environment, modify the file `Demo/Demo/Configuration.swift` to match your VPN server parameters.
 
 Example:
 
@@ -143,7 +125,7 @@ enter the root directory of the repository and run:
 
 The generated output is stored into the `docs` directory in HTML format.
 
-### Core
+### TunnelKitCore
 
 Contains the building blocks of a VPN protocol. Eventually, a consumer would implement the `Session` interface, expected to start and control the VPN session. A session is expected to work with generic network interfaces:
 
@@ -152,22 +134,22 @@ Contains the building blocks of a VPN protocol. Eventually, a consumer would imp
 
 There are no physical network implementations (e.g. UDP or TCP) in this module.
 
-### AppExtension
+### TunnelKitAppExtension
 
 Provides a layer on top of the NetworkExtension framework. Most importantly, bridges native [NWUDPSession][ne-udp] and [NWTCPConnection][ne-tcp] to an abstract `GenericSocket` interface, thus making a multi-protocol VPN dramatically easier to manage.
 
-### Manager
+### TunnelKitManager
 
-This subspec includes convenient classes to control the VPN tunnel from your app without the NetworkExtension headaches. Have a look at `VPNProvider` implementations:
+This component includes convenient classes to control the VPN tunnel from your app without the NetworkExtension headaches. Have a look at `VPNProvider` implementations:
 
 - `MockVPNProvider` (default, useful to test on simulator)
 - `NetworkExtensionVPNProvider` (for IPSec/IKEv2)
 
-### Protocols/Native
+### TunnelKitIKE
 
 Here you find `NativeProvider`, a generic way to manage a VPN profile based on the native IPSec/IKEv2 protocols. Just wrap a `NEVPNProtocolIPSec` or `NEVPNProtocolIKEv2` object in a `NetworkExtensionVPNConfiguration` and use it to install or connect to the VPN.
 
-### Protocols/OpenVPN
+### TunnelKitOpenVPN
 
 Here are the low-level entities on top of which an OpenVPN connection is established. Code is mixed Swift and Obj-C, most of it is not exposed to consumers. The module depends on OpenSSL.
 
@@ -177,9 +159,9 @@ Another goal of this module is packaging up a black box implementation of a [NEP
 
 A debug log snapshot is optionally maintained and shared by the tunnel provider to host apps via the App Group container.
 
-### Extra/LZO
+### TunnelKitLZO
 
-Due to the restrictive license (GPLv2), LZO support is provided as an optional subspec.
+Due to the restrictive license (GPLv2), LZO support is provided as an optional component.
 
 ## License
 
@@ -225,11 +207,9 @@ Website: [passepartoutvpn.app][about-website]
 
 [openvpn]: https://openvpn.net/index.php/open-source/overview.html
 
-[dep-cocoapods]: https://guides.cocoapods.org/using/getting-started.html
 [dep-jazzy]: https://github.com/realm/jazzy
 [dep-brew]: https://brew.sh/
 [dep-openssl]: https://www.openssl.org/
-[issue-51]: https://github.com/passepartoutvpn/tunnelkit/issues/51
 
 [ne-home]: https://developer.apple.com/documentation/networkextension
 [ne-ptp]: https://developer.apple.com/documentation/networkextension/nepackettunnelprovider
