@@ -24,7 +24,7 @@
 //
 
 import XCTest
-import _TunnelKitCoreObjC
+import CTunnelKitCore
 
 class RoutingTests: XCTestCase {
 

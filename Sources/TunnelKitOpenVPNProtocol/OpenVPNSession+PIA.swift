@@ -1,8 +1,8 @@
 //
-//  EncryptionPerformanceTests.swift
-//  TunnelKitOpenVPNTests
+//  OpenVPNSession+PIA.swift
+//  TunnelKit
 //
-//  Created by Davide De Rosa on 7/7/18.
+//  Created by Davide De Rosa on 10/18/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -34,60 +34,45 @@
 //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import XCTest
-@testable import TunnelKitCore
-import CTunnelKitCore
-import CTunnelKitOpenVPNProtocol
+import Foundation
+import TunnelKitCore
+import TunnelKitOpenVPNCore
 
-class EncryptionPerformanceTests: XCTestCase {
-    private var cbcEncrypter: Encrypter!
-    
-    private var cbcDecrypter: Decrypter!
-    
-    private var gcmEncrypter: Encrypter!
-    
-    private var gcmDecrypter: Decrypter!
-    
-    override func setUp() {
-        let cipherKey = try! SecureRandom.safeData(length: 32)
-        let hmacKey = try! SecureRandom.safeData(length: 32)
+extension OpenVPNSession {
+    struct PIAHardReset {
+        private static let obfuscationKeyLength = 3
         
-        let cbc = CryptoBox(cipherAlgorithm: "aes-128-cbc", digestAlgorithm: "sha1")
-        try! cbc.configure(withCipherEncKey: cipherKey, cipherDecKey: cipherKey, hmacEncKey: hmacKey, hmacDecKey: hmacKey)
-        cbcEncrypter = cbc.encrypter()
-        cbcDecrypter = cbc.decrypter()
-
-        let gcm = CryptoBox(cipherAlgorithm: "aes-128-gcm", digestAlgorithm: nil)
-        try! gcm.configure(withCipherEncKey: cipherKey, cipherDecKey: cipherKey, hmacEncKey: hmacKey, hmacDecKey: hmacKey)
-        gcmEncrypter = gcm.encrypter()
-        gcmDecrypter = gcm.decrypter()
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    // 1.150s
-    func testCBCEncryption() {
-        let suite = TestUtils.generateDataSuite(1000, 100000)
-        measure {
-            for data in suite {
-                let _ = try! self.cbcEncrypter.encryptData(data, flags: nil)
-            }
+        private static let magic = "53eo0rk92gxic98p1asgl5auh59r1vp4lmry1e3chzi100qntd"
+        
+        private static let encodedFormat = "\(magic)crypto\t%@|%@\tca\t%@"
+        
+        private let caMd5Digest: String
+        
+        private let cipherName: String
+        
+        private let digestName: String
+        
+        init(caMd5Digest: String, cipher: OpenVPN.Cipher, digest: OpenVPN.Digest) {
+            self.caMd5Digest = caMd5Digest
+            cipherName = cipher.rawValue.lowercased()
+            digestName = digest.rawValue.lowercased()
         }
-    }
-
-    // 0.684s
-    func testGCMEncryption() {
-        let suite = TestUtils.generateDataSuite(1000, 100000)
-        let ad: [UInt8] = [0x11, 0x22, 0x33, 0x44]
-        var flags = ad.withUnsafeBufferPointer {
-            return CryptoFlags(iv: nil, ivLength: 0, ad: $0.baseAddress, adLength: ad.count)
-        }
-        measure {
-            for data in suite {
-                let _ = try! self.gcmEncrypter.encryptData(data, flags: &flags)
+        
+        // Ruby: pia_settings
+        func encodedData() throws -> Data {
+            guard let plainData = String(format: PIAHardReset.encodedFormat, cipherName, digestName, caMd5Digest).data(using: .ascii) else {
+                fatalError("Unable to encode string to ASCII")
             }
+            let keyBytes = try SecureRandom.data(length: PIAHardReset.obfuscationKeyLength)
+            
+            var encodedData = Data(keyBytes)
+            for (i, b) in plainData.enumerated() {
+                let keyChar = keyBytes[i % keyBytes.count]
+                let xorredB = b ^ keyChar
+                
+                encodedData.append(xorredB)
+            }
+            return encodedData
         }
     }
 }

@@ -169,7 +169,7 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
 -----END PRIVATE KEY-----
 """)
 
-    static func make(hostname: String, port: UInt16, socketType: SocketType) -> OpenVPNTunnelProvider.Configuration {
+    static func make(hostname: String, port: UInt16, socketType: SocketType) -> OpenVPNProvider.Configuration {
         var sessionBuilder = OpenVPN.ConfigurationBuilder()
         sessionBuilder.ca = ca
         sessionBuilder.cipher = .aes128cbc
@@ -181,7 +181,7 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
         sessionBuilder.clientCertificate = clientCertificate
         sessionBuilder.clientKey = clientKey
         sessionBuilder.mtu = 1350
-        var builder = OpenVPNTunnelProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
+        var builder = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
         builder.shouldDebug = true
         builder.masksPrivateData = false
         return builder.build()

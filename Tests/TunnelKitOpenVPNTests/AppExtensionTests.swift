@@ -36,9 +36,12 @@
 
 import XCTest
 import NetworkExtension
-@testable import TunnelKitCore
-@testable import TunnelKitOpenVPN
-@testable import TunnelKitAppExtension
+import TunnelKitCore
+import TunnelKitOpenVPNCore
+import TunnelKitAppExtension
+@testable import TunnelKitOpenVPNAppExtension
+import TunnelKitManager
+import TunnelKitOpenVPNManager
 
 class AppExtensionTests: XCTestCase {
     
@@ -53,8 +56,8 @@ class AppExtensionTests: XCTestCase {
     }
 
     func testConfiguration() {
-        var builder: OpenVPNTunnelProvider.ConfigurationBuilder!
-        var cfg: OpenVPNTunnelProvider.Configuration!
+        var builder: OpenVPNProvider.ConfigurationBuilder!
+        var cfg: OpenVPNProvider.Configuration!
 
         let identifier = "com.example.Provider"
         let appGroup = "group.com.algoritmico.TunnelKit"
@@ -69,7 +72,7 @@ class AppExtensionTests: XCTestCase {
         sessionBuilder.hostname = hostname
         sessionBuilder.endpointProtocols = []
         sessionBuilder.mtu = 1230
-        builder = OpenVPNTunnelProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
+        builder = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
         XCTAssertNotNil(builder)
 
         cfg = builder.build()
@@ -147,7 +150,7 @@ class AppExtensionTests: XCTestCase {
             EndpointProtocol(.udp, 1111),
             EndpointProtocol(.udp4, 3333)
         ]
-        var builder2 = OpenVPNTunnelProvider.ConfigurationBuilder(sessionConfiguration: builder1.build())
+        var builder2 = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: builder1.build())
         builder2.prefersResolvedAddresses = true
         builder2.resolvedAddresses = [
             "82.102.21.218",

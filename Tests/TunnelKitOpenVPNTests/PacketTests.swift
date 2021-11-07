@@ -25,7 +25,7 @@
 
 import XCTest
 @testable import TunnelKitCore
-import _TunnelKitOpenVPNObjC
+import CTunnelKitOpenVPNProtocol
 
 class PacketTests: XCTestCase {
     

@@ -1,11 +1,11 @@
 //
-//  PacketTunnelProvider.swift
-//  Demo
+//  OpenVPN.swift
+//  TunnelKit
 //
-//  Created by Davide De Rosa on 9/15/17.
+//  Created by Davide De Rosa on 5/19/19.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
-//  https://github.com/keeshux
+//  https://github.com/passepartoutvpn
 //
 //  This file is part of TunnelKit.
 //
@@ -23,7 +23,8 @@
 //  along with TunnelKit.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import TunnelKitOpenVPNAppExtension
+import Foundation
 
-class PacketTunnelProvider: OpenVPNTunnelProvider {
+/// Container for OpenVPN classes.
+public class OpenVPN {
 }

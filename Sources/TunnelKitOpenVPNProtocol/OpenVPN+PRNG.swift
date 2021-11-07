@@ -1,8 +1,8 @@
 //
-//  Errors.swift
+//  OpenVPN+PRNG.swift
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 5/19/19.
+//  Created by Davide De Rosa on 11/8/21.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -24,19 +24,25 @@
 //
 
 import Foundation
+import TunnelKitCore
+import TunnelKitOpenVPNCore
 import CTunnelKitCore
+import CTunnelKitOpenVPNProtocol
 
-extension Error {
-    public func isTunnelKitError() -> Bool {
-        let te = self as NSError
-        return te.domain == TunnelKitErrorDomain
-    }
-    
-    public func tunnelKitErrorCode() -> TunnelKitErrorCode? {
-        let te = self as NSError
-        guard te.domain == TunnelKitErrorDomain else {
-            return nil
+extension OpenVPN {
+
+    /**
+     Initializes the PRNG. Must be issued before using `OpenVPNSession`.
+     
+     - Parameter seedLength: The length in bytes of the pseudorandom seed that will feed the PRNG.
+     */
+    public static func prepareRandomNumberGenerator(seedLength: Int) -> Bool {
+        let seed: ZeroingData
+        do {
+            seed = try SecureRandom.safeData(length: seedLength)
+        } catch {
+            return false
         }
-        return TunnelKitErrorCode(rawValue: te.code)
+        return CryptoBox.preparePRNG(withSeed: seed.bytes, length: seed.count)
     }
 }

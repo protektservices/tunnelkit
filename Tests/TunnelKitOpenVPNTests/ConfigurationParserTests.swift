@@ -25,7 +25,7 @@
 
 import XCTest
 import TunnelKitCore
-import TunnelKitOpenVPN
+import TunnelKitOpenVPNCore
 
 class ConfigurationParserTests: XCTestCase {
     override func setUp() {

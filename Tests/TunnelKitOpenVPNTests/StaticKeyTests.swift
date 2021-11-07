@@ -25,7 +25,7 @@
 
 import XCTest
 @testable import TunnelKitCore
-import TunnelKitOpenVPN
+import TunnelKitOpenVPNCore
 
 class StaticKeyTests: XCTestCase {
     private let content = """

@@ -1,8 +1,8 @@
 //
-//  SecureRandom.swift
+//  CryptoContainer.swift
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 2/3/17.
+//  Created by Davide De Rosa on 8/22/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -35,72 +35,64 @@
 //
 
 import Foundation
-import Security.SecRandom
-import CTunnelKitCore
-import __TunnelKitUtils
 
-/// :nodoc:
-public enum SecureRandomError: Error {
-    case randomGenerator
-}
+// FIXME: remove dependency on TLSBox
+import CTunnelKitOpenVPNProtocol
 
-/// :nodoc:
-public class SecureRandom {
-    @available(*, deprecated)
-    static func uint32FromBuffer() throws -> UInt32 {
-        var randomBuffer = [UInt8](repeating: 0, count: 4)
+extension OpenVPN {
 
-        guard SecRandomCopyBytes(kSecRandomDefault, 4, &randomBuffer) == 0 else {
-            throw SecureRandomError.randomGenerator
-        }
+    /// Represents a cryptographic container in PEM format.
+    public struct CryptoContainer: Codable, Equatable {
+        private static let begin = "-----BEGIN "
 
-        var randomNumber: UInt32 = 0
-        for i in 0..<4 {
-            let byte = randomBuffer[i]
-            randomNumber |= (UInt32(byte) << UInt32(8 * i))
-        }
-        return randomNumber
-    }
-    
-    public static func uint32() throws -> UInt32 {
-        var randomNumber: UInt32 = 0
+        private static let end = "-----END "
         
-        try withUnsafeMutablePointer(to: &randomNumber) {
-            try $0.withMemoryRebound(to: UInt8.self, capacity: 4) { (randomBytes: UnsafeMutablePointer<UInt8>) -> Void in
-                guard SecRandomCopyBytes(kSecRandomDefault, 4, randomBytes) == 0 else {
-                    throw SecureRandomError.randomGenerator
-                }
+        /// The content in PEM format (ASCII).
+        public let pem: String
+        
+        var isEncrypted: Bool {
+            return pem.contains("ENCRYPTED")
+        }
+        
+        /// :nodoc:
+        public init(pem: String) {
+            guard let beginRange = pem.range(of: CryptoContainer.begin) else {
+                self.pem = ""
+                return
             }
+            self.pem = String(pem[beginRange.lowerBound...])
         }
         
-        return randomNumber
-    }
+        func write(to url: URL) throws {
+            try pem.write(to: url, atomically: true, encoding: .ascii)
+        }
 
-    public static func data(length: Int) throws -> Data {
-        var randomData = Data(count: length)
+        // FIXME: remove dependency on TLSBox
+        func decrypted(with passphrase: String) throws -> CryptoContainer {
+            let decryptedPEM = try TLSBox.decryptedPrivateKey(fromPEM: pem, passphrase: passphrase)
+            return CryptoContainer(pem: decryptedPEM)
+        }
 
-        try randomData.withUnsafeMutableBytes {
-            let randomBytes = $0.bytePointer
-            guard SecRandomCopyBytes(kSecRandomDefault, length, randomBytes) == 0 else {
-                throw SecureRandomError.randomGenerator
-            }
+        // MARK: Equatable
+        
+        /// :nodoc:
+        public static func ==(lhs: CryptoContainer, rhs: CryptoContainer) -> Bool {
+            return lhs.pem == rhs.pem
+        }
+
+        // MARK: Codable
+        
+        /// :nodoc:
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let pem = try container.decode(String.self)
+            self.init(pem: pem)
         }
         
-        return randomData
-    }
-
-    public static func safeData(length: Int) throws -> ZeroingData {
-        let randomBytes = UnsafeMutablePointer<UInt8>.allocate(capacity: length)
-        defer {
-//            randomBytes.initialize(to: 0, count: length)
-            bzero(randomBytes, length)
-            randomBytes.deallocate()
+        /// :nodoc:
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(pem)
         }
-        
-        guard SecRandomCopyBytes(kSecRandomDefault, length, randomBytes) == 0 else {
-            throw SecureRandomError.randomGenerator
-        }
-
-        return Z(bytes: randomBytes, count: length)
     }
 }

@@ -1,8 +1,8 @@
 //
-//  EncryptionPerformanceTests.swift
-//  TunnelKitOpenVPNTests
+//  PushReply.swift
+//  TunnelKit
 //
-//  Created by Davide De Rosa on 7/7/18.
+//  Created by Davide De Rosa on 7/25/18.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -34,60 +34,42 @@
 //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import XCTest
-@testable import TunnelKitCore
-import CTunnelKitCore
-import CTunnelKitOpenVPNProtocol
+import Foundation
+import TunnelKitOpenVPNCore
 
-class EncryptionPerformanceTests: XCTestCase {
-    private var cbcEncrypter: Encrypter!
-    
-    private var cbcDecrypter: Decrypter!
-    
-    private var gcmEncrypter: Encrypter!
-    
-    private var gcmDecrypter: Decrypter!
-    
-    override func setUp() {
-        let cipherKey = try! SecureRandom.safeData(length: 32)
-        let hmacKey = try! SecureRandom.safeData(length: 32)
+extension OpenVPN {
+    struct PushReply: CustomStringConvertible {
+        private static let prefix = "PUSH_REPLY,"
         
-        let cbc = CryptoBox(cipherAlgorithm: "aes-128-cbc", digestAlgorithm: "sha1")
-        try! cbc.configure(withCipherEncKey: cipherKey, cipherDecKey: cipherKey, hmacEncKey: hmacKey, hmacDecKey: hmacKey)
-        cbcEncrypter = cbc.encrypter()
-        cbcDecrypter = cbc.decrypter()
+        private let original: String
 
-        let gcm = CryptoBox(cipherAlgorithm: "aes-128-gcm", digestAlgorithm: nil)
-        try! gcm.configure(withCipherEncKey: cipherKey, cipherDecKey: cipherKey, hmacEncKey: hmacKey, hmacDecKey: hmacKey)
-        gcmEncrypter = gcm.encrypter()
-        gcmDecrypter = gcm.decrypter()
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    // 1.150s
-    func testCBCEncryption() {
-        let suite = TestUtils.generateDataSuite(1000, 100000)
-        measure {
-            for data in suite {
-                let _ = try! self.cbcEncrypter.encryptData(data, flags: nil)
+        let options: Configuration
+        
+        init?(message: String) throws {
+            guard message.hasPrefix(PushReply.prefix) else {
+                return nil
             }
-        }
-    }
-
-    // 0.684s
-    func testGCMEncryption() {
-        let suite = TestUtils.generateDataSuite(1000, 100000)
-        let ad: [UInt8] = [0x11, 0x22, 0x33, 0x44]
-        var flags = ad.withUnsafeBufferPointer {
-            return CryptoFlags(iv: nil, ivLength: 0, ad: $0.baseAddress, adLength: ad.count)
-        }
-        measure {
-            for data in suite {
-                let _ = try! self.gcmEncrypter.encryptData(data, flags: &flags)
+            guard let prefixIndex = message.range(of: PushReply.prefix)?.lowerBound else {
+                return nil
             }
+            original = String(message[prefixIndex...])
+
+            let lines = original.components(separatedBy: ",")
+            options = try ConfigurationParser.parsed(fromLines: lines).configuration
+        }
+        
+        // MARK: CustomStringConvertible
+        
+        /// :nodoc:
+        var description: String {
+            let stripped = NSMutableString(string: original)
+            ConfigurationParser.Regex.authToken.replaceMatches(
+                in: stripped,
+                options: [],
+                range: NSMakeRange(0, stripped.length),
+                withTemplate: "auth-token"
+            )
+            return stripped as String
         }
     }
 }

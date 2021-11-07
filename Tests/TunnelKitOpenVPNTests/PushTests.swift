@@ -25,7 +25,9 @@
 
 import XCTest
 @testable import TunnelKitCore
-@testable import TunnelKitOpenVPN
+@testable import TunnelKitOpenVPNCore
+@testable import TunnelKitOpenVPNProtocol
+@testable import TunnelKitOpenVPNAppExtension
 
 private extension OpenVPN.PushReply {
     func debug() {

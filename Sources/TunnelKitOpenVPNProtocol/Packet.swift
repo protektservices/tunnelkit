@@ -1,5 +1,5 @@
 //
-//  SecureRandom.swift
+//  Packet.swift
 //  TunnelKit
 //
 //  Created by Davide De Rosa on 2/3/17.
@@ -35,72 +35,70 @@
 //
 
 import Foundation
-import Security.SecRandom
+import TunnelKitCore
+import TunnelKitOpenVPNCore
 import CTunnelKitCore
-import __TunnelKitUtils
+import CTunnelKitOpenVPNProtocol
 
 /// :nodoc:
-public enum SecureRandomError: Error {
-    case randomGenerator
+extension ControlPacket {
+
+    /// :nodoc:
+    open override var description: String {
+        var msg: [String] = ["\(code) | \(key)"]
+        msg.append("sid: \(sessionId.toHex())")
+        if let ackIds = ackIds, let ackRemoteSessionId = ackRemoteSessionId {
+            msg.append("acks: {\(ackIds), \(ackRemoteSessionId.toHex())}")
+        }
+        if !isAck {
+            msg.append("pid: \(packetId)")
+        }
+        if let payload = payload {
+            if CoreConfiguration.logsSensitiveData {
+                msg.append("[\(payload.count) bytes] -> \(payload.toHex())")
+            } else {
+                msg.append("[\(payload.count) bytes]")
+            }
+        }
+        return "{\(msg.joined(separator: ", "))}"
+    }
+}
+
+extension OpenVPN {
+    class DataPacket {
+        static let pingString = Data(hex: "2a187bf3641eb4cb07ed2d0a981fc748")
+    }
+
+    enum OCCPacket: UInt8 {
+        case exit = 0x06
+        
+        private static let magicString = Data(hex: "287f346bd4ef7a812d56b8d3afc5459c")
+
+        func serialized(_ info: Any? = nil) -> Data {
+            var data = OCCPacket.magicString
+            data.append(rawValue)
+            switch self {
+            case .exit:
+                break // nothing more
+            }
+            return data
+        }
+    }
 }
 
 /// :nodoc:
-public class SecureRandom {
-    @available(*, deprecated)
-    static func uint32FromBuffer() throws -> UInt32 {
-        var randomBuffer = [UInt8](repeating: 0, count: 4)
-
-        guard SecRandomCopyBytes(kSecRandomDefault, 4, &randomBuffer) == 0 else {
-            throw SecureRandomError.randomGenerator
+extension PacketCode: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .softResetV1:          return "SOFT_RESET_V1"
+        case .controlV1:            return "CONTROL_V1"
+        case .ackV1:                return "ACK_V1"
+        case .dataV1:               return "DATA_V1"
+        case .hardResetClientV2:    return "HARD_RESET_CLIENT_V2"
+        case .hardResetServerV2:    return "HARD_RESET_SERVER_V2"
+        case .dataV2:               return "DATA_V2"
+        case .unknown:              return "UNKNOWN"
+        @unknown default:           return "UNKNOWN"
         }
-
-        var randomNumber: UInt32 = 0
-        for i in 0..<4 {
-            let byte = randomBuffer[i]
-            randomNumber |= (UInt32(byte) << UInt32(8 * i))
-        }
-        return randomNumber
-    }
-    
-    public static func uint32() throws -> UInt32 {
-        var randomNumber: UInt32 = 0
-        
-        try withUnsafeMutablePointer(to: &randomNumber) {
-            try $0.withMemoryRebound(to: UInt8.self, capacity: 4) { (randomBytes: UnsafeMutablePointer<UInt8>) -> Void in
-                guard SecRandomCopyBytes(kSecRandomDefault, 4, randomBytes) == 0 else {
-                    throw SecureRandomError.randomGenerator
-                }
-            }
-        }
-        
-        return randomNumber
-    }
-
-    public static func data(length: Int) throws -> Data {
-        var randomData = Data(count: length)
-
-        try randomData.withUnsafeMutableBytes {
-            let randomBytes = $0.bytePointer
-            guard SecRandomCopyBytes(kSecRandomDefault, length, randomBytes) == 0 else {
-                throw SecureRandomError.randomGenerator
-            }
-        }
-        
-        return randomData
-    }
-
-    public static func safeData(length: Int) throws -> ZeroingData {
-        let randomBytes = UnsafeMutablePointer<UInt8>.allocate(capacity: length)
-        defer {
-//            randomBytes.initialize(to: 0, count: length)
-            bzero(randomBytes, length)
-            randomBytes.deallocate()
-        }
-        
-        guard SecRandomCopyBytes(kSecRandomDefault, length, randomBytes) == 0 else {
-            throw SecureRandomError.randomGenerator
-        }
-
-        return Z(bytes: randomBytes, count: length)
     }
 }

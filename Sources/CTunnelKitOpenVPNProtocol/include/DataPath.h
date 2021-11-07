@@ -1,8 +1,8 @@
 //
-//  ZeroingData.swift
+//  DataPath.h
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 4/27/17.
+//  Created by Davide De Rosa on 3/2/17.
 //  Copyright (c) 2021 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -34,37 +34,32 @@
 //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
-import CTunnelKitCore
+#import <Foundation/Foundation.h>
 
-public func Z() -> ZeroingData {
-    return ZeroingData()
-}
+@import CTunnelKitOpenVPNCore;
 
-public func Z(count: Int) -> ZeroingData {
-    return ZeroingData(count: count)
-}
+NS_ASSUME_NONNULL_BEGIN
 
-public func Z(bytes: UnsafePointer<UInt8>, count: Int) -> ZeroingData {
-    return ZeroingData(bytes: bytes, count: count)
-}
+@protocol DataPathEncrypter;
+@protocol DataPathDecrypter;
 
-public func Z(_ uint8: UInt8) -> ZeroingData {
-    return ZeroingData(uInt8: uint8)
-}
+// send/receive should be mutually thread-safe
 
-public func Z(_ uint16: UInt16) -> ZeroingData {
-    return ZeroingData(uInt16: uint16)
-}
+@interface DataPath : NSObject
 
-public func Z(_ data: Data) -> ZeroingData {
-    return ZeroingData(data: data)
-}
+@property (nonatomic, assign) uint32_t maxPacketId;
 
-//public func Z(_ data: Data, _ offset: Int, _ count: Int) -> ZeroingData {
-//    return ZeroingData(data: data, offset: offset, count: count)
-//}
+- (instancetype)initWithEncrypter:(id<DataPathEncrypter>)encrypter
+                        decrypter:(id<DataPathDecrypter>)decrypter
+                           peerId:(uint32_t)peerId // 24-bit, discard most significant byte
+               compressionFraming:(CompressionFramingNative)compressionFraming
+             compressionAlgorithm:(CompressionAlgorithmNative)compressionAlgorithm
+                       maxPackets:(NSInteger)maxPackets
+             usesReplayProtection:(BOOL)usesReplayProtection;
 
-public func Z(_ string: String, nullTerminated: Bool) -> ZeroingData {
-    return ZeroingData(string: string, nullTerminated: nullTerminated)
-}
+- (nullable NSArray<NSData *> *)encryptPackets:(NSArray<NSData *> *)packets key:(uint8_t)key error:(NSError **)error;
+- (nullable NSArray<NSData *> *)decryptPackets:(NSArray<NSData *> *)packets keepAlive:(nullable bool *)keepAlive error:(NSError **)error;
+
+@end
+
+NS_ASSUME_NONNULL_END
