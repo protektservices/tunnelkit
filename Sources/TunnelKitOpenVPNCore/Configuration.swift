@@ -59,7 +59,6 @@ extension OpenVPN {
         
         // MARK: Equatable
 
-        /// :nodoc:
         public static func ==(lhs: Credentials, rhs: Credentials) -> Bool {
             return (lhs.username == rhs.username) && (lhs.password == rhs.password)
         }
@@ -112,7 +111,6 @@ extension OpenVPN {
             return rawValue.hasSuffix("-GCM") ? "AES-GCM" : "AES-CBC"
         }
         
-        /// :nodoc:
         public var description: String {
             return rawValue
         }
@@ -143,7 +141,6 @@ extension OpenVPN {
             return "HMAC"
         }
         
-        /// :nodoc:
         public var description: String {
             return "\(genericName)-\(rawValue)"
         }
@@ -162,7 +159,6 @@ extension OpenVPN {
         case blockLocal
     }
     
-    /// :nodoc:
     private struct Fallback {
         static let cipher: Cipher = .aes128cbc
         
@@ -301,7 +297,6 @@ extension OpenVPN {
         /// Policies for redirecting traffic through the VPN gateway.
         public var routingPolicies: [RoutingPolicy]?
         
-        /// :nodoc:
         public init() {
         }
         
@@ -352,22 +347,18 @@ extension OpenVPN {
 
         // MARK: Shortcuts
         
-        /// :nodoc:
         public var fallbackCipher: Cipher {
             return cipher ?? Fallback.cipher
         }
         
-        /// :nodoc:
         public var fallbackDigest: Digest {
             return digest ?? Fallback.digest
         }
         
-        /// :nodoc:
         public var fallbackCompressionFraming: CompressionFraming {
             return compressionFraming ?? Fallback.compressionFraming
         }
         
-        /// :nodoc:
         public var fallbackCompressionAlgorithm: CompressionAlgorithm {
             return compressionAlgorithm ?? Fallback.compressionAlgorithm
         }
@@ -483,17 +474,14 @@ extension OpenVPN {
         
         // MARK: Shortcuts
         
-        /// :nodoc:
         public var fallbackCipher: Cipher {
             return cipher ?? Fallback.cipher
         }
 
-        /// :nodoc:
         public var fallbackDigest: Digest {
             return digest ?? Fallback.digest
         }
 
-        /// :nodoc:
         public var fallbackCompressionFraming: CompressionFraming {
             return compressionFraming ?? Fallback.compressionFraming
         }
@@ -554,7 +542,6 @@ extension OpenVPN.Configuration {
 
 extension OpenVPN.Configuration {
 
-    /// :nodoc:
     public func print() {
         guard let endpointProtocols = endpointProtocols else {
             fatalError("No sessionConfiguration.endpointProtocols set")

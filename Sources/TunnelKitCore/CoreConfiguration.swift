@@ -36,7 +36,6 @@
 
 import Foundation
 
-/// :nodoc:
 public class CoreConfiguration {
     public static let identifier = "com.algoritmico.TunnelKit"
     

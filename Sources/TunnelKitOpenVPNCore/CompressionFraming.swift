@@ -43,7 +43,6 @@ extension OpenVPN {
         /// Framing compatible with 2.4 `compress` (version 2, e.g. stub-v2).
         case compressV2
         
-        /// :nodoc:
         public var native: CompressionFramingNative {
             guard let val = CompressionFramingNative(rawValue: rawValue) else {
                 fatalError("Unhandled CompressionFraming bridging")
@@ -53,7 +52,6 @@ extension OpenVPN {
         
         // MARK: CustomStringConvertible
         
-        /// :nodoc:
         public var description: String {
             switch self {
             case .disabled:

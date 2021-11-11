@@ -40,10 +40,8 @@ import TunnelKitOpenVPNCore
 import CTunnelKitCore
 import CTunnelKitOpenVPNProtocol
 
-/// :nodoc:
 extension ControlPacket {
 
-    /// :nodoc:
     open override var description: String {
         var msg: [String] = ["\(code) | \(key)"]
         msg.append("sid: \(sessionId.toHex())")
@@ -86,7 +84,6 @@ extension OpenVPN {
     }
 }
 
-/// :nodoc:
 extension PacketCode: CustomStringConvertible {
     public var description: String {
         switch self {

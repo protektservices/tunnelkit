@@ -30,7 +30,6 @@ import TunnelKitManager
 public class NativeProvider: VPNProvider {
     private let provider: NetworkExtensionVPNProvider
     
-    /// :nodoc:
     public init() {
         provider = NetworkExtensionVPNProvider(locator: NetworkExtensionNativeLocator())
     }

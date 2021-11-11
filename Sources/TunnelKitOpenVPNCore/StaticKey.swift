@@ -61,7 +61,6 @@ extension OpenVPN {
         
         private let secureData: ZeroingData
 
-        /// :nodoc:
         public let direction: Direction?
         
         /// Returns the encryption key.
@@ -153,7 +152,6 @@ extension OpenVPN {
             self.init(lines: lines, direction: direction)
         }
         
-        /// :nodoc:
         public convenience init?(lines: [Substring], direction: Direction?) {
             var isHead = true
             var hexLines: [Substring] = []
@@ -208,26 +206,22 @@ extension OpenVPN {
             return secureData.withOffset(at * size, count: size)
         }
         
-        /// :nodoc:
         public static func deserialized(_ data: Data) throws -> StaticKey {
             return try JSONDecoder().decode(StaticKey.self, from: data)
         }
         
-        /// :nodoc:
         public func serialized() -> Data? {
             return try? JSONEncoder().encode(self)
         }
         
         // MARK: Codable
         
-        /// :nodoc:
         public required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             secureData = Z(try container.decode(Data.self, forKey: .data))
             direction = try container.decodeIfPresent(Direction.self, forKey: .dir)
         }
         
-        /// :nodoc:
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(secureData.toData(), forKey: .data)

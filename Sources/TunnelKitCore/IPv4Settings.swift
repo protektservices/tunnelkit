@@ -40,7 +40,6 @@ public struct IPv4Settings: Codable, CustomStringConvertible {
         /// The address of the gateway (uses default gateway if not set).
         public let gateway: String
         
-        /// :nodoc:
         public init(_ destination: String, _ mask: String?, _ gateway: String) {
             self.destination = destination
             self.mask = mask ?? "255.255.255.255"
@@ -49,7 +48,6 @@ public struct IPv4Settings: Codable, CustomStringConvertible {
         
         // MARK: CustomStringConvertible
         
-        /// :nodoc:
         public var description: String {
             return "{\(destination.maskedDescription)/\(mask) \(gateway.maskedDescription)}"
         }
@@ -67,7 +65,6 @@ public struct IPv4Settings: Codable, CustomStringConvertible {
     /// The additional routes.
     public let routes: [Route]
     
-    /// :nodoc:
     public init(address: String, addressMask: String, defaultGateway: String, routes: [Route]) {
         self.address = address
         self.addressMask = addressMask
@@ -77,7 +74,6 @@ public struct IPv4Settings: Codable, CustomStringConvertible {
     
     // MARK: CustomStringConvertible
     
-    /// :nodoc:
     public var description: String {
         return "addr \(address.maskedDescription) netmask \(addressMask) gw \(defaultGateway.maskedDescription) routes \(routes.map { $0.maskedDescription })"
     }

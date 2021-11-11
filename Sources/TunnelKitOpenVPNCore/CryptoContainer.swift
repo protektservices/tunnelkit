@@ -54,7 +54,6 @@ extension OpenVPN {
             return pem.contains("ENCRYPTED")
         }
         
-        /// :nodoc:
         public init(pem: String) {
             guard let beginRange = pem.range(of: CryptoContainer.begin) else {
                 self.pem = ""
@@ -75,21 +74,18 @@ extension OpenVPN {
 
         // MARK: Equatable
         
-        /// :nodoc:
         public static func ==(lhs: CryptoContainer, rhs: CryptoContainer) -> Bool {
             return lhs.pem == rhs.pem
         }
 
         // MARK: Codable
         
-        /// :nodoc:
         public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
             let pem = try container.decode(String.self)
             self.init(pem: pem)
         }
         
-        /// :nodoc:
         public func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
             try container.encode(pem)

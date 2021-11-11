@@ -34,7 +34,6 @@ public struct Proxy: Codable, RawRepresentable, CustomStringConvertible {
     /// The proxy port.
     public let port: UInt16
     
-    /// :nodoc:
     public init(_ address: String, _ port: UInt16) {
         self.address = address
         self.port = port
@@ -42,12 +41,10 @@ public struct Proxy: Codable, RawRepresentable, CustomStringConvertible {
     
     // MARK: RawRepresentable
     
-    /// :nodoc:
     public var rawValue: String {
         return "\(address):\(port)"
     }
     
-    /// :nodoc:
     public init?(rawValue: String) {
         let comps = rawValue.components(separatedBy: ":")
         guard comps.count == 2, let port = UInt16(comps[1]) else {
@@ -58,7 +55,6 @@ public struct Proxy: Codable, RawRepresentable, CustomStringConvertible {
     
     // MARK: CustomStringConvertible
     
-    /// :nodoc:
     public var description: String {
         return rawValue
     }

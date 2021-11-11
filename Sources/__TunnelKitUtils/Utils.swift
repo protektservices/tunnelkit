@@ -36,20 +36,17 @@
 
 import Foundation
 
-/// :nodoc:
 public extension DispatchQueue {
     func schedule(after: DispatchTimeInterval, block: @escaping () -> Void) {
         asyncAfter(deadline: .now() + after, execute: block)
     }
 }
 
-/// :nodoc:
 public func fromDictionary<T: Decodable>(_ type: T.Type, _ dictionary: [String: Any]) throws -> T {
     let data = try JSONSerialization.data(withJSONObject: dictionary, options: .fragmentsAllowed)
     return try JSONDecoder().decode(T.self, from: data)
 }
 
-/// :nodoc:
 public extension Encodable {
     func asDictionary() throws -> [String: Any] {
         let data = try JSONEncoder().encode(self)
@@ -60,7 +57,6 @@ public extension Encodable {
     }
 }
 
-/// :nodoc:
 extension TimeInterval {
     public var asTimeString: String {
         var ticks = Int(self)

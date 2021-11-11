@@ -53,14 +53,12 @@ extension OpenVPNProvider {
             data = Data([byte])
         }
         
-        /// :nodoc:
         public init(_ data: Data) {
             self.data = data
         }
         
         // MARK: Equatable
 
-        /// :nodoc:
         public static func ==(lhs: Message, rhs: Message) -> Bool {
             return (lhs.data == rhs.data)
         }

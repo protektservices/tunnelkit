@@ -39,7 +39,6 @@ import Foundation
 // hex -> Data conversion code from: http://stackoverflow.com/questions/32231926/nsdata-from-hex-string
 // Data -> hex conversion code from: http://stackoverflow.com/questions/39075043/how-to-convert-data-to-hex-string-in-swift
 
-/// :nodoc:
 extension UnicodeScalar {
     public var hexNibble: UInt8 {
         let value = self.value
@@ -56,7 +55,6 @@ extension UnicodeScalar {
     }
 }
 
-/// :nodoc:
 extension Data {
     public init(hex: String) {
         let scalars = hex.unicodeScalars
@@ -84,7 +82,6 @@ extension Data {
     }
 }
 
-/// :nodoc:
 extension Data {
     public mutating func append(_ value: UInt16) {
         var localValue = value
@@ -204,28 +201,24 @@ extension Data {
     }
 }
 
-/// :nodoc:
 extension Data {
     public func subdata(offset: Int, count: Int) -> Data {
         return subdata(in: offset..<(offset + count))
     }
 }
 
-/// :nodoc:
 extension Array where Element == Data {
     public var flatCount: Int {
         return reduce(0) { $0 + $1.count }
     }
 }
 
-/// :nodoc:
 extension UnsafeRawBufferPointer {
     public var bytePointer: UnsafePointer<Element> {
         return bindMemory(to: Element.self).baseAddress!
     }
 }
 
-/// :nodoc:
 extension UnsafeMutableRawBufferPointer {
     public var bytePointer: UnsafeMutablePointer<Element> {
         return bindMemory(to: Element.self).baseAddress!

@@ -55,7 +55,6 @@ extension OpenVPNProvider {
     /// The way to create a `OpenVPNProvider.Configuration` object for the tunnel profile.
     public struct ConfigurationBuilder {
 
-        /// :nodoc:
         public static let defaults = Configuration(
             sessionConfiguration: OpenVPN.ConfigurationBuilder().build(),
             prefersResolvedAddresses: false,
@@ -154,7 +153,6 @@ extension OpenVPNProvider {
 
         static let debugLogFilename = "debug.log"
 
-        /// :nodoc:
         public static let lastErrorKey = "TunnelKitLastError"
 
         fileprivate static let dataCountKey = "TunnelKitDataCount"
@@ -304,7 +302,6 @@ extension OpenVPNProvider {
             return protocolConfiguration
         }
         
-        /// :nodoc:
         public func print(appVersion: String?) {
             if let appVersion = appVersion {
                 log.info("App version: \(appVersion)")
@@ -337,7 +334,6 @@ extension OpenVPNProvider.Configuration {
     }
 }
 
-/// :nodoc:
 public extension UserDefaults {
     @objc var dataCountArray: [Int]? {
         get {

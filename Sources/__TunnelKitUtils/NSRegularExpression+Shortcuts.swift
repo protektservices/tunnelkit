@@ -25,7 +25,6 @@
 
 import Foundation
 
-/// :nodoc:
 extension NSRegularExpression {
     public convenience init(_ pattern: String) {
         try! self.init(pattern: pattern, options: [])

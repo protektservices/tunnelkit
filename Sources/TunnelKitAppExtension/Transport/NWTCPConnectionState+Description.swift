@@ -37,7 +37,6 @@
 import Foundation
 import NetworkExtension
 
-/// :nodoc:
 extension NWTCPConnectionState: CustomStringConvertible {
     public var description: String {
         switch self {

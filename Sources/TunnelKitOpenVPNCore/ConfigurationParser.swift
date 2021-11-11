@@ -84,7 +84,6 @@ extension OpenVPN {
             
             // MARK: Server
             
-            /// :nodoc:
             public static let authToken = NSRegularExpression("^auth-token +[a-zA-Z0-9/=+]+")
             
             static let peerId = NSRegularExpression("^peer-id +[0-9]+")

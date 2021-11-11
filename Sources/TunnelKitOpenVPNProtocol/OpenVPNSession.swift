@@ -203,7 +203,6 @@ public class OpenVPNSession: Session {
         }
     }
     
-    /// :nodoc:
     deinit {
         cleanup()
     }

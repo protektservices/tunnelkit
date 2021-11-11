@@ -45,7 +45,6 @@ public struct DNSRecord {
     /// `true` if IPv6.
     public let isIPv6: Bool
 
-    /// :nodoc:
     public init(address: String, isIPv6: Bool) {
         self.address = address
         self.isIPv6 = isIPv6

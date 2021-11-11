@@ -34,7 +34,6 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     /// The remote port.
     public let port: UInt16
     
-    /// :nodoc:
     public init(_ socketType: SocketType, _ port: UInt16) {
         self.socketType = socketType
         self.port = port
@@ -42,7 +41,6 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     
     // MARK: RawRepresentable
     
-    /// :nodoc:
     public init?(rawValue: String) {
         let components = rawValue.components(separatedBy: ":")
         guard components.count == 2 else {
@@ -57,27 +55,23 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
         self.init(socketType, port)
     }
     
-    /// :nodoc:
     public var rawValue: String {
         return "\(socketType.rawValue):\(port)"
     }
     
     // MARK: Equatable
     
-    /// :nodoc:
     public static func ==(lhs: EndpointProtocol, rhs: EndpointProtocol) -> Bool {
         return (lhs.socketType == rhs.socketType) && (lhs.port == rhs.port)
     }
     
     // MARK: CustomStringConvertible
     
-    /// :nodoc:
     public var description: String {
         return rawValue
     }
 }
 
-/// :nodoc:
 extension EndpointProtocol: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()

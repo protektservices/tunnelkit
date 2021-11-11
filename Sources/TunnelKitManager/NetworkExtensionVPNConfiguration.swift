@@ -29,7 +29,6 @@ import NetworkExtension
 /// A `VPNConfiguration` built on top of NetworkExtension entities.
 public struct NetworkExtensionVPNConfiguration: VPNConfiguration {
     
-    /// :nodoc:
     public var title: String
 
     /// The `NEVPNProtocol` object embedding tunnel configuration.
@@ -38,7 +37,6 @@ public struct NetworkExtensionVPNConfiguration: VPNConfiguration {
     /// The on-demand rules to establish.
     public let onDemandRules: [NEOnDemandRule]
     
-    /// :nodoc:
     public init(title: String, protocolConfiguration: NEVPNProtocol, onDemandRules: [NEOnDemandRule]) {
         self.title = title
         self.protocolConfiguration = protocolConfiguration

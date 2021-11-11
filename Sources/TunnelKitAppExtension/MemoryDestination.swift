@@ -44,7 +44,6 @@ public class MemoryDestination: BaseDestination, CustomStringConvertible {
     /// Max number of retained lines.
     public var maxLines: Int?
 
-    /// :nodoc:
     public override init() {
         super.init()
         asynchronously = false
@@ -76,7 +75,6 @@ public class MemoryDestination: BaseDestination, CustomStringConvertible {
     // MARK: BaseDestination
 
     // XXX: executed in SwiftyBeaver queue. DO NOT invoke execute* here (sync in sync would crash otherwise)
-    /// :nodoc:
     public override func send(_ level: SwiftyBeaver.Level, msg: String, thread: String, file: String, function: String, line: Int, context: Any?) -> String? {
         guard let message = super.send(level, msg: msg, thread: thread, file: file, function: function, line: line) else {
             return nil
@@ -92,7 +90,6 @@ public class MemoryDestination: BaseDestination, CustomStringConvertible {
 
     // MARK: CustomStringConvertible
     
-    /// :nodoc:
     public var description: String {
         return executeSynchronously {
             return self.buffer.joined(separator: "\n")

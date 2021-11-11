@@ -40,7 +40,6 @@ public protocol NetworkExtensionLocator {
 /// Locator for native VPN protocols.
 public class NetworkExtensionNativeLocator: NetworkExtensionLocator {
 
-    /// :nodoc:
     public init() {
     }
 

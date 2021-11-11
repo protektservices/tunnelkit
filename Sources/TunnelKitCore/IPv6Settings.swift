@@ -40,7 +40,6 @@ public struct IPv6Settings: Codable, CustomStringConvertible {
         /// The address of the gateway (uses default gateway if not set).
         public let gateway: String
         
-        /// :nodoc:
         public init(_ destination: String, _ prefixLength: UInt8?, _ gateway: String) {
             self.destination = destination
             self.prefixLength = prefixLength ?? 3
@@ -49,7 +48,6 @@ public struct IPv6Settings: Codable, CustomStringConvertible {
         
         // MARK: CustomStringConvertible
         
-        /// :nodoc:
         public var description: String {
             return "{\(destination.maskedDescription)/\(prefixLength) \(gateway.maskedDescription)}"
         }
@@ -67,7 +65,6 @@ public struct IPv6Settings: Codable, CustomStringConvertible {
     /// The additional routes.
     public let routes: [Route]
     
-    /// :nodoc:
     public init(address: String, addressPrefixLength: UInt8, defaultGateway: String, routes: [Route]) {
         self.address = address
         self.addressPrefixLength = addressPrefixLength
@@ -77,7 +74,6 @@ public struct IPv6Settings: Codable, CustomStringConvertible {
 
     // MARK: CustomStringConvertible
     
-    /// :nodoc:
     public var description: String {
         return "addr \(address.maskedDescription)/\(addressPrefixLength) gw \(defaultGateway.maskedDescription) routes \(routes.map { $0.maskedDescription })"
     }

@@ -37,7 +37,6 @@
 import Foundation
 import NetworkExtension
 
-/// :nodoc:
 extension NWUDPSessionState: CustomStringConvertible {
     public var description: String {
         switch self {

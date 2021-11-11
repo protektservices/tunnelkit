@@ -46,18 +46,15 @@ extension OpenVPN {
         /// The static encryption key.
         public let key: StaticKey
         
-        /// :nodoc:
         public init(strategy: Strategy, key: StaticKey) {
             self.strategy = strategy
             self.key = key
         }
 
-        /// :nodoc:
         public static func deserialized(_ data: Data) throws -> TLSWrap {
             return try JSONDecoder().decode(TLSWrap.self, from: data)
         }
         
-        /// :nodoc:
         public func serialized() -> Data? {
             return try? JSONEncoder().encode(self)
         }

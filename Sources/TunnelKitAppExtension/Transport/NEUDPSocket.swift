@@ -45,10 +45,8 @@ private let log = SwiftyBeaver.self
 public class NEUDPSocket: NSObject, GenericSocket {
     private static var linkContext = 0
     
-    /// :nodoc:
     public let impl: NWUDPSession
     
-    /// :nodoc:
     public init(impl: NWUDPSession) {
         self.impl = impl
 
@@ -62,23 +60,18 @@ public class NEUDPSocket: NSObject, GenericSocket {
     
     private var isActive: Bool
     
-    /// :nodoc:
     public private(set) var isShutdown: Bool
 
-    /// :nodoc:
     public var remoteAddress: String? {
         return (impl.resolvedEndpoint as? NWHostEndpoint)?.hostname
     }
     
-    /// :nodoc:
     public var hasBetterPath: Bool {
         return impl.hasBetterPath
     }
     
-    /// :nodoc:
     public weak var delegate: GenericSocketDelegate?
     
-    /// :nodoc:
     public func observe(queue: DispatchQueue, activeTimeout: Int) {
         isActive = false
         
@@ -96,18 +89,15 @@ public class NEUDPSocket: NSObject, GenericSocket {
         impl.addObserver(self, forKeyPath: #keyPath(NWUDPSession.hasBetterPath), options: .new, context: &NEUDPSocket.linkContext)
     }
     
-    /// :nodoc:
     public func unobserve() {
         impl.removeObserver(self, forKeyPath: #keyPath(NWUDPSession.state), context: &NEUDPSocket.linkContext)
         impl.removeObserver(self, forKeyPath: #keyPath(NWUDPSession.hasBetterPath), context: &NEUDPSocket.linkContext)
     }
     
-    /// :nodoc:
     public func shutdown() {
         impl.cancel()
     }
     
-    /// :nodoc:
     public func upgraded() -> GenericSocket? {
         guard impl.hasBetterPath else {
             return nil
@@ -117,7 +107,6 @@ public class NEUDPSocket: NSObject, GenericSocket {
     
     // MARK: Connection KVO (any queue)
     
-    /// :nodoc:
     public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         guard (context == &NEUDPSocket.linkContext) else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
@@ -186,7 +175,6 @@ public class NEUDPSocket: NSObject, GenericSocket {
     }
 }
 
-/// :nodoc:
 extension NEUDPSocket {
     public override var description: String {
         guard let hostEndpoint = impl.endpoint as? NWHostEndpoint else {

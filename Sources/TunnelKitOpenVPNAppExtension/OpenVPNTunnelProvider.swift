@@ -141,14 +141,12 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: NEPacketTunnelProvider (XPC queue)
     
-    /// :nodoc:
     open override var reasserting: Bool {
         didSet {
             log.debug("Reasserting flag \(reasserting ? "set" : "cleared")")
         }
     }
     
-    /// :nodoc:
     open override func startTunnel(options: [String : NSObject]? = nil, completionHandler: @escaping (Error?) -> Void) {
 
         // required configuration
@@ -262,7 +260,6 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    /// :nodoc:
     open override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         pendingStartHandler = nil
         log.info("Stopping tunnel...")
@@ -293,7 +290,6 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    /// :nodoc:
     open override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
         var response: Data?
         switch OpenVPNProvider.Message(messageData) {
@@ -321,12 +317,10 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: Wake/Sleep (debugging placeholders)
 
-    /// :nodoc:
     open override func wake() {
         log.verbose("Wake signal received")
     }
     
-    /// :nodoc:
     open override func sleep(completionHandler: @escaping () -> Void) {
         log.verbose("Sleep signal received")
         completionHandler()
@@ -439,7 +433,6 @@ extension OpenVPNTunnelProvider: GenericSocketDelegate {
     
     // MARK: GenericSocketDelegate (tunnel queue)
     
-    /// :nodoc:
     public func socketDidTimeout(_ socket: GenericSocket) {
         log.debug("Socket timed out waiting for activity, cancelling...")
         shouldReconnect = true
@@ -454,7 +447,6 @@ extension OpenVPNTunnelProvider: GenericSocketDelegate {
         }
     }
     
-    /// :nodoc:
     public func socketDidBecomeActive(_ socket: GenericSocket) {
         guard let session = session, let producer = socket as? LinkProducer else {
             return
@@ -467,7 +459,6 @@ extension OpenVPNTunnelProvider: GenericSocketDelegate {
         }
     }
     
-    /// :nodoc:
     public func socket(_ socket: GenericSocket, didShutdownWithFailure failure: Bool) {
         guard let session = session else {
             return
@@ -522,7 +513,6 @@ extension OpenVPNTunnelProvider: GenericSocketDelegate {
         disposeTunnel(error: shutdownError)
     }
     
-    /// :nodoc:
     public func socketHasBetterPath(_ socket: GenericSocket) {
         log.debug("Stopping tunnel due to a new better path")
         logCurrentSSID()
@@ -534,7 +524,6 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
     
     // MARK: OpenVPNSessionDelegate (tunnel queue)
     
-    /// :nodoc:
     public func sessionDidStart(_ session: OpenVPNSession, remoteAddress: String, options: OpenVPN.Configuration) {
         log.info("Session did start")
         
@@ -599,7 +588,6 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         refreshDataCount()
     }
     
-    /// :nodoc:
     public func sessionDidStop(_: OpenVPNSession, withError error: Error?, shouldReconnect: Bool) {
         if let error = error {
             log.error("Session did stop with error: \(error)")

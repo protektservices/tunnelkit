@@ -45,10 +45,8 @@ private let log = SwiftyBeaver.self
 public class NETCPSocket: NSObject, GenericSocket {
     private static var linkContext = 0
     
-    /// :nodoc:
     public let impl: NWTCPConnection
     
-    /// :nodoc:
     public init(impl: NWTCPConnection) {
         self.impl = impl
         isActive = false
@@ -61,23 +59,18 @@ public class NETCPSocket: NSObject, GenericSocket {
     
     private var isActive: Bool
     
-    /// :nodoc:
     public private(set) var isShutdown: Bool
     
-    /// :nodoc:
     public var remoteAddress: String? {
         return (impl.remoteAddress as? NWHostEndpoint)?.hostname
     }
     
-    /// :nodoc:
     public var hasBetterPath: Bool {
         return impl.hasBetterPath
     }
     
-    /// :nodoc:
     public weak var delegate: GenericSocketDelegate?
     
-    /// :nodoc:
     public func observe(queue: DispatchQueue, activeTimeout: Int) {
         isActive = false
         
@@ -95,19 +88,16 @@ public class NETCPSocket: NSObject, GenericSocket {
         impl.addObserver(self, forKeyPath: #keyPath(NWTCPConnection.hasBetterPath), options: .new, context: &NETCPSocket.linkContext)
     }
     
-    /// :nodoc:
     public func unobserve() {
         impl.removeObserver(self, forKeyPath: #keyPath(NWTCPConnection.state), context: &NETCPSocket.linkContext)
         impl.removeObserver(self, forKeyPath: #keyPath(NWTCPConnection.hasBetterPath), context: &NETCPSocket.linkContext)
     }
     
-    /// :nodoc:
     public func shutdown() {
         impl.writeClose()
         impl.cancel()
     }
     
-    /// :nodoc:
     public func upgraded() -> GenericSocket? {
         guard impl.hasBetterPath else {
             return nil
@@ -117,7 +107,6 @@ public class NETCPSocket: NSObject, GenericSocket {
     
     // MARK: Connection KVO (any queue)
     
-    /// :nodoc:
     public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         guard (context == &NETCPSocket.linkContext) else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
@@ -183,7 +172,6 @@ public class NETCPSocket: NSObject, GenericSocket {
     }
 }
 
-/// :nodoc:
 extension NETCPSocket {
     public override var description: String {
         guard let hostEndpoint = impl.endpoint as? NWHostEndpoint else {

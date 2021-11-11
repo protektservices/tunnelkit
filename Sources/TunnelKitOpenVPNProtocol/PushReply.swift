@@ -60,7 +60,6 @@ extension OpenVPN {
         
         // MARK: CustomStringConvertible
         
-        /// :nodoc:
         var description: String {
             let stripped = NSMutableString(string: original)
             ConfigurationParser.Regex.authToken.replaceMatches(

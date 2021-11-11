@@ -101,7 +101,6 @@ class NEUDPLink: LinkInterface {
     }
 }
 
-/// :nodoc:
 extension NEUDPSocket: LinkProducer {
     public func link(xorMask: UInt8?) -> LinkInterface {
         return NEUDPLink(impl: impl, maxDatagrams: nil, xorMask: xorMask)

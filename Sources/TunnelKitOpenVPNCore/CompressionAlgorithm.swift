@@ -40,7 +40,6 @@ extension OpenVPN {
         /// Any other compression algorithm (unsupported).
         case other
         
-        /// :nodoc:
         public var native: CompressionAlgorithmNative {
             guard let val = CompressionAlgorithmNative(rawValue: rawValue) else {
                 fatalError("Unhandled CompressionAlgorithm bridging")
@@ -50,7 +49,6 @@ extension OpenVPN {
         
         // MARK: CustomStringConvertible
         
-        /// :nodoc:
         public var description: String {
             switch self {
             case .disabled:

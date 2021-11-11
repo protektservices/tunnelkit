@@ -98,7 +98,6 @@ class NETCPLink: LinkInterface {
     }
 }
 
-/// :nodoc:
 extension NETCPSocket: LinkProducer {
     public func link(xorMask: UInt8?) -> LinkInterface {
         return NETCPLink(impl: impl, maxPacketSize: nil, xorMask: xorMask)
