@@ -5,11 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 4.0.0 (2021-11-05)
+## Unreleased
 
 ### Changed
 
 - Migrate to SwiftPM. [#210](https://github.com/passepartoutvpn/tunnelkit/issues/210)
+- Replace OpenSSL with BoringSSL from SwiftNIO SSL.
+- Drop support for TLS security level (not present in BoringSSL).
 
 ## 3.5.0 (2021-10-18)
 

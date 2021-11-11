@@ -34,12 +34,7 @@
 //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#import <openssl/ssl.h>
-#import <openssl/err.h>
-#import <openssl/evp.h>
-#import <openssl/x509v3.h>
-#import <openssl/rsa.h>
-#import <openssl/pem.h>
+@import CNIOBoringSSL;
 
 #import "TLSBox.h"
 #import "Allocation.h"
@@ -60,8 +55,6 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     }
     return ok;
 }
-
-const NSInteger TLSBoxDefaultSecurityLevel = -1;
 
 @interface TLSBox ()
 
@@ -215,7 +208,6 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
         self.checksEKU = checksEKU;
         self.checksSANHost = checksSANHost;
         self.bufferCipherText = allocate_safely(TLSBoxMaxBufferLength);
-        self.securityLevel = TLSBoxDefaultSecurityLevel;
         self.hostname = hostname;
     }
     return self;
@@ -242,9 +234,6 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
     self.ctx = SSL_CTX_new(TLS_client_method());
     SSL_CTX_set_options(self.ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION);
     SSL_CTX_set_verify(self.ctx, SSL_VERIFY_PEER, TLSBoxVerifyPeer);
-    if (self.securityLevel != TLSBoxDefaultSecurityLevel) {
-        SSL_CTX_set_security_level(self.ctx, (int)self.securityLevel);
-    }
 
     if (self.caPEM) {
         BIO *bio = create_BIO_from_PEM(self.caPEM);
@@ -436,7 +425,7 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
         X509_free(cert);
         return NO;
     }
-    const int num = sk_ASN1_OBJECT_num(eku);
+    const int num = (int)sk_ASN1_OBJECT_num(eku);
     char buffer[100];
     BOOL isValid = NO;
 
@@ -457,7 +446,8 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
 
 #pragma mark SAN
 
-- (BOOL)verifySANHostWithSSL:(SSL *)ssl {
+- (BOOL)verifySANHostWithSSL:(SSL *)ssl
+{
     X509 *cert = SSL_get_peer_certificate(self.ssl);
     if (!cert) {
         return NO;
@@ -465,43 +455,43 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
     
     GENERAL_NAMES* names = NULL;
     unsigned char* utf8 = NULL;
-    names = X509_get_ext_d2i(cert, NID_subject_alt_name, 0, 0 );
-    if(!names) {
+    names = X509_get_ext_d2i(cert, NID_subject_alt_name, 0, 0);
+    if (!names) {
         X509_free(cert);
         return NO;
     }
     
-    int i = 0, count = sk_GENERAL_NAME_num(names);
-    if(!count) {
+    int i = 0, count = (int)sk_GENERAL_NAME_num(names);
+    if (!count) {
         X509_free(cert);
         GENERAL_NAMES_free(names);
         return NO;
     }
     BOOL isValid = NO;
     
-    for( i = 0; i < count; ++i )    {
+    for (i = 0; i < count; ++i) {
         GENERAL_NAME* entry = sk_GENERAL_NAME_value(names, i);
-        if(!entry) {
+        if (!entry) {
             continue;
         }
-        if(GEN_DNS != entry->type) {
+        if (GEN_DNS != entry->type) {
             continue;
         }
         
         int len1 = 0, len2 = -1;
         len1 = ASN1_STRING_to_UTF8(&utf8, entry->d.dNSName);
-        if(!utf8) {
+        if (!utf8) {
             continue;
         }
-        len2 = (int)strlen((const char*)utf8);
+        len2 = (int)strlen((const char *)utf8);
         
-        if(len1 != len2) {
+        if (len1 != len2) {
             OPENSSL_free(utf8);
             utf8 = NULL;
             continue;
         }
         
-        if(utf8 && len1 && len2 && (len1 == len2) && strcmp((const char *)utf8, self.hostname.UTF8String) == 0) {
+        if (utf8 && len1 && len2 && (len1 == len2) && strcmp((const char *)utf8, self.hostname.UTF8String) == 0) {
             isValid = YES;
             break;
         }
@@ -512,10 +502,10 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
     
     X509_free(cert);
     
-    if(names) {
+    if (names) {
         GENERAL_NAMES_free(names);
     }
-    if(utf8) {
+    if (utf8) {
         OPENSSL_free(utf8);
     }
     return isValid;

@@ -23,9 +23,7 @@
 //  along with TunnelKit.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#import <openssl/evp.h>
-#import <openssl/hmac.h>
-#import <openssl/rand.h>
+@import CNIOBoringSSL;
 
 #import "CryptoCTR.h"
 #import "CryptoMacros.h"
@@ -69,7 +67,7 @@ static const NSInteger CryptoCTRTagLength = 32;
         self.cipherKeyLength = EVP_CIPHER_key_length(self.cipher);
         self.cipherIVLength = EVP_CIPHER_iv_length(self.cipher);
         // as seen in OpenVPN's crypto_openssl.c:md_kt_size()
-        self.hmacKeyLength = EVP_MD_size(self.digest);
+        self.hmacKeyLength = (int)EVP_MD_size(self.digest);
         NSAssert(EVP_MD_size(self.digest) == CryptoCTRTagLength, @"Expected digest size to be tag length (%ld)", CryptoCTRTagLength);
         
         self.cipherCtxEnc = EVP_CIPHER_CTX_new();
@@ -142,7 +140,7 @@ static const NSInteger CryptoCTRTagLength = 32;
     
     TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherInit(self.cipherCtxEnc, NULL, NULL, dest, -1);
     TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherUpdate(self.cipherCtxEnc, outEncrypted, &l1, bytes, (int)length);
-    TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal(self.cipherCtxEnc, outEncrypted + l1, &l2);
+    TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal_ex(self.cipherCtxEnc, outEncrypted + l1, &l2);
     
     *destLength = CryptoCTRTagLength + l1 + l2;
     
@@ -183,7 +181,7 @@ static const NSInteger CryptoCTRTagLength = 32;
 
     TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherInit(self.cipherCtxDec, NULL, NULL, iv, -1);
     TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherUpdate(self.cipherCtxDec, dest, &l1, encrypted, (int)length - CryptoCTRTagLength);
-    TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal(self.cipherCtxDec, dest + l1, &l2);
+    TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal_ex(self.cipherCtxDec, dest + l1, &l2);
 
     *destLength = l1 + l2;
     

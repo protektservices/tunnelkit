@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "TunnelKit",
     platforms: [
-        .macOS(.v10_15), .iOS(.v12)
+        .macOS(.v10_15), .iOS(.v13)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -35,7 +35,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", from: "1.9.0"),
-        .package(url: "https://github.com/keeshux/openssl-apple", from: "1.1.100")
+        .package(url: "https://github.com/apple/swift-nio-ssl", from: "2.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -126,7 +126,7 @@ let package = Package(
             dependencies: [
                 "CTunnelKitCore",
                 "CTunnelKitOpenVPNCore",
-                "openssl-apple"
+                .product(name: "NIOSSL", package: "swift-nio-ssl")
             ]),
         .target(
             name: "__TunnelKitUtils",

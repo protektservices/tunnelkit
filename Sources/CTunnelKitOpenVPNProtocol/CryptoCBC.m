@@ -34,9 +34,7 @@
 //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#import <openssl/evp.h>
-#import <openssl/hmac.h>
-#import <openssl/rand.h>
+@import CNIOBoringSSL;
 
 #import "CryptoCBC.h"
 #import "CryptoMacros.h"
@@ -85,8 +83,8 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
             self.cipherIVLength = EVP_CIPHER_iv_length(self.cipher);
         }
         // as seen in OpenVPN's crypto_openssl.c:md_kt_size()
-        self.hmacKeyLength = EVP_MD_size(self.digest);
-        self.digestLength = EVP_MD_size(self.digest);
+        self.hmacKeyLength = (int)EVP_MD_size(self.digest);
+        self.digestLength = (int)EVP_MD_size(self.digest);
 
         if (cipherName) {
             self.cipherCtxEnc = EVP_CIPHER_CTX_new();
@@ -160,7 +158,7 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
         
         TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherInit(self.cipherCtxEnc, NULL, NULL, outIV, -1);
         TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherUpdate(self.cipherCtxEnc, outEncrypted, &l1, bytes, (int)length);
-        TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal(self.cipherCtxEnc, outEncrypted + l1, &l2);
+        TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal_ex(self.cipherCtxEnc, outEncrypted + l1, &l2);
     }
     else {
         NSAssert(outEncrypted == outIV, @"cipherIVLength is non-zero");
@@ -223,7 +221,7 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
     
     TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherInit(self.cipherCtxDec, NULL, NULL, iv, -1);
     TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherUpdate(self.cipherCtxDec, dest, &l1, encrypted, (int)length - self.digestLength - self.cipherIVLength);
-    TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal(self.cipherCtxDec, dest + l1, &l2);
+    TUNNEL_CRYPTO_TRACK_STATUS(code) EVP_CipherFinal_ex(self.cipherCtxDec, dest + l1, &l2);
 
     *destLength = l1 + l2;
 
