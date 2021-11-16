@@ -207,6 +207,7 @@ Website: [passepartoutvpn.app][about-website]
 [dep-brew]: https://brew.sh/
 [dep-boringssl]: https://boringssl.googlesource.com/boringssl/
 [dep-swiftniossl]: https://github.com/apple/swift-nio-ssl
+[dep-openssl]: https://www.openssl.org/
 
 [ne-home]: https://developer.apple.com/documentation/networkextension
 [ne-ptp]: https://developer.apple.com/documentation/networkextension/nepackettunnelprovider
