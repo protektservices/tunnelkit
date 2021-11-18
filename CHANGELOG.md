@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.0.1 (2021-11-18)
+
+### Fixed
+
+- Regression in TLS handshake (temporarily revert [#213](https://github.com/passepartoutvpn/tunnelkit/pull/213)).
+
 ## 4.0.0 (2021-11-16)
 
 ### Changed
@@ -22,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Upgrade OpenSSL to 1.1.1l.
+
+### Fixed
+
+- Avoid caching PEMs on disk. [#213](https://github.com/passepartoutvpn/tunnelkit/pull/213)
 
 ## 3.4.0 (2021-08-07)
 
