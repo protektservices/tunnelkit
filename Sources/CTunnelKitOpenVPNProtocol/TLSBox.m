@@ -58,9 +58,9 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
 
 @interface TLSBox ()
 
-@property (nonatomic, strong) NSString *caPEM;
-@property (nonatomic, strong) NSString *clientCertificatePEM;
-@property (nonatomic, strong) NSString *clientKeyPEM;
+@property (nonatomic, strong) NSString *caPath;
+@property (nonatomic, strong) NSString *clientCertificatePath;
+@property (nonatomic, strong) NSString *clientKeyPath;
 @property (nonatomic, assign) BOOL checksEKU;
 @property (nonatomic, assign) BOOL checksSANHost;
 @property (nonatomic, strong) NSString *hostname;
@@ -75,10 +75,6 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
 @property (nonatomic, unsafe_unretained) uint8_t *bufferCipherText;
 
 @end
-
-static BIO *create_BIO_from_PEM(NSString *pem) {
-    return BIO_new_mem_buf([pem cStringUsingEncoding:NSASCIIStringEncoding], (int)[pem length]);
-}
 
 @implementation TLSBox
 
@@ -100,31 +96,6 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
     X509_digest(cert, alg, md, &len);
     X509_free(cert);
     fclose(pem);
-    NSCAssert2(len == sizeof(md), @"Unexpected MD5 size (%d != %lu)", len, sizeof(md));
-
-    NSMutableString *hex = [[NSMutableString alloc] initWithCapacity:2 * sizeof(md)];
-    for (int i = 0; i < sizeof(md); ++i) {
-        [hex appendFormat:@"%02x", md[i]];
-    }
-    return hex;
-}
-
-+ (NSString *)md5ForCertificatePEM:(NSString *)pem error:(NSError * _Nullable __autoreleasing * _Nullable)error
-{
-    const EVP_MD *alg = EVP_get_digestbyname("MD5");
-    uint8_t md[16];
-    unsigned int len;
-
-    BIO *bio = create_BIO_from_PEM(pem);
-    X509 *cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
-
-    if (!cert) {
-        BIO_free(bio);
-        return NULL;
-    }
-    X509_digest(cert, alg, md, &len);
-    X509_free(cert);
-    BIO_free(bio);
     NSCAssert2(len == sizeof(md), @"Unexpected MD5 size (%d != %lu)", len, sizeof(md));
 
     NSMutableString *hex = [[NSMutableString alloc] initWithCapacity:2 * sizeof(md)];
@@ -194,17 +165,17 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
     return nil;
 }
 
-- (instancetype)initWithCA:(nonnull NSString *)caPEM
-         clientCertificate:(nullable NSString *)clientCertificatePEM
-                 clientKey:(nullable NSString *)clientKeyPEM
-                 checksEKU:(BOOL)checksEKU
-             checksSANHost:(BOOL)checksSANHost
-                  hostname:(nullable NSString *)hostname
+- (instancetype)initWithCAPath:(NSString *)caPath
+         clientCertificatePath:(NSString *)clientCertificatePath
+                 clientKeyPath:(NSString *)clientKeyPath
+                     checksEKU:(BOOL)checksEKU
+                 checksSANHost:(BOOL)checksSANHost
+                      hostname:(nullable NSString *)hostname
 {
     if ((self = [super init])) {
-        self.caPEM = caPEM;
-        self.clientCertificatePEM = clientCertificatePEM;
-        self.clientKeyPEM = clientKeyPEM;
+        self.caPath = caPath;
+        self.clientCertificatePath = clientCertificatePath;
+        self.clientKeyPath = clientKeyPath;
         self.checksEKU = checksEKU;
         self.checksSANHost = checksSANHost;
         self.bufferCipherText = allocate_safely(TLSBoxMaxBufferLength);
@@ -234,47 +205,31 @@ static BIO *create_BIO_from_PEM(NSString *pem) {
     self.ctx = SSL_CTX_new(TLS_client_method());
     SSL_CTX_set_options(self.ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION);
     SSL_CTX_set_verify(self.ctx, SSL_VERIFY_PEER, TLSBoxVerifyPeer);
-
-    if (self.caPEM) {
-        BIO *bio = create_BIO_from_PEM(self.caPEM);
-        X509 *ca = PEM_read_bio_X509(bio, NULL, NULL, NULL);
-        BIO_free(bio);
-        X509_STORE *trustedStore = SSL_CTX_get_cert_store(self.ctx);
-        if (!X509_STORE_add_cert(trustedStore, ca)) {
-            ERR_print_errors_fp(stdout);
-            if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSCertificateAuthority);
-            }
-            return NO;
+    if (!SSL_CTX_load_verify_locations(self.ctx, [self.caPath cStringUsingEncoding:NSASCIIStringEncoding], NULL)) {
+        ERR_print_errors_fp(stdout);
+        if (error) {
+            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSCertificateAuthority);
         }
+        return NO;
     }
-
-    if (self.clientCertificatePEM) {
-        BIO *bio = create_BIO_from_PEM(self.clientCertificatePEM);
-        X509 *cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
-        BIO_free(bio);
-        if (!SSL_CTX_use_certificate(self.ctx, cert)) {
+    
+    if (self.clientCertificatePath) {
+        if (!SSL_CTX_use_certificate_file(self.ctx, [self.clientCertificatePath cStringUsingEncoding:NSASCIIStringEncoding], SSL_FILETYPE_PEM)) {
             ERR_print_errors_fp(stdout);
             if (error) {
                 *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSClientCertificate);
             }
             return NO;
         }
-        X509_free(cert);
 
-        if (self.clientKeyPEM) {
-            BIO *bio = create_BIO_from_PEM(self.clientKeyPEM);
-            EVP_PKEY *pkey = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
-            BIO_free(bio);
-            if (!SSL_CTX_use_PrivateKey(self.ctx, pkey)) {
+        if (self.clientKeyPath) {
+            if (!SSL_CTX_use_PrivateKey_file(self.ctx, [self.clientKeyPath cStringUsingEncoding:NSASCIIStringEncoding], SSL_FILETYPE_PEM)) {
                 ERR_print_errors_fp(stdout);
                 if (error) {
                     *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSClientKey);
                 }
                 return NO;
-
             }
-            EVP_PKEY_free(pkey);
         }
     }
 
