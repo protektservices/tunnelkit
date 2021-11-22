@@ -276,7 +276,7 @@ extension OpenVPNProvider {
          - Parameter bundleIdentifier: The provider bundle identifier required to locate the tunnel extension.
          - Parameter appGroup: The name of the app group in which the tunnel extension lives in.
          - Parameter context: The keychain context where to look for the password reference.
-         - Parameter username: The username to authenticate with.
+         - Parameter credentials: The credentials to authenticate with.
          - Returns: The generated `NETunnelProviderProtocol` object.
          - Throws: `OpenVPNProviderError.credentials` if unable to store `credentials.password` to the `appGroup` keychain.
          */
@@ -284,16 +284,18 @@ extension OpenVPNProvider {
             withBundleIdentifier bundleIdentifier: String,
             appGroup: String,
             context: String,
-            username: String?) throws -> NETunnelProviderProtocol {
+            credentials: OpenVPN.Credentials?) throws -> NETunnelProviderProtocol {
             
             let protocolConfiguration = NETunnelProviderProtocol()
             let keychain = Keychain(group: appGroup)
 
             protocolConfiguration.providerBundleIdentifier = bundleIdentifier
             protocolConfiguration.serverAddress = sessionConfiguration.hostname ?? resolvedAddresses?.first
-            if let username = username {
+            if let username = credentials?.username {
                 protocolConfiguration.username = username
-                protocolConfiguration.passwordReference = try? keychain.passwordReference(for: username, context: context)
+                if let password = credentials?.password {
+                    protocolConfiguration.passwordReference = try? keychain.set(password: password, for: username, context: context)
+                }
             }
             protocolConfiguration.providerConfiguration = generatedProviderConfiguration(appGroup: appGroup)
             

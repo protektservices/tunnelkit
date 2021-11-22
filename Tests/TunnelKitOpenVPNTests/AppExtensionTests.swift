@@ -81,7 +81,7 @@ class AppExtensionTests: XCTestCase {
             withBundleIdentifier: identifier,
             appGroup: appGroup,
             context: context,
-            username: credentials.username
+            credentials: credentials
         )
         XCTAssertNotNil(proto)
         

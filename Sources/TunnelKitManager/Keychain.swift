@@ -74,13 +74,15 @@ public class Keychain {
      - Parameter password: The password to set.
      - Parameter username: The username to set the password for.
      - Parameter context: An optional context.
+     - Returns: The reference to the password.
      - Throws: `KeychainError.add` if unable to add the password to the keychain.
      **/
-    public func set(password: String, for username: String, context: String? = nil) throws {
+    @discardableResult
+    public func set(password: String, for username: String, context: String? = nil) throws -> Data {
         do {
             let currentPassword = try self.password(for: username, context: context)
             guard password != currentPassword else {
-                return
+                return try passwordReference(for: username, context: context)
             }
             removePassword(for: username, context: context)
         } catch let e as KeychainError {
@@ -99,11 +101,14 @@ public class Keychain {
         query[kSecAttrAccount as String] = username
         query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
         query[kSecValueData as String] = password.data(using: .utf8)
+        query[kSecReturnPersistentRef as String] = true
 
-        let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else {
+        var ref: CFTypeRef?
+        let status = SecItemAdd(query as CFDictionary, &ref)
+        guard status == errSecSuccess, let refData = ref as? Data else {
             throw KeychainError.add
         }
+        return refData
     }
     
     /**
@@ -195,18 +200,13 @@ public class Keychain {
     /**
      Gets a password associated with a password reference.
 
-     - Parameter username: The username to get the password for.
      - Parameter reference: The password reference.
-     - Parameter context: An optional context.
-     - Returns: The password for the input username and reference.
+     - Returns: The password for the input reference.
      - Throws: `KeychainError.notFound` if unable to find the password in the keychain.
      **/
-    public func password(for username: String, reference: Data, context: String? = nil) throws -> String {
+    public static func password(forReference reference: Data) throws -> String {
         var query = [String: Any]()
-        setScope(query: &query, context: context)
-        query[kSecClass as String] = kSecClassGenericPassword
-        query[kSecAttrAccount as String] = username
-        query[kSecMatchItemList as String] = [reference]
+        query[kSecValuePersistentRef as String] = reference
         query[kSecReturnData as String] = true
         
         var result: AnyObject?

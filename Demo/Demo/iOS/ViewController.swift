@@ -98,12 +98,11 @@ class ViewController: UIViewController, URLSessionDataDelegate {
 
         let credentials = OpenVPN.Credentials(textUsername.text!, textPassword.text!)
         let cfg = Configuration.make(hostname: hostname, port: port, socketType: socketType)
-        try? keychain.set(password: credentials.password, for: credentials.username, context: tunnelIdentifier)
         let proto = try! cfg.generatedTunnelProtocol(
             withBundleIdentifier: tunnelIdentifier,
             appGroup: appGroup,
             context: tunnelIdentifier,
-            username: credentials.username
+            credentials: credentials
         )
         let neCfg = NetworkExtensionVPNConfiguration(title: "BasicTunnel", protocolConfiguration: proto, onDemandRules: [])
         vpn.reconnect(configuration: neCfg) { (error) in
@@ -147,15 +146,11 @@ class ViewController: UIViewController, URLSessionDataDelegate {
         let username = "foo"
         let password = "bar"
         
-        guard let _ = try? keychain.set(password: password, for: username, context: tunnelIdentifier) else {
+        guard let ref = try? keychain.set(password: password, for: username, context: tunnelIdentifier) else {
             print("Couldn't set password")
             return
         }
-        guard let passwordReference = try? keychain.passwordReference(for: username, context: tunnelIdentifier) else {
-            print("Couldn't get password reference")
-            return
-        }
-        guard let fetchedPassword = try? keychain.password(for: username, reference: passwordReference, context: tunnelIdentifier) else {
+        guard let fetchedPassword = try? Keychain.password(forReference: ref) else {
             print("Couldn't fetch password")
             return
         }
