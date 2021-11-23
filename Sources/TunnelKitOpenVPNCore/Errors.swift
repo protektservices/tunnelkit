@@ -24,19 +24,19 @@
 //
 
 import Foundation
-import CTunnelKitCore
+import CTunnelKitOpenVPNCore
 
 extension Error {
-    public func isTunnelKitError() -> Bool {
+    public func isOpenVPNError() -> Bool {
         let te = self as NSError
-        return te.domain == TunnelKitErrorDomain
+        return te.domain == OpenVPNErrorDomain
     }
     
-    public func tunnelKitErrorCode() -> TunnelKitErrorCode? {
+    public func openVPNErrorCode() -> OpenVPNErrorCode? {
         let te = self as NSError
-        guard te.domain == TunnelKitErrorDomain else {
+        guard te.domain == OpenVPNErrorDomain else {
             return nil
         }
-        return TunnelKitErrorCode(rawValue: te.code)
+        return OpenVPNErrorCode(rawValue: te.code)
     }
 }

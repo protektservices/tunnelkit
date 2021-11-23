@@ -36,5 +36,5 @@
 
 #import "Errors.h"
 
-NSString *const TunnelKitErrorDomain    = @"TunnelKitNative";
-NSString *const TunnelKitErrorKey       = @"TunnelKitErrorKey";
+NSString *const OpenVPNErrorDomain     = @"TunnelKitOpenVPN";
+NSString *const OpenVPNErrorKey        = @"TunnelKitErrorKey";

@@ -188,7 +188,7 @@
             case DataPacketLZOCompress:
                 if (!weakSelf.lzo) { // compressed packet unexpected
                     if (error) {
-                        *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathCompression);
+                        *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathCompression);
                     }
                     return NO;
                 }
@@ -199,7 +199,7 @@
                 if (compressionFraming == CompressionFramingNativeCompressV2) {
                     if (payload[1] != DataPacketV2Uncompressed) {
                         if (error) {
-                            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathCompression);
+                            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathCompression);
                         }
                         return NO;
                     }
@@ -213,7 +213,7 @@
             default:
                 // @"Expected NO_COMPRESS (found %X != %X)", payload[0], DataPacketNoCompress);
 //                if (error) {
-//                    *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathCompression);
+//                    *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathCompression);
 //                }
 //                return NO;
                 *payloadOffset = 0;
@@ -308,7 +308,7 @@
     
     if (self.outPacketId > self.maxPacketId) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathOverflow);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathOverflow);
         }
         return nil;
     }
@@ -369,7 +369,7 @@
         }
         if (packetId > self.maxPacketId) {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathOverflow);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathOverflow);
             }
             return nil;
         }

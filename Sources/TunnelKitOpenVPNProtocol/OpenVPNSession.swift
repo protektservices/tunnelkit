@@ -259,7 +259,7 @@ public class OpenVPNSession: Session {
         
         // WARNING: runs in notification source queue (we know it's "queue", but better be safe than sorry)
         tlsObserver = NotificationCenter.default.addObserver(forName: .TLSBoxPeerVerificationError, object: nil, queue: nil) { (notification) in
-            let error = notification.userInfo?[TunnelKitErrorKey] as? Error
+            let error = notification.userInfo?[OpenVPNErrorKey] as? Error
             self.queue.async {
                 self.deferStop(.shutdown, error)
             }
@@ -685,7 +685,7 @@ public class OpenVPNSession: Session {
         do {
             cipherTextOut = try negotiationKey.tls.pullCipherText()
         } catch let e {
-            if let _ = e.tunnelKitErrorCode() {
+            if let _ = e.openVPNErrorCode() {
                 log.error("TLS.auth: Failed pulling ciphertext (error: \(e))")
                 shutdown(error: e)
                 return
@@ -714,7 +714,7 @@ public class OpenVPNSession: Session {
         do {
             cipherTextOut = try negotiationKey.tls.pullCipherText()
         } catch let e {
-            if let _ = e.tunnelKitErrorCode() {
+            if let _ = e.openVPNErrorCode() {
                 log.error("TLS.auth: Failed pulling ciphertext (error: \(e))")
                 shutdown(error: e)
                 return
@@ -808,7 +808,7 @@ public class OpenVPNSession: Session {
             do {
                 cipherTextOut = try negotiationKey.tls.pullCipherText()
             } catch let e {
-                if let _ = e.tunnelKitErrorCode() {
+                if let _ = e.openVPNErrorCode() {
                     log.error("TLS.connect: Failed pulling ciphertext (error: \(e))")
                     shutdown(error: e)
                     return
@@ -847,7 +847,7 @@ public class OpenVPNSession: Session {
                 log.debug("TLS.connect: Send pulled ciphertext (\(cipherTextOut.count) bytes)")
                 enqueueControlPackets(code: .controlV1, key: negotiationKey.id, payload: cipherTextOut)
             } catch let e {
-                if let _ = e.tunnelKitErrorCode() {
+                if let _ = e.openVPNErrorCode() {
                     log.error("TLS.connect: Failed pulling ciphertext (error: \(e))")
                     shutdown(error: e)
                     return
@@ -1147,7 +1147,7 @@ public class OpenVPNSession: Session {
 
             tunnel?.writePackets(decryptedPackets, completionHandler: nil)
         } catch let e {
-            guard !e.isTunnelKitError() else {
+            guard !e.isOpenVPNError() else {
                 deferStop(.shutdown, e)
                 return
             }
@@ -1187,7 +1187,7 @@ public class OpenVPNSession: Session {
                 }
             }
         } catch let e {
-            guard !e.isTunnelKitError() else {
+            guard !e.isOpenVPNError() else {
                 deferStop(.shutdown, e)
                 return
             }

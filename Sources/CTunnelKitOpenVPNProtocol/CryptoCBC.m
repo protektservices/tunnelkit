@@ -151,7 +151,7 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
     if (self.cipher) {
         if (RAND_bytes(outIV, self.cipherIVLength) != 1) {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeCryptoRandomGenerator);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeCryptoRandomGenerator);
             }
             return NO;
         }
@@ -214,7 +214,7 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
     
     if (TUNNEL_CRYPTO_SUCCESS(code) && CRYPTO_memcmp(self.bufferDecHMAC, bytes, self.digestLength) != 0) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeCryptoHMAC);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeCryptoHMAC);
         }
         return NO;
     }
@@ -239,7 +239,7 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
     
     if (TUNNEL_CRYPTO_SUCCESS(code) && CRYPTO_memcmp(self.bufferDecHMAC, bytes, self.digestLength) != 0) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeCryptoHMAC);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeCryptoHMAC);
         }
         return NO;
     }
@@ -358,7 +358,7 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
     if (hasPeerId) {
         if (peerId != self.peerId) {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathPeerIdMismatch);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathPeerIdMismatch);
             }
             return NO;
         }

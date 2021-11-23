@@ -109,7 +109,7 @@
         if ([self.cipherAlgorithm hasSuffix:@"-cbc"]) {
             if (!self.digestAlgorithm) {
                 if (error) {
-                    *error = TunnelKitErrorWithCode(TunnelKitErrorCodeCryptoAlgorithm);
+                    *error = OpenVPNErrorWithCode(OpenVPNErrorCodeCryptoAlgorithm);
                 }
                 return NO;
             }
@@ -130,7 +130,7 @@
         // not supported
         else {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeCryptoAlgorithm);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeCryptoAlgorithm);
             }
             return NO;
         }

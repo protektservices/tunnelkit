@@ -23,9 +23,10 @@
 //  along with TunnelKit.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#import "StandardLZO.h"
 #import "lib/minilzo.h"
 
-#import "Errors.h"
+NSString *const TunnelKitLZOErrorDomain    = @"TunnelKitLZO";
 
 #define HEAP_ALLOC(var,size) \
 lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
@@ -68,7 +69,7 @@ static HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
     const int status = lzo1x_1_compress(data.bytes, data.length, dst.mutableBytes, &dstLength, wrkmem);
     if (status != LZO_E_OK) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeLZO);
+            *error = [NSError errorWithDomain:TunnelKitLZOErrorDomain code:0 userInfo:nil];
         }
         return nil;
     }
@@ -90,7 +91,7 @@ static HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
     const int status = lzo1x_decompress_safe(bytes, length, self.decompressedBuffer.mutableBytes, &dstLength, NULL);
     if (status != LZO_E_OK) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeLZO);
+            *error = [NSError errorWithDomain:TunnelKitLZOErrorDomain code:0 userInfo:nil];
         }
         return nil;
     }

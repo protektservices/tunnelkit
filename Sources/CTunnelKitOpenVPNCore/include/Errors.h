@@ -36,27 +36,26 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const TunnelKitErrorDomain;
-extern NSString *const TunnelKitErrorKey;
+extern NSString *const OpenVPNErrorDomain;
+extern NSString *const OpenVPNErrorKey;
 
-typedef NS_ENUM(NSInteger, TunnelKitErrorCode) {
-    TunnelKitErrorCodeCryptoRandomGenerator     = 101,
-    TunnelKitErrorCodeCryptoHMAC                = 102,
-    TunnelKitErrorCodeCryptoEncryption          = 103,
-    TunnelKitErrorCodeCryptoAlgorithm           = 104,
-    TunnelKitErrorCodeTLSCertificateAuthority   = 201,
-    TunnelKitErrorCodeTLSHandshake              = 202,
-    TunnelKitErrorCodeTLSClientCertificate      = 204,
-    TunnelKitErrorCodeTLSClientKey              = 205,
-    TunnelKitErrorCodeTLSServerCertificate      = 206,
-    TunnelKitErrorCodeTLSServerEKU              = 207,
-    TunnelKitErrorCodeTLSServerHost             = 208,
-    TunnelKitErrorCodeDataPathOverflow          = 301,
-    TunnelKitErrorCodeDataPathPeerIdMismatch    = 302,
-    TunnelKitErrorCodeDataPathCompression       = 303,
-    TunnelKitErrorCodeLZO                       = 401,
+typedef NS_ENUM(NSInteger, OpenVPNErrorCode) {
+    OpenVPNErrorCodeCryptoRandomGenerator       = 101,
+    OpenVPNErrorCodeCryptoHMAC                  = 102,
+    OpenVPNErrorCodeCryptoEncryption            = 103,
+    OpenVPNErrorCodeCryptoAlgorithm             = 104,
+    OpenVPNErrorCodeTLSCertificateAuthority     = 201,
+    OpenVPNErrorCodeTLSHandshake                = 202,
+    OpenVPNErrorCodeTLSClientCertificate        = 204,
+    OpenVPNErrorCodeTLSClientKey                = 205,
+    OpenVPNErrorCodeTLSServerCertificate        = 206,
+    OpenVPNErrorCodeTLSServerEKU                = 207,
+    OpenVPNErrorCodeTLSServerHost               = 208,
+    OpenVPNErrorCodeDataPathOverflow            = 301,
+    OpenVPNErrorCodeDataPathPeerIdMismatch      = 302,
+    OpenVPNErrorCodeDataPathCompression         = 303
 };
 
-static inline NSError *TunnelKitErrorWithCode(TunnelKitErrorCode code) {
-    return [NSError errorWithDomain:TunnelKitErrorDomain code:code userInfo:nil];
+static inline NSError *OpenVPNErrorWithCode(OpenVPNErrorCode code) {
+    return [NSError errorWithDomain:OpenVPNErrorDomain code:code userInfo:nil];
 }

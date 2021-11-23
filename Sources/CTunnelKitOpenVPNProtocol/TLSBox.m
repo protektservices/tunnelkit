@@ -48,10 +48,10 @@ static const char *const TLSBoxServerEKU = "TLS Web Server Authentication";
 
 int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     if (!ok) {
-        NSError *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSCertificateAuthority);
+        NSError *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSCertificateAuthority);
         [[NSNotificationCenter defaultCenter] postNotificationName:TLSBoxPeerVerificationErrorNotification
                                                             object:nil
-                                                          userInfo:@{TunnelKitErrorKey: error}];
+                                                          userInfo:@{OpenVPNErrorKey: error}];
     }
     return ok;
 }
@@ -208,7 +208,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     if (!SSL_CTX_load_verify_locations(self.ctx, [self.caPath cStringUsingEncoding:NSASCIIStringEncoding], NULL)) {
         ERR_print_errors_fp(stdout);
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSCertificateAuthority);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSCertificateAuthority);
         }
         return NO;
     }
@@ -217,7 +217,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
         if (!SSL_CTX_use_certificate_file(self.ctx, [self.clientCertificatePath cStringUsingEncoding:NSASCIIStringEncoding], SSL_FILETYPE_PEM)) {
             ERR_print_errors_fp(stdout);
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSClientCertificate);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSClientCertificate);
             }
             return NO;
         }
@@ -226,7 +226,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
             if (!SSL_CTX_use_PrivateKey_file(self.ctx, [self.clientKeyPath cStringUsingEncoding:NSASCIIStringEncoding], SSL_FILETYPE_PEM)) {
                 ERR_print_errors_fp(stdout);
                 if (error) {
-                    *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSClientKey);
+                    *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSClientKey);
                 }
                 return NO;
             }
@@ -246,7 +246,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     
     if (!SSL_do_handshake(self.ssl)) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSHandshake);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSHandshake);
         }
         return NO;
     }
@@ -266,14 +266,14 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
 
         if (self.checksEKU && ![self verifyEKUWithSSL:self.ssl]) {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSServerEKU);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSServerEKU);
             }
             return nil;
         }
         
         if (self.checksSANHost && ![self verifySANHostWithSSL:self.ssl]) {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSServerHost);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSServerHost);
             }
             return nil;
         }
@@ -283,7 +283,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     }
     if ((ret < 0) && !BIO_should_retry(self.bioCipherTextOut)) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSHandshake);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSHandshake);
         }
     }
     return nil;
@@ -301,7 +301,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     }
     if ((ret < 0) && !BIO_should_retry(self.bioPlainText)) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSHandshake);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSHandshake);
         }
     }
     return NO;
@@ -323,7 +323,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     const int ret = BIO_write(self.bioCipherTextIn, text, (int)length);
     if (ret != length) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSHandshake);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSHandshake);
         }
         return NO;
     }
@@ -344,7 +344,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     const int ret = BIO_write(self.bioPlainText, text, (int)length);
     if (ret != length) {
         if (error) {
-            *error = TunnelKitErrorWithCode(TunnelKitErrorCodeTLSHandshake);
+            *error = OpenVPNErrorWithCode(OpenVPNErrorCodeTLSHandshake);
         }
         return NO;
     }

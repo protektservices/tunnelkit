@@ -320,7 +320,7 @@ static const NSInteger CryptoAEADTagLength = 16;
     if (hasPeerId) {
         if (peerId != self.peerId) {
             if (error) {
-                *error = TunnelKitErrorWithCode(TunnelKitErrorCodeDataPathPeerIdMismatch);
+                *error = OpenVPNErrorWithCode(OpenVPNErrorCodeDataPathPeerIdMismatch);
             }
             return NO;
         }

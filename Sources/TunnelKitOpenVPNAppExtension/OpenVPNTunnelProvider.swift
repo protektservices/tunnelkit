@@ -895,7 +895,7 @@ extension OpenVPNTunnelProvider {
     }
     
     private func unifiedError(from error: Error) -> OpenVPNProviderError {
-        if let te = error.tunnelKitErrorCode() {
+        if let te = error.openVPNErrorCode() {
             switch te {
             case .cryptoRandomGenerator, .cryptoAlgorithm:
                 return .encryptionInitialization
@@ -918,9 +918,6 @@ extension OpenVPNTunnelProvider {
             case .dataPathCompression:
                 return .serverCompression
                 
-            case .LZO:
-                return .lzo
-
             default:
                 break
             }
