@@ -25,8 +25,8 @@
 
 import Foundation
 import NetworkExtension
-import TunnelKitOpenVPNCore
 import TunnelKitManager
+import TunnelKitOpenVPNCore
 
 /// `VPNProvider` for OpenVPN protocol.
 public class OpenVPNProvider: VPNProvider, VPNProviderIPC {
@@ -71,8 +71,8 @@ public class OpenVPNProvider: VPNProvider, VPNProviderIPC {
         provider.disconnect(completionHandler: completionHandler)
     }
     
-    public func reconnect(configuration: VPNConfiguration, completionHandler: ((Error?) -> Void)?) {
-        provider.reconnect(configuration: configuration, completionHandler: completionHandler)
+    public func reconnect(configuration: VPNConfiguration, delay: Double? = nil, completionHandler: ((Error?) -> Void)?) {
+        provider.reconnect(configuration: configuration, delay: delay, completionHandler: completionHandler)
     }
     
     public func uninstall(completionHandler: (() -> Void)?) {

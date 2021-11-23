@@ -57,18 +57,16 @@ let package = Package(
         .target(
             name: "TunnelKitManager",
             dependencies: [
-                "TunnelKitCore"
+                "SwiftyBeaver"
             ]),
         .target(
             name: "TunnelKitAppExtension",
             dependencies: [
-                "TunnelKitCore",
-                "SwiftyBeaver"
+                "TunnelKitCore"
             ]),
         .target(
             name: "TunnelKitIKE",
             dependencies: [
-                "TunnelKitCore",
                 "TunnelKitManager"
             ]),
         .target(

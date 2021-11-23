@@ -37,10 +37,8 @@
 import Foundation
 import NetworkExtension
 import SwiftyBeaver
-import TunnelKitCore
-import TunnelKitOpenVPNCore
 import TunnelKitManager
-import CTunnelKitCore
+import TunnelKitOpenVPNCore
 import __TunnelKitUtils
 
 private let log = SwiftyBeaver.self

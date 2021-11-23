@@ -26,7 +26,6 @@
 import Foundation
 import NetworkExtension
 import SwiftyBeaver
-import TunnelKitCore
 
 private let log = SwiftyBeaver.self
 
@@ -147,10 +146,11 @@ public class NetworkExtensionVPNProvider: VPNProvider {
         manager.saveToPreferences(completionHandler: completionHandler)
     }
     
-    public func reconnect(configuration: VPNConfiguration, completionHandler: ((Error?) -> Void)?) {
+    public func reconnect(configuration: VPNConfiguration, delay: Double? = nil, completionHandler: ((Error?) -> Void)?) {
         guard let configuration = configuration as? NetworkExtensionVPNConfiguration else {
             fatalError("Not a NetworkExtensionVPNConfiguration")
         }
+        let delay = delay ?? 2.0
         install(configuration: configuration) { error in
             guard error == nil else {
                 completionHandler?(error)
@@ -161,7 +161,7 @@ public class NetworkExtensionVPNProvider: VPNProvider {
             }
             if self.status != .disconnected {
                 self.manager?.connection.stopVPNTunnel()
-                DispatchQueue.main.asyncAfter(deadline: .now() + CoreConfiguration.reconnectionDelay, execute: connectBlock)
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: connectBlock)
             } else {
                 connectBlock()
             }

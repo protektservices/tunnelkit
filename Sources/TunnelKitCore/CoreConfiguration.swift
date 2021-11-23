@@ -60,8 +60,6 @@ public class CoreConfiguration {
     public static var versionIdentifier: String?
     
     public static let logsSensitiveData = false
-
-    public static var reconnectionDelay = 2.0
 }
 
 extension CustomStringConvertible {

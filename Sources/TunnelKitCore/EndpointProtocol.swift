@@ -75,9 +75,8 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
 extension EndpointProtocol: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        guard let proto = try EndpointProtocol(rawValue: container.decode(String.self)) else {
-            throw ConfigurationError.malformed(option: "remote/proto")
-        }
+        let rawValue = try container.decode(String.self)
+        let proto = EndpointProtocol(rawValue: rawValue) ?? EndpointProtocol(.udp, 1198)
         self.init(proto.socketType, proto.port)
     }
     

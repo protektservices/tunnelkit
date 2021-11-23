@@ -63,7 +63,7 @@ public class MockVPNProvider: VPNProvider, VPNProviderIPC {
         completionHandler?(nil)
     }
     
-    public func reconnect(configuration: VPNConfiguration, completionHandler: ((Error?) -> Void)?) {
+    public func reconnect(configuration: VPNConfiguration, delay: Double?, completionHandler: ((Error?) -> Void)?) {
         isEnabled = true
         status = .connected
         NotificationCenter.default.post(name: VPN.didChangeStatus, object: self)

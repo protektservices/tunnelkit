@@ -72,9 +72,10 @@ public protocol VPNProvider: AnyObject {
      Reconnects to the VPN.
 
      - Parameter configuration: The `VPNConfiguration` to install.
+     - Parameter delay: The reconnection delay in seconds.
      - Parameter completionHandler: The completion handler with an optional error.
      */
-    func reconnect(configuration: VPNConfiguration, completionHandler: ((Error?) -> Void)?)
+    func reconnect(configuration: VPNConfiguration, delay: Double?, completionHandler: ((Error?) -> Void)?)
     
     /**
      Uninstalls the VPN profile.
