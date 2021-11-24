@@ -34,7 +34,9 @@
 //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@import CNIOBoringSSL;
+#import <openssl/ssl.h>
+#import <openssl/x509v3.h>
+#import <openssl/err.h>
 
 #import "TLSBox.h"
 #import "Allocation.h"
@@ -55,6 +57,8 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     }
     return ok;
 }
+
+const NSInteger TLSBoxDefaultSecurityLevel = 0;
 
 @interface TLSBox ()
 
@@ -179,6 +183,7 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
         self.checksEKU = checksEKU;
         self.checksSANHost = checksSANHost;
         self.bufferCipherText = allocate_safely(TLSBoxMaxBufferLength);
+        self.securityLevel = TLSBoxDefaultSecurityLevel;
         self.hostname = hostname;
     }
     return self;
@@ -205,6 +210,10 @@ int TLSBoxVerifyPeer(int ok, X509_STORE_CTX *ctx) {
     self.ctx = SSL_CTX_new(TLS_client_method());
     SSL_CTX_set_options(self.ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION);
     SSL_CTX_set_verify(self.ctx, SSL_VERIFY_PEER, TLSBoxVerifyPeer);
+    if (self.securityLevel != TLSBoxDefaultSecurityLevel) {
+        SSL_CTX_set_security_level(self.ctx, (int)self.securityLevel);
+    }
+
     if (!SSL_CTX_load_verify_locations(self.ctx, [self.caPath cStringUsingEncoding:NSASCIIStringEncoding], NULL)) {
         ERR_print_errors_fp(stdout);
         if (error) {
