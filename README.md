@@ -76,7 +76,23 @@ Many other flags are ignored too but it's normally not an issue.
 
 It's highly recommended to use the Git package provided by [Homebrew][dep-brew].
 
-Make sure to disable Bitcode in "Release" targets (iOS), otherwise the library [would not be able to locate OpenSSL][about-pr-bitcode].
+### Caveats
+
+Make sure to disable Bitcode in "Release" targets (iOS), otherwise the library [would not be able to link OpenSSL][about-pr-bitcode].
+
+Recent versions of Xcode (latest is 13.1) have an issue where the "Frameworks" directory is replicated inside application extensions. This is not a blocker during development, but will prevent your archive from being validated against App Store Connect due to the following error:
+
+    ERROR ITMS-90206: "Invalid Bundle. The bundle at '*.appex' contains disallowed file 'Frameworks'."
+
+You will need to add a "Run Script" phase to your main app target where you manually remove the offending folder, i.e.:
+
+    rm -rf "${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/YourTunnelTarget.appex/Frameworks"
+
+for iOS and:
+
+    rm -rf "${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}/YourTunnelTarget.appex/Contents/Frameworks"
+
+for macOS.
 
 ### Demo
 
