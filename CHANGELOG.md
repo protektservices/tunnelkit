@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Revert to OpenSSL. [#233](https://github.com/passepartoutvpn/tunnelkit/pull/233)
 
+### Fixed
+
+- Restore and fix "Avoid caching PEMs on disk" (roop). [#213](https://github.com/passepartoutvpn/tunnelkit/pull/213)
+
 ## 4.0.1 (2021-11-18)
 
 ### Fixed
@@ -33,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Avoid caching PEMs on disk (roop). [#213](https://github.com/passepartoutvpn/tunnelkit/pull/213)
 - Upgrade OpenSSL to 1.1.1l.
 
 ### Fixed
