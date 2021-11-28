@@ -1,6 +1,6 @@
-![iOS 11+](https://img.shields.io/badge/ios-11+-green.svg)
-![macOS 10.15+](https://img.shields.io/badge/macos-10.15+-green.svg)
-[![License GPLv3](https://img.shields.io/badge/license-GPLv3-lightgray.svg)](LICENSE)
+![iOS 11+](https://img.shields.io/badge/iOS-11+-green.svg)
+![macOS 10.15+](https://img.shields.io/badge/macOS-10.15+-green.svg)
+[![License GPLv3](https://img.shields.io/badge/License-GPLv3-lightgray.svg)](LICENSE)
 [![GitHub Actions](https://github.com/passepartoutvpn/tunnelkit/actions/workflows/test.yml/badge.svg)](https://github.com/passepartoutvpn/tunnelkit/actions/workflows/test.yml)
 
 # TunnelKit
