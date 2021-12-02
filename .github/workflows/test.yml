@@ -6,6 +6,7 @@ on:
       - 'master'
 
 jobs:
+  name: Run tests
   run_tests:
     runs-on: macos-11
     timeout-minutes: 10
