@@ -1,11 +1,8 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'TunnelKit version (e.g. 3.12.6)'
-        required: true
+  milestone:
+    types: closed
 
 jobs:
   run_tests:
@@ -37,7 +34,7 @@ jobs:
           git_push_gpgsign: false
       - name: Tag release
         env:
-          VERSION: ${{ github.event.inputs.version }}
+          VERSION: ${{ github.event.milestone.title }}
         run: |
           DATE=`date "+%Y-%m-%d"`
           COMMIT_MESSAGE="[ci skip] Set release date"
