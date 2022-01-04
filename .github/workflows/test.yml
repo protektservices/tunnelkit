@@ -8,8 +8,8 @@ on:
       - "*.md"
 
 jobs:
-  name: Run tests
   run_tests:
+    name: Run tests
     runs-on: macos-11
     timeout-minutes: 10
     steps:
