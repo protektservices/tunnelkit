@@ -50,6 +50,16 @@ class ConfigurationParserTests: XCTestCase {
         XCTAssertNoThrow(try OpenVPN.ConfigurationParser.parsed(fromLines: ["compress lzo"]))
     }
     
+    func testKeepAlive() throws {
+        let cfg1 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["ping 10", "ping-restart 60"])
+        let cfg2 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["keepalive 10 60"])
+        let cfg3 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["keepalive 15 600"])
+        XCTAssertEqual(cfg1.configuration.keepAliveInterval, cfg2.configuration.keepAliveInterval)
+        XCTAssertEqual(cfg1.configuration.keepAliveTimeout, cfg2.configuration.keepAliveTimeout)
+        XCTAssertNotEqual(cfg1.configuration.keepAliveInterval, cfg3.configuration.keepAliveInterval)
+        XCTAssertNotEqual(cfg1.configuration.keepAliveTimeout, cfg3.configuration.keepAliveTimeout)
+    }
+    
     func testDHCPOption() throws {
         let lines = [
             "dhcp-option DNS 8.8.8.8",

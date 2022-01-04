@@ -60,6 +60,8 @@ extension OpenVPN {
             
             static let pingRestart = NSRegularExpression("^ping-restart +\\d+")
             
+            static let keepAlive = NSRegularExpression("^keepalive +\\d+ ++\\d+")
+            
             static let renegSec = NSRegularExpression("^reneg-sec +\\d+")
             
             static let xorMask = NSRegularExpression("^scramble +xormask +.$")
@@ -456,6 +458,14 @@ extension OpenVPN {
                         return
                     }
                     optKeepAliveTimeoutSeconds = TimeInterval(arg)
+                }
+                Regex.keepAlive.enumerateArguments(in: line) {
+                    isHandled = true
+                    guard let ping = $0.first, let pingRestart = $0.last else {
+                        return
+                    }
+                    optKeepAliveSeconds = TimeInterval(ping)
+                    optKeepAliveTimeoutSeconds = TimeInterval(pingRestart)
                 }
                 Regex.renegSec.enumerateArguments(in: line) {
                     isHandled = true
