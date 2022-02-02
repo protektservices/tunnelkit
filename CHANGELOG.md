@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WireGuard support. [#236](https://github.com/passepartoutvpn/tunnelkit/pull/236)
 - Handle `--keepalive` option.
 
+### Changed
+
+- Relax deployment target for macOS down to 10.14
+- Upgrade OpenSSL to 1.1.1m.
+
 ## 4.0.3 (2021-11-27)
 
 ### Fixed

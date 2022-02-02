@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "TunnelKit",
     platforms: [
-        .iOS(.v12), .macOS(.v10_15)
+        .iOS(.v12), .macOS(.v10_14)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -43,7 +43,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", from: "1.9.0"),
-        .package(url: "https://github.com/passepartoutvpn/openssl-apple", from: "1.1.11200"),
+        .package(url: "https://github.com/passepartoutvpn/openssl-apple", from: "1.1.11300"),
         .package(name: "WireGuardKit", url: "https://git.zx2c4.com/wireguard-apple", .exact("1.0.15-26"))
     ],
     targets: [

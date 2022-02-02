@@ -1,5 +1,5 @@
 ![iOS 12+](https://img.shields.io/badge/ios-12+-green.svg)
-![macOS 10.15+](https://img.shields.io/badge/macos-10.15+-green.svg)
+![macOS 10.14+](https://img.shields.io/badge/macos-10.14+-green.svg)
 [![License GPLv3](https://img.shields.io/badge/license-GPLv3-lightgray.svg)](LICENSE)
 
 [![Unit Tests](https://github.com/passepartoutvpn/tunnelkit/actions/workflows/test.yml/badge.svg)](https://github.com/passepartoutvpn/tunnelkit/actions/workflows/test.yml)
@@ -100,7 +100,7 @@ Therefore, make sure to follow the steps below for proper integration:
 
 ### Requirements
 
-- iOS 12.0+ / macOS 10.15+
+- iOS 12.0+ / macOS 10.14+
 - SwiftPM 5.3
 - Git (preinstalled with Xcode Command Line Tools)
 
