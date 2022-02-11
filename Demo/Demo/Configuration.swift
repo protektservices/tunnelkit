@@ -200,13 +200,14 @@ extension WireGuard {
             serverAddress: String,
             serverPort: String
         ) -> WireGuardProvider.Configuration? {
-            var builder = WireGuard.ConfigurationBuilder()
-            builder.privateKey = clientPrivateKey
+            var builder = WireGuard.ConfigurationBuilder(privateKey: clientPrivateKey)
             builder.addresses = [clientAddress]
-            builder.peerPublicKey = serverPublicKey
-            builder.peerAddress = serverAddress
-            builder.peerPort = UInt16(serverPort)
-            builder.allowedIPs = ["0.0.0.0/0"]
+
+            var peer = Peer(publicKey: serverPublicKey)
+            peer.endpoint = "\(serverAddress):\(serverPort)"
+            peer.allowedIPs = ["0.0.0.0/0"]
+            builder.peers = [peer]
+
             builder.dns = ["1.1.1.1", "1.0.0.1"]
             guard let cfg = builder.build() else {
                 return nil

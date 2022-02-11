@@ -25,10 +25,31 @@
 
 import Foundation
 import WireGuardKit
+import NetworkExtension
 
 extension WireGuard {
+    public struct Peer {
+        public var publicKey: String
+        
+        public var preSharedKey: String?
+
+        public var endpoint: String?
+        
+        public var allowedIPs: [String]?
+        
+        public var keepAliveInterval: UInt16?
+
+        public init(publicKey: String) {
+            self.publicKey = publicKey
+        }
+    }
+
     public struct ConfigurationBuilder {
-        public var privateKey: String?
+        public var privateKey: String
+        
+        public var publicKey: String? {
+            return PrivateKey(base64Key: privateKey)?.publicKey.base64Key
+        }
         
         public var addresses: [String]?
         
@@ -36,30 +57,16 @@ extension WireGuard {
 
         public var mtu: UInt16?
         
-        public var peerPublicKey: String?
+        public var peers: [Peer]
         
-        public var peerPreSharedKey: String?
-
-        public var peerAddress: String?
-
-        public var peerPort: UInt16?
-        
-        public var allowedIPs: [String]?
-        
-        public var keepAliveInterval: UInt16?
-        
-        public init() {
+        public init(privateKey: String) {
+            self.privateKey = privateKey
+            peers = []
         }
 
         public func build() -> Configuration? {
-            guard let privateKey = privateKey, let clientPrivateKey = PrivateKey(base64Key: privateKey) else {
+            guard let clientPrivateKey = PrivateKey(base64Key: privateKey) else {
                 return nil
-            }
-            guard let peerPublicKey = peerPublicKey, let serverPublicKey = PublicKey(base64Key: peerPublicKey) else {
-                return nil
-            }
-            guard let peerAddress = peerAddress, let peerPort = peerPort, let endpoint = Endpoint(from: "\(peerAddress):\(peerPort)") else {
-                  return nil
             }
 
             var interfaceConfiguration = InterfaceConfiguration(privateKey: clientPrivateKey)
@@ -70,23 +77,76 @@ extension WireGuard {
                 interfaceConfiguration.dns = dnsServers
             }
             interfaceConfiguration.mtu = mtu
-            var peerConfiguration = PeerConfiguration(publicKey: serverPublicKey)
-            if let peerPreSharedKey = peerPreSharedKey {
-                peerConfiguration.preSharedKey = PreSharedKey(base64Key: peerPreSharedKey)
-            }
-            if let peerAllowedIPs = allowedIPs?.mapOptional({ IPAddressRange(from: $0) }) {
-                peerConfiguration.allowedIPs = peerAllowedIPs
-            }
-            peerConfiguration.endpoint = endpoint
-            peerConfiguration.persistentKeepAlive = keepAliveInterval
+            
+            var peerConfigurations: [PeerConfiguration] = []
+            for peer in peers {
+                guard let publicKey = PublicKey(base64Key: peer.publicKey) else {
+                    continue
+                }
+                // XXX: this is actually optional in WireGuard
+                guard let endpointString = peer.endpoint, let endpoint = Endpoint(from: endpointString) else {
+                      return nil
+                }
 
-            let tunnelConfiguration = TunnelConfiguration(name: nil, interface: interfaceConfiguration, peers: [peerConfiguration])
+                var cfg = PeerConfiguration(publicKey: publicKey)
+                if let preSharedKey = peer.preSharedKey {
+                    cfg.preSharedKey = PreSharedKey(base64Key: preSharedKey)
+                }
+                if let allowedIPs = peer.allowedIPs?.mapOptional(IPAddressRange.init(from:)) {
+                    cfg.allowedIPs = allowedIPs
+                }
+                cfg.endpoint = endpoint
+                cfg.persistentKeepAlive = peer.keepAliveInterval
+
+                peerConfigurations.append(cfg)
+            }
+            guard !peers.isEmpty else {
+                return nil
+            }
+
+            let tunnelConfiguration = TunnelConfiguration(name: nil, interface: interfaceConfiguration, peers: peerConfigurations)
             return Configuration(tunnelConfiguration: tunnelConfiguration)
         }
     }
 
-    public struct Configuration {
+    public struct Configuration: Codable {
         public let tunnelConfiguration: TunnelConfiguration
+        
+        public init(tunnelConfiguration: TunnelConfiguration) {
+            self.tunnelConfiguration = tunnelConfiguration
+        }
+        
+        public func builder() -> WireGuard.ConfigurationBuilder {
+            let privateKey = tunnelConfiguration.interface.privateKey.base64Key
+            var builder = WireGuard.ConfigurationBuilder(privateKey: privateKey)
+            builder.addresses = tunnelConfiguration.interface.addresses.map(\.stringRepresentation)
+            builder.dns = tunnelConfiguration.interface.dns.map(\.stringRepresentation)
+            builder.mtu = tunnelConfiguration.interface.mtu
+            builder.peers = tunnelConfiguration.peers.map {
+                var peer = Peer(publicKey: $0.publicKey.base64Key)
+                peer.preSharedKey = $0.preSharedKey?.base64Key
+                peer.endpoint = $0.endpoint?.stringRepresentation
+                peer.allowedIPs = $0.allowedIPs.map(\.stringRepresentation)
+                peer.keepAliveInterval = $0.persistentKeepAlive
+                return peer
+            }
+            return builder
+        }
+
+        // MARK: Codable
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let wg = try container.decode(String.self)
+            let cfg = try TunnelConfiguration(fromWgQuickConfig: wg, called: nil)
+            self.init(tunnelConfiguration: cfg)
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            let wg = tunnelConfiguration.asWgQuickConfig()
+            var container = encoder.singleValueContainer()
+            try container.encode(wg)
+        }
     }
 }
 

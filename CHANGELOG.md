@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Parse OpenVPN authentication requirement from `--auth-user-pass`.
 
+### Changed
+
+- Support multiple peers in WireGuard.
+
 ## 4.1.0 (2022-02-09)
 
 ### Added
