@@ -78,6 +78,8 @@ extension OpenVPN {
             
             static let remote = NSRegularExpression("^remote +[^ ]+( +\\d+)?( +(udp[46]?|tcp[46]?))?")
             
+            static let authUserPass = NSRegularExpression("^auth-user-pass")
+            
             static let eku = NSRegularExpression("^remote-cert-tls +server")
             
             static let remoteRandom = NSRegularExpression("^remote-random")
@@ -178,7 +180,7 @@ extension OpenVPN {
         }
         
         /**
-         Parses an .ovpn file from an URL.
+         Parses a configuration from a .ovpn file.
          
          - Parameter url: The URL of the configuration file.
          - Parameter passphrase: The optional passphrase for encrypted data.
@@ -187,8 +189,39 @@ extension OpenVPN {
          - Throws: `ConfigurationError` if the configuration file is wrong or incomplete.
          */
         public static func parsed(fromURL url: URL, passphrase: String? = nil, returnsStripped: Bool = false) throws -> Result {
-            let lines = try String(contentsOf: url).trimmedLines()
-            return try parsed(fromLines: lines, isClient: true, passphrase: passphrase, originalURL: url, returnsStripped: returnsStripped)
+            let contents = try String(contentsOf: url)
+            return try parsed(
+                fromContents: contents,
+                passphrase: passphrase,
+                originalURL: url,
+                returnsStripped: returnsStripped
+            )
+        }
+
+        /**
+         Parses a configuration from a string.
+         
+         - Parameter contents: The contents of the configuration file.
+         - Parameter passphrase: The optional passphrase for encrypted data.
+         - Parameter originalURL: The optional original URL of the configuration file.
+         - Parameter returnsStripped: When `true`, stores the stripped file into `Result.strippedLines`. Defaults to `false`.
+         - Returns: The `Result` outcome of the parsing.
+         - Throws: `ConfigurationError` if the configuration file is wrong or incomplete.
+         */
+        public static func parsed(
+            fromContents contents: String,
+            passphrase: String? = nil,
+            originalURL: URL? = nil,
+            returnsStripped: Bool = false
+        ) throws -> Result {
+            let lines = contents.trimmedLines()
+            return try parsed(
+                fromLines: lines,
+                isClient: true,
+                passphrase: passphrase,
+                originalURL: originalURL,
+                returnsStripped: returnsStripped
+            )
         }
 
         /**
@@ -202,7 +235,13 @@ extension OpenVPN {
          - Returns: The `Result` outcome of the parsing.
          - Throws: `ConfigurationError` if the configuration file is wrong or incomplete.
          */
-        public static func parsed(fromLines lines: [String], isClient: Bool = false, passphrase: String? = nil, originalURL: URL? = nil, returnsStripped: Bool = false) throws -> Result {
+        public static func parsed(
+            fromLines lines: [String],
+            isClient: Bool = false,
+            passphrase: String? = nil,
+            originalURL: URL? = nil,
+            returnsStripped: Bool = false
+        ) throws -> Result {
             var optStrippedLines: [String]? = returnsStripped ? [] : nil
             var optWarning: ConfigurationError?
             var unsupportedError: ConfigurationError?
@@ -229,6 +268,7 @@ extension OpenVPN {
             var optDefaultProto: SocketType?
             var optDefaultPort: UInt16?
             var optRemotes: [(String, UInt16?, SocketType?)] = [] // address, port, socket
+            var authUserPass = false
             var optChecksEKU: Bool?
             var optRandomizeEndpoint: Bool?
             var optMTU: Int?
@@ -537,6 +577,10 @@ extension OpenVPN {
                     }
                     optMTU = Int(str)
                 }
+                Regex.authUserPass.enumerateComponents(in: line) { _ in
+                    isHandled = true
+                    authUserPass = true
+                }
                 
                 // MARK: Server
                 
@@ -687,10 +731,11 @@ extension OpenVPN {
             sessionBuilder.compressionAlgorithm = optCompressionAlgorithm
             sessionBuilder.ca = optCA
             sessionBuilder.clientCertificate = optClientCertificate
+            sessionBuilder.authUserPass = authUserPass
             
             if let clientKey = optClientKey, clientKey.isEncrypted {
                 // FIXME: remove dependency on TLSBox
-                guard let passphrase = passphrase else {
+                guard let passphrase = passphrase, !passphrase.isEmpty else {
                     throw ConfigurationError.encryptionPassphrase
                 }
                 do {
@@ -746,6 +791,7 @@ extension OpenVPN {
                 sessionBuilder.hostname = nil
             }
             
+            sessionBuilder.authUserPass = authUserPass
             sessionBuilder.checksEKU = optChecksEKU
             sessionBuilder.randomizeEndpoint = optRandomizeEndpoint
             sessionBuilder.mtu = optMTU

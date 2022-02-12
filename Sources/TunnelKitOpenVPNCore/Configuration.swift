@@ -242,6 +242,9 @@ extension OpenVPN {
         /// The tunnel MTU.
         public var mtu: Int?
         
+        /// Requires username authentication.
+        public var authUserPass: Bool?
+
         // MARK: Server
         
         /// The auth-token returned by the server.
@@ -300,7 +303,18 @@ extension OpenVPN {
         /// Policies for redirecting traffic through the VPN gateway.
         public var routingPolicies: [RoutingPolicy]?
         
-        public init() {
+        /**
+         Creates a `ConfigurationBuilder`.
+         
+         - Parameter withFallbacks: If `true`, initializes builder with fallback values rather than nil.
+         */
+        public init(withFallbacks: Bool = false) {
+            if withFallbacks {
+                cipher = Fallback.cipher
+                digest = Fallback.digest
+                compressionFraming = Fallback.compressionFraming
+                compressionAlgorithm = Fallback.compressionAlgorithm
+            }
         }
         
         /**
@@ -332,6 +346,7 @@ extension OpenVPN {
                 randomizeEndpoint: randomizeEndpoint,
                 usesPIAPatches: usesPIAPatches,
                 mtu: mtu,
+                authUserPass: authUserPass,
                 authToken: authToken,
                 peerId: peerId,
                 ipv4: ipv4,
@@ -347,24 +362,6 @@ extension OpenVPN {
                 proxyBypassDomains: proxyBypassDomains,
                 routingPolicies: routingPolicies
             )
-        }
-
-        // MARK: Shortcuts
-        
-        public var fallbackCipher: Cipher {
-            return cipher ?? Fallback.cipher
-        }
-        
-        public var fallbackDigest: Digest {
-            return digest ?? Fallback.digest
-        }
-        
-        public var fallbackCompressionFraming: CompressionFraming {
-            return compressionFraming ?? Fallback.compressionFraming
-        }
-        
-        public var fallbackCompressionAlgorithm: CompressionAlgorithm {
-            return compressionAlgorithm ?? Fallback.compressionAlgorithm
         }
     }
     
@@ -437,6 +434,9 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.mtu`
         public let mtu: Int?
 
+        /// - Seealso: `ConfigurationBuilder.authUserPass`
+        public let authUserPass: Bool?
+
         /// - Seealso: `ConfigurationBuilder.authToken`
         public let authToken: String?
         
@@ -502,15 +502,16 @@ extension OpenVPN.Configuration {
     /**
      Returns a `ConfigurationBuilder` to use this configuration as a starting point for a new one.
      
+     - Parameter withFallbacks: If `true`, initializes builder with fallback values rather than nil.
      - Returns: An editable `ConfigurationBuilder` initialized with this configuration.
      */
-    public func builder() -> OpenVPN.ConfigurationBuilder {
+    public func builder(withFallbacks: Bool = false) -> OpenVPN.ConfigurationBuilder {
         var builder = OpenVPN.ConfigurationBuilder()
-        builder.cipher = cipher
+        builder.cipher = cipher ?? (withFallbacks ? OpenVPN.Fallback.cipher : nil)
         builder.dataCiphers = dataCiphers
-        builder.digest = digest
-        builder.compressionFraming = compressionFraming
-        builder.compressionAlgorithm = compressionAlgorithm
+        builder.digest = digest ?? (withFallbacks ? OpenVPN.Fallback.digest : nil)
+        builder.compressionFraming = compressionFraming ?? (withFallbacks ? OpenVPN.Fallback.compressionFraming : nil)
+        builder.compressionAlgorithm = compressionAlgorithm ?? (withFallbacks ? OpenVPN.Fallback.compressionAlgorithm : nil)
         builder.ca = ca
         builder.clientCertificate = clientCertificate
         builder.clientKey = clientKey
@@ -527,6 +528,7 @@ extension OpenVPN.Configuration {
         builder.randomizeEndpoint = randomizeEndpoint
         builder.usesPIAPatches = usesPIAPatches
         builder.mtu = mtu
+        builder.authUserPass = authUserPass
         builder.authToken = authToken
         builder.peerId = peerId
         builder.ipv4 = ipv4
@@ -549,7 +551,6 @@ extension OpenVPN.Configuration {
 // MARK: Encoding
 
 extension OpenVPN.Configuration {
-
     public func print() {
         guard let endpointProtocols = endpointProtocols else {
             fatalError("No sessionConfiguration.endpointProtocols set")
@@ -558,6 +559,7 @@ extension OpenVPN.Configuration {
         log.info("\tCipher: \(fallbackCipher)")
         log.info("\tDigest: \(fallbackDigest)")
         log.info("\tCompression framing: \(fallbackCompressionFraming)")
+        log.info("\tUsername authentication: \(authUserPass ?? false)")
         if let compressionAlgorithm = compressionAlgorithm, compressionAlgorithm != .disabled {
             log.info("\tCompression algorithm: \(compressionAlgorithm)")
         } else {
