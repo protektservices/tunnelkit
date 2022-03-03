@@ -154,7 +154,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
             guard let tunnelProtocol = protocolConfiguration as? NETunnelProviderProtocol else {
                 throw OpenVPNProviderConfigurationError.parameter(name: "protocolConfiguration")
             }
-            guard let serverAddress = tunnelProtocol.serverAddress else {
+            guard let _ = tunnelProtocol.serverAddress else {
                 throw OpenVPNProviderConfigurationError.parameter(name: "protocolConfiguration.serverAddress")
             }
             guard let providerConfiguration = tunnelProtocol.providerConfiguration else {
@@ -162,15 +162,6 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
             }
             try appGroup = OpenVPNProvider.Configuration.appGroup(from: providerConfiguration)
             try cfg = OpenVPNProvider.Configuration.parsed(from: providerConfiguration)
-            
-            // inject serverAddress into sessionConfiguration.hostname
-            if !serverAddress.isEmpty {
-                var sessionBuilder = cfg.sessionConfiguration.builder()
-                sessionBuilder.hostname = serverAddress
-                var cfgBuilder = cfg.builder()
-                cfgBuilder.sessionConfiguration = sessionBuilder.build()
-                cfg = cfgBuilder.build()
-            }
         } catch let e {
             var message: String?
             if let te = e as? OpenVPNProviderConfigurationError {
@@ -237,7 +228,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         cfg.print(appVersion: appVersion)
 
         // prepare to pick endpoints
-        strategy = ConnectionStrategy(configuration: cfg)
+        strategy = ConnectionStrategy(configuration: cfg.sessionConfiguration)
 
         let session: OpenVPNSession
         do {
@@ -337,12 +328,21 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
             return
         }
         
-        strategy.createSocket(from: self, timeout: dnsTimeout, queue: tunnelQueue) { (socket, error) in
-            guard let socket = socket else {
+        strategy.createSocket(from: self, timeout: dnsTimeout, queue: tunnelQueue) {
+            switch $0 {
+            case .success(let socket):
+                self.connectTunnel(via: socket)
+                
+            case .failure(let error):
+                if case .dnsFailure = error {
+                    self.tunnelQueue.async {
+                        self.strategy.tryNextEndpoint()
+                        self.connectTunnel()
+                    }
+                    return
+                }
                 self.disposeTunnel(error: error)
-                return
             }
-            self.connectTunnel(via: socket)
         }
     }
     
@@ -839,7 +839,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
 extension OpenVPNTunnelProvider {
     private func tryNextEndpoint() -> Bool {
         guard strategy.tryNextEndpoint() else {
-            disposeTunnel(error: OpenVPNProviderError.exhaustedProtocols)
+            disposeTunnel(error: OpenVPNProviderError.exhaustedEndpoints)
             return false
         }
         return true

@@ -178,8 +178,7 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
             sessionBuilder.digest = .sha1
             sessionBuilder.compressionFraming = .compLZO
             sessionBuilder.renegotiatesAfter = nil
-            sessionBuilder.hostname = hostname
-            sessionBuilder.endpointProtocols = [EndpointProtocol(socketType, port)]
+            sessionBuilder.remotes = [Endpoint(hostname, EndpointProtocol(socketType, port))]
             sessionBuilder.clientCertificate = clientCertificate
             sessionBuilder.clientKey = clientKey
             sessionBuilder.mtu = 1350

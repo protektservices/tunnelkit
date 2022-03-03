@@ -51,8 +51,16 @@ public struct DNSRecord {
     }
 }
 
+/// Errors coming from `DNSResolver`.
+public enum DNSError: Error {
+    case failure
+    
+    case timeout
+}
+
 /// Convenient methods for DNS resolution.
 public class DNSResolver {
+
     private static let queue = DispatchQueue(label: "DNSResolver")
 
     /**
@@ -63,17 +71,17 @@ public class DNSResolver {
      - Parameter queue: The queue to execute the `completionHandler` in.
      - Parameter completionHandler: The completion handler with the resolved addresses and an optional error.
      */
-    public static func resolve(_ hostname: String, timeout: Int, queue: DispatchQueue, completionHandler: @escaping ([DNSRecord]?, Error?) -> Void) {
-        var pendingHandler: (([DNSRecord]?, Error?) -> Void)? = completionHandler
+    public static func resolve(_ hostname: String, timeout: Int, queue: DispatchQueue, completionHandler: @escaping (Result<[DNSRecord], DNSError>) -> Void) {
+        var pendingHandler: ((Result<[DNSRecord], DNSError>) -> Void)? = completionHandler
         let host = CFHostCreateWithName(nil, hostname as CFString).takeRetainedValue()
         DNSResolver.queue.async {
             CFHostStartInfoResolution(host, .addresses, nil)
             guard let handler = pendingHandler else {
                 return
             }
-            DNSResolver.didResolve(host: host) { (records, error) in
+            DNSResolver.didResolve(host: host) { result in
                 queue.async {
-                    handler(records, error)
+                    handler(result)
                     pendingHandler = nil
                 }
             }
@@ -83,15 +91,15 @@ public class DNSResolver {
                 return
             }
             CFHostCancelInfoResolution(host, .addresses)
-            handler(nil, nil)
+            handler(.failure(.timeout))
             pendingHandler = nil
         }
     }
     
-    private static func didResolve(host: CFHost, completionHandler: @escaping ([DNSRecord]?, Error?) -> Void) {
+    private static func didResolve(host: CFHost, completionHandler: @escaping (Result<[DNSRecord], DNSError>) -> Void) {
         var success: DarwinBoolean = false
         guard let rawAddresses = CFHostGetAddressing(host, &success)?.takeUnretainedValue() as Array? else {
-            completionHandler(nil, nil)
+            completionHandler(.failure(.failure))
             return
         }
         
@@ -120,7 +128,11 @@ public class DNSResolver {
                 records.append(DNSRecord(address: address, isIPv6: true))
             }
         }
-        completionHandler(records, nil)
+        guard !records.isEmpty else {
+            completionHandler(.failure(.failure))
+            return
+        }
+        completionHandler(.success(records))
     }
 
     /**

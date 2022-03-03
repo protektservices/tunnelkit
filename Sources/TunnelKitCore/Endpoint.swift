@@ -1,5 +1,5 @@
 //
-//  EndpointProtocol.swift
+//  Endpoint.swift
 //  TunnelKit
 //
 //  Created by Davide De Rosa on 11/10/18.
@@ -25,6 +25,31 @@
 
 import Foundation
 
+/// Represents an endpoint.
+public struct Endpoint: Codable, Equatable, CustomStringConvertible {
+    public let address: String
+    
+    public let proto: EndpointProtocol
+
+    /// :nodoc:
+    public init(_ address: String, _ proto: EndpointProtocol) {
+        self.address = address
+        self.proto = proto
+    }
+    
+    // MARK: Equatable
+    
+    public static func ==(lhs: Endpoint, rhs: Endpoint) -> Bool {
+        return lhs.address == rhs.address && lhs.proto == rhs.proto
+    }
+
+    // MARK: CustomStringConvertible
+    
+    public var description: String {
+        return "\(address.maskedDescription):\(proto)"
+    }
+}
+
 /// Defines the communication protocol of an endpoint.
 public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvertible {
     
@@ -33,7 +58,8 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     
     /// The remote port.
     public let port: UInt16
-    
+
+    /// :nodoc:
     public init(_ socketType: SocketType, _ port: UInt16) {
         self.socketType = socketType
         self.port = port

@@ -770,14 +770,9 @@ extension OpenVPN {
             optDefaultProto = optDefaultProto ?? .udp
             optDefaultPort = optDefaultPort ?? 1194
             if !optRemotes.isEmpty {
-                sessionBuilder.hostname = optRemotes[0].0
-                
                 var fullRemotes: [(String, UInt16, SocketType)] = []
-                let hostname = optRemotes[0].0
                 optRemotes.forEach {
-                    guard $0.0 == hostname else {
-                        return
-                    }
+                    let hostname = $0.0
                     guard let port = $0.1 ?? optDefaultPort else {
                         return
                     }
@@ -786,9 +781,9 @@ extension OpenVPN {
                     }
                     fullRemotes.append((hostname, port, socketType))
                 }
-                sessionBuilder.endpointProtocols = fullRemotes.map { EndpointProtocol($0.2, $0.1) }
-            } else {
-                sessionBuilder.hostname = nil
+                sessionBuilder.remotes = fullRemotes.map {
+                    Endpoint($0.0, .init($0.2, $0.1))
+                }
             }
             
             sessionBuilder.authUserPass = authUserPass

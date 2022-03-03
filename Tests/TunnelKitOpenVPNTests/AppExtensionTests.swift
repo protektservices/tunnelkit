@@ -62,6 +62,8 @@ class AppExtensionTests: XCTestCase {
         let identifier = "com.example.Provider"
         let appGroup = "group.com.algoritmico.TunnelKit"
         let hostname = "example.com"
+        let port: UInt16 = 1234
+        let serverAddress = "\(hostname):\(port)"
         let context = "foobar"
         let credentials = OpenVPN.Credentials("foo", "bar")
 
@@ -69,8 +71,7 @@ class AppExtensionTests: XCTestCase {
         sessionBuilder.ca = OpenVPN.CryptoContainer(pem: "abcdef")
         sessionBuilder.cipher = .aes128cbc
         sessionBuilder.digest = .sha256
-        sessionBuilder.hostname = hostname
-        sessionBuilder.endpointProtocols = []
+        sessionBuilder.remotes = [.init(hostname, .init(.udp, port))]
         sessionBuilder.mtu = 1230
         builder = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
         XCTAssertNotNil(builder)
@@ -86,7 +87,7 @@ class AppExtensionTests: XCTestCase {
         XCTAssertNotNil(proto)
         
         XCTAssertEqual(proto?.providerBundleIdentifier, identifier)
-        XCTAssertEqual(proto?.serverAddress, hostname)
+        XCTAssertEqual(proto?.serverAddress, serverAddress)
         XCTAssertEqual(proto?.username, credentials.username)
         XCTAssertEqual(proto?.passwordReference, try? Keychain(group: appGroup).passwordReference(for: credentials.username, context: context))
 
@@ -107,15 +108,17 @@ class AppExtensionTests: XCTestCase {
     
     func testDNSResolver() {
         let exp = expectation(description: "DNS")
-        DNSResolver.resolve("www.google.com", timeout: 1000, queue: .main) { (addrs, error) in
+        DNSResolver.resolve("www.google.com", timeout: 1000, queue: .main) {
             defer {
                 exp.fulfill()
             }
-            guard let addrs = addrs else {
+            switch $0 {
+            case .success(let records):
+                print("\(records)")
+
+            case .failure:
                 print("Can't resolve")
-                return
             }
-            print("\(addrs)")
         }
         waitForExpectations(timeout: 5.0, handler: nil)
     }
@@ -143,37 +146,31 @@ class AppExtensionTests: XCTestCase {
     func testEndpointCycling() {
         CoreConfiguration.masksPrivateData = false
 
-        var builder1 = OpenVPN.ConfigurationBuilder()
-        builder1.hostname = "italy.privateinternetaccess.com"
-        builder1.endpointProtocols = [
-            EndpointProtocol(.tcp6, 2222),
-            EndpointProtocol(.udp, 1111),
-            EndpointProtocol(.udp4, 3333)
+        var builder = OpenVPN.ConfigurationBuilder()
+        let hostname = "italy.privateinternetaccess.com"
+        builder.remotes = [
+            .init(hostname, .init(.tcp6, 2222)),
+            .init(hostname, .init(.udp, 1111)),
+            .init(hostname, .init(.udp4, 3333))
         ]
-        var builder2 = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: builder1.build())
-        builder2.prefersResolvedAddresses = true
-        builder2.resolvedAddresses = [
-            "82.102.21.218",
-            "82.102.21.214",
-            "82.102.21.213",
-        ]
-        let strategy = ConnectionStrategy(configuration: builder2.build())
+        let strategy = ConnectionStrategy(configuration: builder.build())
         
         let expected = [
-            "82.102.21.218:UDP:1111",
-            "82.102.21.218:UDP4:3333",
-            "82.102.21.214:UDP:1111",
-            "82.102.21.214:UDP4:3333",
-            "82.102.21.213:UDP:1111",
-            "82.102.21.213:UDP4:3333",
+            "italy.privateinternetaccess.com:TCP6:2222",
+            "italy.privateinternetaccess.com:UDP:1111",
+            "italy.privateinternetaccess.com:UDP4:3333"
         ]
         var i = 0
-        while strategy.hasEndpoint() {
-            let endpoint = strategy.currentEndpoint()
-            print("\(endpoint)")
-            XCTAssertEqual(endpoint.description, expected[i])
+        while strategy.hasEndpoints() {
+            guard let remote = strategy.currentRemote else {
+                break
+            }
+            print("\(i): \(remote)")
+            XCTAssertEqual(remote.originalEndpoint.description, expected[i])
             i += 1
-            strategy.tryNextEndpoint()
+            guard strategy.tryNextEndpoint() else {
+                break
+            }
         }
     }
 

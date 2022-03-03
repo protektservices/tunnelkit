@@ -218,11 +218,8 @@ extension OpenVPN {
         
         // MARK: Client
         
-        /// The server hostname (picked from first remote).
-        public var hostname: String?
-        
         /// The list of server endpoints.
-        public var endpointProtocols: [EndpointProtocol]?
+        public var remotes: [Endpoint]?
         
         /// If true, checks EKU of server certificate.
         public var checksEKU: Bool?
@@ -338,8 +335,7 @@ extension OpenVPN {
                 keepAliveTimeout: keepAliveTimeout,
                 renegotiatesAfter: renegotiatesAfter,
                 xorMask: xorMask,
-                hostname: hostname,
-                endpointProtocols: endpointProtocols,
+                remotes: remotes,
                 checksEKU: checksEKU,
                 checksSANHost: checksSANHost,
                 sanHost: sanHost,
@@ -410,11 +406,8 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.xorMask`
         public let xorMask: UInt8?
         
-        /// - Seealso: `ConfigurationBuilder.hostname`
-        public let hostname: String?
-        
-        /// - Seealso: `ConfigurationBuilder.endpointProtocols`
-        public let endpointProtocols: [EndpointProtocol]?
+        /// - Seealso: `ConfigurationBuilder.remotes`
+        public let remotes: [Endpoint]?
 
         /// - Seealso: `ConfigurationBuilder.checksEKU`
         public let checksEKU: Bool?
@@ -520,8 +513,7 @@ extension OpenVPN.Configuration {
         builder.keepAliveInterval = keepAliveInterval
         builder.keepAliveTimeout = keepAliveTimeout
         builder.renegotiatesAfter = renegotiatesAfter
-        builder.hostname = hostname
-        builder.endpointProtocols = endpointProtocols
+        builder.remotes = remotes
         builder.checksEKU = checksEKU
         builder.checksSANHost = checksSANHost
         builder.sanHost = sanHost
@@ -552,10 +544,10 @@ extension OpenVPN.Configuration {
 
 extension OpenVPN.Configuration {
     public func print() {
-        guard let endpointProtocols = endpointProtocols else {
-            fatalError("No sessionConfiguration.endpointProtocols set")
+        guard let remotes = remotes else {
+            fatalError("No sessionConfiguration.remotes set")
         }
-        log.info("\tProtocols: \(endpointProtocols)")
+        log.info("\tRemotes: \(remotes)")
         log.info("\tCipher: \(fallbackCipher)")
         log.info("\tDigest: \(fallbackDigest)")
         log.info("\tCompression framing: \(fallbackCompressionFraming)")

@@ -39,118 +39,56 @@ import NetworkExtension
 import SwiftyBeaver
 import TunnelKitCore
 import TunnelKitAppExtension
-import TunnelKitOpenVPNManager
+import TunnelKitOpenVPN
 
 private let log = SwiftyBeaver.self
 
 class ConnectionStrategy {
-    struct Endpoint: CustomStringConvertible {
-        let record: DNSRecord
-        
-        let proto: EndpointProtocol
-        
-        var isValid: Bool {
-            if record.isIPv6 {
-                return proto.socketType != .udp4 && proto.socketType != .tcp4
-            } else {
-                return proto.socketType != .udp6 && proto.socketType != .tcp6
-            }
-        }
-        
-        // MARK: CustomStringConvertible
+    private var remotes: [ResolvedRemote]
 
-        var description: String {
-            return "\(record.address.maskedDescription):\(proto)"
-        }
-    }
-
-    private let hostname: String?
-
-    private let endpointProtocols: [EndpointProtocol]
+    private var currentRemoteIndex: Int
     
-    private var endpoints: [Endpoint]
-
-    private var currentEndpointIndex: Int
-    
-    private let resolvedAddresses: [String]
-
-    init(configuration: OpenVPNProvider.Configuration) {
-        hostname = configuration.sessionConfiguration.hostname
-        guard var endpointProtocols = configuration.sessionConfiguration.endpointProtocols else {
-            fatalError("No endpoints provided")
+    var currentRemote: ResolvedRemote? {
+        guard currentRemoteIndex < remotes.count else {
+            return nil
         }
-        if configuration.sessionConfiguration.randomizeEndpoint ?? false {
-            endpointProtocols.shuffle()
-        }
-        self.endpointProtocols = endpointProtocols
-
-        currentEndpointIndex = 0
-        if let resolvedAddresses = configuration.resolvedAddresses {
-            if configuration.prefersResolvedAddresses {
-                log.debug("Will use pre-resolved addresses only")
-                endpoints = ConnectionStrategy.unrolledEndpoints(
-                    records: resolvedAddresses.map { DNSRecord(address: $0, isIPv6: false) },
-                    protos: endpointProtocols
-                )
-            } else {
-                log.debug("Will use DNS resolution with fallback to pre-resolved addresses")
-                endpoints = []
-            }
-            self.resolvedAddresses = resolvedAddresses
-        } else {
-            log.debug("Will use DNS resolution")
-            guard hostname != nil else {
-                fatalError("Either configuration.sessionConfiguration.hostname or configuration.resolvedAddresses required")
-            }
-            endpoints = []
-            resolvedAddresses = []
-        }
-    }
-    
-    private static func unrolledEndpoints(ipv4Addresses: [String], protos: [EndpointProtocol]) -> [Endpoint] {
-        return unrolledEndpoints(records: ipv4Addresses.map { DNSRecord(address: $0, isIPv6: false) }, protos: protos)
+        return remotes[currentRemoteIndex]
     }
 
-    private static func unrolledEndpoints(records: [DNSRecord], protos: [EndpointProtocol]) -> [Endpoint] {
-        guard !records.isEmpty else {
-            return []
+    init(configuration: OpenVPN.Configuration) {
+        guard var remotes = configuration.remotes, !remotes.isEmpty else {
+            fatalError("No remotes provided")
         }
-        var endpoints: [Endpoint] = []
-        for r in records {
-            for p in protos {
-                let endpoint = Endpoint(record: r, proto: p)
-                guard endpoint.isValid else {
-                    continue
-                }
-                endpoints.append(endpoint)
-            }
+        if configuration.randomizeEndpoint ?? false {
+            remotes.shuffle()
         }
-        log.debug("Unrolled endpoints: \(endpoints.maskedDescription)")
-        return endpoints
-    }
-    
-    func hasEndpoint() -> Bool {
-        return currentEndpointIndex < endpoints.count
+        self.remotes = remotes.map(ResolvedRemote.init)
+        currentRemoteIndex = 0
     }
 
-    func currentEndpoint() -> Endpoint {
-        guard hasEndpoint() else {
-            fatalError("Endpoint index out of bounds (\(currentEndpointIndex) >= \(endpoints.count))")
+    func hasEndpoints() -> Bool {
+        guard let remote = currentRemote else {
+            return false
         }
-        return endpoints[currentEndpointIndex]
+        return !remote.isResolved || remote.currentEndpoint != nil
     }
 
     @discardableResult
     func tryNextEndpoint() -> Bool {
-        guard hasEndpoint() else {
+        guard let remote = currentRemote else {
             return false
         }
-        currentEndpointIndex += 1
-        guard currentEndpointIndex < endpoints.count else {
-            log.debug("Exhausted endpoints")
+        log.debug("Try next endpoint in current remote: \(remote.maskedDescription)")
+        if remote.nextEndpoint() {
+            return true
+        }
+
+        log.debug("Exhausted endpoints, try next remote")
+        currentRemoteIndex += 1
+        guard let _ = currentRemote else {
+            log.debug("Exhausted remotes, giving up")
             return false
         }
-        log.debug("Try next endpoint: \(currentEndpoint().maskedDescription)")
         return true
     }
     
@@ -158,51 +96,38 @@ class ConnectionStrategy {
         from provider: NEProvider,
         timeout: Int,
         queue: DispatchQueue,
-        completionHandler: @escaping (GenericSocket?, Error?) -> Void) {
-
-        if hasEndpoint() {
-            let endpoint = currentEndpoint()
+        completionHandler: @escaping (Result<GenericSocket, OpenVPNProviderError>) -> Void)
+    {
+        guard let remote = currentRemote else {
+            completionHandler(.failure(.exhaustedEndpoints))
+            return
+        }
+        if remote.isResolved, let endpoint = remote.currentEndpoint {
             log.debug("Pick current endpoint: \(endpoint.maskedDescription)")
             let socket = provider.createSocket(to: endpoint)
-            completionHandler(socket, nil)
+            completionHandler(.success(socket))
             return
         }
-        log.debug("No endpoints available, will resort to DNS resolution")
 
-        guard let hostname = hostname else {
-            log.error("DNS resolution unavailable: no hostname provided!")
-            completionHandler(nil, OpenVPNProviderError.dnsFailure)
-            return
-        }
-        log.debug("DNS resolve hostname: \(hostname.maskedDescription)")
-        DNSResolver.resolve(hostname, timeout: timeout, queue: queue) { (records, error) in
-            self.currentEndpointIndex = 0
-            if let records = records, !records.isEmpty {
-                log.debug("DNS resolved addresses: \(records.map { $0.address }.maskedDescription)")
-                self.endpoints = ConnectionStrategy.unrolledEndpoints(records: records, protos: self.endpointProtocols)
-            } else {
-                log.error("DNS resolution failed!")
-                log.debug("Fall back to resolved addresses: \(self.resolvedAddresses.maskedDescription)")
-                self.endpoints = ConnectionStrategy.unrolledEndpoints(ipv4Addresses: self.resolvedAddresses, protos: self.endpointProtocols)
-            }
-            
-            guard self.hasEndpoint() else {
+        log.debug("No resolved endpoints, will resort to DNS resolution")
+        log.debug("DNS resolve address: \(remote.maskedDescription)")
+
+        remote.resolve(timeout: timeout, queue: queue) {
+            guard let endpoint = remote.currentEndpoint else {
                 log.error("No endpoints available")
-                completionHandler(nil, OpenVPNProviderError.dnsFailure)
+                completionHandler(.failure(.dnsFailure))
                 return
             }
-
-            let targetEndpoint = self.currentEndpoint()
-            log.debug("Pick current endpoint: \(targetEndpoint.maskedDescription)")
-            let socket = provider.createSocket(to: targetEndpoint)
-            completionHandler(socket, nil)
+            log.debug("Pick current endpoint: \(endpoint.maskedDescription)")
+            let socket = provider.createSocket(to: endpoint)
+            completionHandler(.success(socket))
         }
     }
 }
 
 private extension NEProvider {
-    func createSocket(to endpoint: ConnectionStrategy.Endpoint) -> GenericSocket {
-        let ep = NWHostEndpoint(hostname: endpoint.record.address, port: "\(endpoint.proto.port)")
+    func createSocket(to endpoint: Endpoint) -> GenericSocket {
+        let ep = NWHostEndpoint(hostname: endpoint.address, port: "\(endpoint.proto.port)")
         switch endpoint.proto.socketType {
         case .udp, .udp4, .udp6:
             let impl = createUDPSession(to: ep, from: nil)

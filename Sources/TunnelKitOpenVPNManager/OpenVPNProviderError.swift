@@ -58,8 +58,8 @@ public enum OpenVPNProviderError: String, Error {
     /// Socket endpoint could not be resolved.
     case dnsFailure
     
-    /// No more protocols available to try.
-    case exhaustedProtocols
+    /// No more endpoints available to try.
+    case exhaustedEndpoints
     
     /// Socket failed to reach active state.
     case socketActivity

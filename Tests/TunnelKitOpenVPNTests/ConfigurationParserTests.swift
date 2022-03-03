@@ -105,13 +105,12 @@ class ConfigurationParserTests: XCTestCase {
     
     func testPIA() throws {
         let file = try OpenVPN.ConfigurationParser.parsed(fromURL: url(withName: "pia-hungary"))
-        XCTAssertEqual(file.configuration.hostname, "hungary.privateinternetaccess.com")
+        XCTAssertEqual(file.configuration.remotes, [
+            .init("hungary.privateinternetaccess.com", .init(.udp, 1198)),
+            .init("hungary.privateinternetaccess.com", .init(.tcp, 502)),
+        ])
         XCTAssertEqual(file.configuration.cipher, .aes128cbc)
         XCTAssertEqual(file.configuration.digest, .sha1)
-        XCTAssertEqual(file.configuration.endpointProtocols, [
-            EndpointProtocol(.udp, 1198),
-            EndpointProtocol(.tcp, 502)
-        ])
     }
 
     func testStripped() throws {

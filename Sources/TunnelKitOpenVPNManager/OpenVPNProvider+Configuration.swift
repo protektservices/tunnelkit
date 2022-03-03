@@ -55,8 +55,6 @@ extension OpenVPNProvider {
 
         public static let defaults = Configuration(
             sessionConfiguration: OpenVPN.ConfigurationBuilder().build(),
-            prefersResolvedAddresses: false,
-            resolvedAddresses: nil,
             shouldDebug: false,
             debugLogFormat: nil,
             masksPrivateData: true,
@@ -66,17 +64,6 @@ extension OpenVPNProvider {
         /// The session configuration.
         public var sessionConfiguration: OpenVPN.Configuration
         
-        /// Prefers resolved addresses over DNS resolution. `resolvedAddresses` must be set and non-empty. Default is `false`.
-        ///
-        /// - Seealso: `fallbackServerAddresses`
-        public var prefersResolvedAddresses: Bool
-        
-        /// Resolved addresses in case DNS fails or `prefersResolvedAddresses` is `true` (IPv4 only).
-        public var resolvedAddresses: [String]?
-
-        /// Optional version identifier about the client pushed to server in peer-info as `IV_UI_VER`.
-        public var versionIdentifier: String?
-
         // MARK: Debugging
         
         /// Enables debugging.
@@ -88,6 +75,9 @@ extension OpenVPNProvider {
         /// Mask private data in debug log (default is `true`).
         public var masksPrivateData: Bool?
         
+        /// Optional version identifier about the client pushed to server in peer-info as `IV_UI_VER`.
+        public var versionIdentifier: String?
+
         // MARK: Building
         
         /**
@@ -97,8 +87,6 @@ extension OpenVPNProvider {
          */
         public init(sessionConfiguration: OpenVPN.Configuration) {
             self.sessionConfiguration = sessionConfiguration
-            prefersResolvedAddresses = ConfigurationBuilder.defaults.prefersResolvedAddresses
-            resolvedAddresses = nil
             shouldDebug = ConfigurationBuilder.defaults.shouldDebug
             debugLogFormat = ConfigurationBuilder.defaults.debugLogFormat
             masksPrivateData = ConfigurationBuilder.defaults.masksPrivateData
@@ -113,8 +101,6 @@ extension OpenVPNProvider {
         public func build() -> Configuration {
             return Configuration(
                 sessionConfiguration: sessionConfiguration,
-                prefersResolvedAddresses: prefersResolvedAddresses,
-                resolvedAddresses: resolvedAddresses,
                 shouldDebug: shouldDebug,
                 debugLogFormat: shouldDebug ? debugLogFormat : nil,
                 masksPrivateData: masksPrivateData,
@@ -129,12 +115,6 @@ extension OpenVPNProvider {
         /// - Seealso: `OpenVPNProvider.ConfigurationBuilder.sessionConfiguration`
         public let sessionConfiguration: OpenVPN.Configuration
         
-        /// - Seealso: `OpenVPNProvider.ConfigurationBuilder.prefersResolvedAddresses`
-        public let prefersResolvedAddresses: Bool
-        
-        /// - Seealso: `OpenVPNProvider.ConfigurationBuilder.resolvedAddresses`
-        public let resolvedAddresses: [String]?
-
         /// - Seealso: `OpenVPNProvider.ConfigurationBuilder.shouldDebug`
         public let shouldDebug: Bool
         
@@ -246,11 +226,7 @@ extension OpenVPNProvider {
          - Throws: `OpenVPNProviderError.configuration` if `providerConfiguration` is incomplete.
          */
         public static func parsed(from providerConfiguration: [String: Any]) throws -> Configuration {
-            let cfg = try fromDictionary(OpenVPNProvider.Configuration.self, providerConfiguration)
-            guard !cfg.prefersResolvedAddresses || !(cfg.resolvedAddresses?.isEmpty ?? true) else {
-                throw OpenVPNProviderConfigurationError.parameter(name: "protocolConfiguration.providerConfiguration[prefersResolvedAddresses] is true but no [resolvedAddresses]")
-            }
-            return cfg
+            return try fromDictionary(OpenVPNProvider.Configuration.self, providerConfiguration)
         }
 
         /**
@@ -284,13 +260,16 @@ extension OpenVPNProvider {
             withBundleIdentifier bundleIdentifier: String,
             appGroup: String,
             context: String,
-            credentials: OpenVPN.Credentials?) throws -> NETunnelProviderProtocol {
-            
+            credentials: OpenVPN.Credentials?) throws -> NETunnelProviderProtocol
+        {
             let protocolConfiguration = NETunnelProviderProtocol()
             let keychain = Keychain(group: appGroup)
 
             protocolConfiguration.providerBundleIdentifier = bundleIdentifier
-            protocolConfiguration.serverAddress = sessionConfiguration.hostname ?? resolvedAddresses?.first
+            guard let firstRemote = sessionConfiguration.remotes?.first else {
+                fatalError("No remotes set")
+            }
+            protocolConfiguration.serverAddress = "\(firstRemote.address):\(firstRemote.proto.port)"
             if let username = credentials?.username {
                 protocolConfiguration.username = username
                 if let password = credentials?.password {
@@ -324,8 +303,6 @@ extension OpenVPNProvider.Configuration {
      */
     public func builder() -> OpenVPNProvider.ConfigurationBuilder {
         var builder = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: sessionConfiguration)
-        builder.prefersResolvedAddresses = prefersResolvedAddresses
-        builder.resolvedAddresses = resolvedAddresses
         builder.shouldDebug = shouldDebug
         builder.debugLogFormat = debugLogFormat
         builder.masksPrivateData = masksPrivateData
