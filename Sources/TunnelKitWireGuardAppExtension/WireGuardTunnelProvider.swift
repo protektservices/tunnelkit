@@ -1,6 +1,8 @@
 import TunnelKitWireGuardCore
 import TunnelKitWireGuardManager
 import WireGuardKit
+import __TunnelKitUtils
+import SwiftyBeaver
 
 // SPDX-License-Identifier: MIT
 // Copyright © 2018-2021 WireGuard LLC. All Rights Reserved.
@@ -10,7 +12,7 @@ import NetworkExtension
 import os
 
 open class WireGuardTunnelProvider: NEPacketTunnelProvider {
-    private var persistentErrorNotifier: ErrorNotifier?
+    private var cfg: WireGuard.ProviderConfiguration!
 
     private lazy var adapter: WireGuardAdapter = {
         return WireGuardAdapter(with: self) { logLevel, message in
@@ -25,20 +27,20 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
         guard let tunnelProviderProtocol = protocolConfiguration as? NETunnelProviderProtocol else {
             fatalError("Not a NETunnelProviderProtocol")
         }
-        guard let appGroup = tunnelProviderProtocol.providerConfiguration?["AppGroup"] as? String else {
-            fatalError("AppGroup not found in providerConfiguration")
+        guard let providerConfiguration = tunnelProviderProtocol.providerConfiguration else {
+            fatalError("Missing providerConfiguration")
         }
-        let errorNotifier = ErrorNotifier(appGroupId: appGroup)
-        persistentErrorNotifier = errorNotifier
-        
+
         let tunnelConfiguration: TunnelConfiguration
         do {
-            tunnelConfiguration = try WireGuardProvider.Configuration.parsed(from: tunnelProviderProtocol).tunnelConfiguration
+            cfg = try fromDictionary(WireGuard.ProviderConfiguration.self, providerConfiguration)
+            tunnelConfiguration = cfg.configuration.tunnelConfiguration
         } catch {
-            errorNotifier.notify(WireGuardProviderError.savedProtocolConfigurationIsInvalid)
             completionHandler(WireGuardProviderError.savedProtocolConfigurationIsInvalid)
             return
         }
+        
+        configureLogging(debug: cfg.shouldDebug)
 
         // END: TunnelKit
 
@@ -56,24 +58,24 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
             switch adapterError {
             case .cannotLocateTunnelFileDescriptor:
                 wg_log(.error, staticMessage: "Starting tunnel failed: could not determine file descriptor")
-                errorNotifier.notify(WireGuardProviderError.couldNotDetermineFileDescriptor)
+                self.cfg.lastError = .couldNotDetermineFileDescriptor
                 completionHandler(WireGuardProviderError.couldNotDetermineFileDescriptor)
 
             case .dnsResolution(let dnsErrors):
                 let hostnamesWithDnsResolutionFailure = dnsErrors.map { $0.address }
                     .joined(separator: ", ")
                 wg_log(.error, message: "DNS resolution failed for the following hostnames: \(hostnamesWithDnsResolutionFailure)")
-                errorNotifier.notify(WireGuardProviderError.dnsResolutionFailure)
+                self.cfg.lastError = .dnsResolutionFailure
                 completionHandler(WireGuardProviderError.dnsResolutionFailure)
 
             case .setNetworkSettings(let error):
                 wg_log(.error, message: "Starting tunnel failed with setTunnelNetworkSettings returning \(error.localizedDescription)")
-                errorNotifier.notify(WireGuardProviderError.couldNotSetNetworkSettings)
+                self.cfg.lastError = .couldNotSetNetworkSettings
                 completionHandler(WireGuardProviderError.couldNotSetNetworkSettings)
 
             case .startWireGuardBackend(let errorCode):
                 wg_log(.error, message: "Starting tunnel failed with wgTurnOn returning \(errorCode)")
-                errorNotifier.notify(WireGuardProviderError.couldNotStartBackend)
+                self.cfg.lastError = .couldNotStartBackend
                 completionHandler(WireGuardProviderError.couldNotStartBackend)
 
             case .invalidState:
@@ -88,7 +90,7 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
 
         adapter.stop { error in
             // BEGIN: TunnelKit
-            self.persistentErrorNotifier?.removeLastErrorFile()
+            self.cfg.lastError = nil
             // END: TunnelKit
 
             if let error = error {
@@ -119,6 +121,27 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
         } else {
             completionHandler(nil)
         }
+    }
+}
+
+extension WireGuardTunnelProvider {
+    private func configureLogging(debug: Bool, customFormat: String? = nil) {
+        let logLevel: SwiftyBeaver.Level = (debug ? .debug : .info)
+        let logFormat = customFormat ?? "$Dyyyy-MM-dd HH:mm:ss.SSS$d $L $N.$F:$l - $M"
+        
+        if debug {
+            let console = ConsoleDestination()
+            console.useNSLog = true
+            console.minLevel = logLevel
+            console.format = logFormat
+            SwiftyBeaver.addDestination(console)
+        }
+
+        let file = FileDestination(logFileURL: cfg.urlForDebugLog)
+        file.minLevel = logLevel
+        file.format = logFormat
+        file.logFileMaxSize = 20000
+        SwiftyBeaver.addDestination(file)
     }
 }
 

@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- WireGuard: Support multiple peers.
+- Manager package completely rewritten.
+- Only enable on-demand if at least one rule is provided.
+- Dropped incomplete support for IPSec/IKEv2.
 
 ## 4.1.0 (2022-02-09)
 

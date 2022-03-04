@@ -45,9 +45,13 @@ class OpenVPNViewController: NSViewController {
     
     @IBOutlet var buttonConnection: NSButton!
     
-    private let vpn = OpenVPNProvider(bundleIdentifier: tunnelIdentifier)
+    private let vpn = NetworkExtensionVPN()
+    
+    private var vpnStatus: VPNStatus = .disconnected
 
     private let keychain = Keychain(group: appGroup)
+    
+    private var cfg: OpenVPN.ProviderConfiguration?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,17 +65,23 @@ class OpenVPNViewController: NSViewController {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(VPNStatusDidChange(notification:)),
-            name: VPN.didChangeStatus,
+            name: VPNNotification.didChangeStatus,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(VPNDidFail(notification:)),
+            name: VPNNotification.didFail,
+            object: nil
+        )
+
+        vpn.prepare()
         
-        vpn.prepare(completionHandler: nil)
-        
-        testFetchRef()
+//        testFetchRef()
     }
     
     @IBAction func connectionClicked(_ sender: Any) {
-        switch vpn.status {
+        switch vpnStatus {
         case .disconnected:
             connect()
             
@@ -87,28 +97,40 @@ class OpenVPNViewController: NSViewController {
         let port = UInt16(textPort.stringValue)!
 
         let credentials = OpenVPN.Credentials(textUsername.stringValue, textPassword.stringValue)
-        let cfg = OpenVPN.DemoConfiguration.make(hostname: hostname, port: port, socketType: .udp)
-        let proto = try! cfg.generatedTunnelProtocol(
-            withBundleIdentifier: tunnelIdentifier,
+        cfg = OpenVPN.DemoConfiguration.make(
+            "TunnelKit.OpenVPN",
             appGroup: appGroup,
-            context: tunnelIdentifier,
-            credentials: credentials
+            hostname: hostname,
+            port: port,
+            socketType: .udp
         )
-        let neCfg = NetworkExtensionVPNConfiguration(title: "TunnelKit.OpenVPN", protocolConfiguration: proto, onDemandRules: [])
-        vpn.reconnect(configuration: neCfg) { (error) in
-            if let error = error {
-                print("configure error: \(error)")
-                return
-            }
+        cfg?.username = credentials.username
+
+        let passwordReference: Data
+        do {
+            passwordReference = try keychain.set(password: credentials.password, for: credentials.username, context: tunnelIdentifier)
+        } catch {
+            print("Keychain failure: \(error)")
+            return
         }
+
+        var extra = NetworkExtensionExtra()
+        extra.passwordReference = passwordReference
+
+        vpn.reconnect(
+            tunnelIdentifier,
+            configuration: cfg!,
+            extra: extra,
+            delay: nil
+        )
     }
     
     func disconnect() {
-        vpn.disconnect(completionHandler: nil)
+        vpn.disconnect()
     }
 
     func updateButton() {
-        switch vpn.status {
+        switch vpnStatus {
         case .connected, .connecting:
             buttonConnection.title = "Disconnect"
             
@@ -120,27 +142,32 @@ class OpenVPNViewController: NSViewController {
         }
     }
     
-    @objc private func VPNStatusDidChange(notification: NSNotification) {
-        print("VPNStatusDidChange: \(vpn.status)")
+    @objc private func VPNStatusDidChange(notification: Notification) {
+        vpnStatus = notification.vpnStatus
+        print("VPNStatusDidChange: \(vpnStatus)")
         updateButton()
     }
 
-    private func testFetchRef() {
-        let keychain = Keychain(group: appGroup)
-        let username = "foo"
-        let password = "bar"
-
-        guard let ref = try? keychain.set(password: password, for: username, context: tunnelIdentifier) else {
-            print("Couldn't set password")
-            return
-        }
-        guard let fetchedPassword = try? Keychain.password(forReference: ref) else {
-            print("Couldn't fetch password")
-            return
-        }
-
-        print("\(username) -> \(password)")
-        print("\(username) -> \(fetchedPassword)")
+    @objc private func VPNDidFail(notification: Notification) {
+        print("VPNStatusDidFail: \(notification.vpnError.localizedDescription)")
     }
+
+//    private func testFetchRef() {
+//        let keychain = Keychain(group: appGroup)
+//        let username = "foo"
+//        let password = "bar"
+//
+//        guard let ref = try? keychain.set(password: password, for: username, context: tunnelIdentifier) else {
+//            print("Couldn't set password")
+//            return
+//        }
+//        guard let fetchedPassword = try? Keychain.password(forReference: ref) else {
+//            print("Couldn't fetch password")
+//            return
+//        }
+//
+//        print("\(username) -> \(password)")
+//        print("\(username) -> \(fetchedPassword)")
+//    }
 }
 

@@ -171,7 +171,7 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
 -----END PRIVATE KEY-----
 """)
 
-        static func make(hostname: String, port: UInt16, socketType: SocketType) -> OpenVPNProvider.Configuration {
+        static func make(_ title: String, appGroup: String, hostname: String, port: UInt16, socketType: SocketType) -> OpenVPN.ProviderConfiguration {
             var sessionBuilder = OpenVPN.ConfigurationBuilder()
             sessionBuilder.ca = ca
             sessionBuilder.cipher = .aes128cbc
@@ -182,10 +182,10 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
             sessionBuilder.clientCertificate = clientCertificate
             sessionBuilder.clientKey = clientKey
             sessionBuilder.mtu = 1350
-            var builder = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
-            builder.shouldDebug = true
-            builder.masksPrivateData = false
-            return builder.build()
+            var providerConfiguration = OpenVPN.ProviderConfiguration(title, appGroup: appGroup, configuration: sessionBuilder.build())
+            providerConfiguration.shouldDebug = true
+            providerConfiguration.masksPrivateData = false
+            return providerConfiguration
         }
     }
 }
@@ -193,12 +193,14 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
 extension WireGuard {
     struct DemoConfiguration {
         static func make(
+            _ title: String,
+            appGroup: String,
             clientPrivateKey: String,
             clientAddress: String,
             serverPublicKey: String,
             serverAddress: String,
             serverPort: String
-        ) -> WireGuardProvider.Configuration? {
+        ) -> WireGuard.ProviderConfiguration? {
             var builder = WireGuard.ConfigurationBuilder(privateKey: clientPrivateKey)
             builder.addresses = [clientAddress]
 
@@ -211,7 +213,7 @@ extension WireGuard {
             guard let cfg = builder.build() else {
                 return nil
             }
-            return WireGuardProvider.Configuration(innerConfiguration: cfg)
+            return WireGuard.ProviderConfiguration(title, appGroup: appGroup, configuration: cfg)
         }
     }
 }

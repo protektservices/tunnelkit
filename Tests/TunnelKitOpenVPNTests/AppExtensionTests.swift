@@ -56,54 +56,48 @@ class AppExtensionTests: XCTestCase {
     }
 
     func testConfiguration() {
-        var builder: OpenVPNProvider.ConfigurationBuilder!
-        var cfg: OpenVPNProvider.Configuration!
-
-        let identifier = "com.example.Provider"
+        let bundleIdentifier = "com.example.Provider"
         let appGroup = "group.com.algoritmico.TunnelKit"
+
         let hostname = "example.com"
         let port: UInt16 = 1234
         let serverAddress = "\(hostname):\(port)"
-        let context = "foobar"
         let credentials = OpenVPN.Credentials("foo", "bar")
 
-        var sessionBuilder = OpenVPN.ConfigurationBuilder()
-        sessionBuilder.ca = OpenVPN.CryptoContainer(pem: "abcdef")
-        sessionBuilder.cipher = .aes128cbc
-        sessionBuilder.digest = .sha256
-        sessionBuilder.remotes = [.init(hostname, .init(.udp, port))]
-        sessionBuilder.mtu = 1230
-        builder = OpenVPNProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
-        XCTAssertNotNil(builder)
+        var builder = OpenVPN.ConfigurationBuilder()
+        builder.ca = OpenVPN.CryptoContainer(pem: "abcdef")
+        builder.cipher = .aes128cbc
+        builder.digest = .sha256
+        builder.remotes = [.init(hostname, .init(.udp, port))]
+        builder.mtu = 1230
 
-        cfg = builder.build()
-
-        let proto = try? cfg.generatedTunnelProtocol(
-            withBundleIdentifier: identifier,
-            appGroup: appGroup,
-            context: context,
-            credentials: credentials
-        )
-        XCTAssertNotNil(proto)
+        var cfg = OpenVPN.ProviderConfiguration("", appGroup: appGroup, configuration: builder.build())
+        cfg.username = credentials.username
+        let proto: NETunnelProviderProtocol
+        do {
+            proto = try cfg.asTunnelProtocol(withBundleIdentifier: bundleIdentifier, extra: nil)
+        } catch {
+            XCTFail(error.localizedDescription)
+            return
+        }
         
-        XCTAssertEqual(proto?.providerBundleIdentifier, identifier)
-        XCTAssertEqual(proto?.serverAddress, serverAddress)
-        XCTAssertEqual(proto?.username, credentials.username)
-        XCTAssertEqual(proto?.passwordReference, try? Keychain(group: appGroup).passwordReference(for: credentials.username, context: context))
+        XCTAssertEqual(proto.providerBundleIdentifier, bundleIdentifier)
+        XCTAssertEqual(proto.serverAddress, serverAddress)
+        XCTAssertEqual(proto.username, credentials.username)
 
-        guard let pc = proto?.providerConfiguration else {
+        guard let pc = proto.providerConfiguration else {
             return
         }
         print("\(pc)")
 
-        let pcSession = pc["sessionConfiguration"] as? [String: Any]
+        let ovpn = pc["configuration"] as? [String: Any]
         XCTAssertEqual(pc["appGroup"] as? String, appGroup)
         XCTAssertEqual(pc["shouldDebug"] as? Bool, cfg.shouldDebug)
-        XCTAssertEqual(pcSession?["cipher"] as? String, cfg.sessionConfiguration.cipher?.rawValue)
-        XCTAssertEqual(pcSession?["digest"] as? String, cfg.sessionConfiguration.digest?.rawValue)
-        XCTAssertEqual(pcSession?["ca"] as? String, cfg.sessionConfiguration.ca?.pem)
-        XCTAssertEqual(pcSession?["mtu"] as? Int, cfg.sessionConfiguration.mtu)
-        XCTAssertEqual(pcSession?["renegotiatesAfter"] as? TimeInterval, cfg.sessionConfiguration.renegotiatesAfter)
+        XCTAssertEqual(ovpn?["cipher"] as? String, cfg.configuration.cipher?.rawValue)
+        XCTAssertEqual(ovpn?["digest"] as? String, cfg.configuration.digest?.rawValue)
+        XCTAssertEqual(ovpn?["ca"] as? String, cfg.configuration.ca?.pem)
+        XCTAssertEqual(ovpn?["mtu"] as? Int, cfg.configuration.mtu)
+        XCTAssertEqual(ovpn?["renegotiatesAfter"] as? TimeInterval, cfg.configuration.renegotiatesAfter)
     }
     
     func testDNSResolver() {

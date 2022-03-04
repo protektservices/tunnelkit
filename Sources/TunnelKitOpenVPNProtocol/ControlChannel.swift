@@ -234,8 +234,8 @@ extension OpenVPN {
             dataCount.outbound += count
         }
         
-        func currentDataCount() -> (Int, Int) {
-            return dataCount.pair
+        func currentDataCount() -> DataCount {
+            return DataCount(UInt(dataCount.inbound), UInt(dataCount.outbound))
         }
     }
 }

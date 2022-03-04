@@ -48,6 +48,7 @@ import TunnelKitOpenVPNManager
 import TunnelKitOpenVPNProtocol
 import TunnelKitAppExtension
 import CTunnelKitCore
+import __TunnelKitUtils
 
 private let log = SwiftyBeaver.self
 
@@ -106,9 +107,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
     private let prngSeedLength = 64
     
     private var cachesURL: URL {
-        guard let appGroup = appGroup else {
-            fatalError("Accessing cachesURL before parsing app group")
-        }
+        let appGroup = cfg.appGroup
         guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) else {
             fatalError("No access to app group: \(appGroup)")
         }
@@ -117,11 +116,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: Tunnel configuration
 
-    private var appGroup: String!
-
-    private lazy var defaults = UserDefaults(suiteName: appGroup)
-    
-    private var cfg: OpenVPNProvider.Configuration!
+    private var cfg: OpenVPN.ProviderConfiguration!
     
     private var strategy: ConnectionStrategy!
     
@@ -160,8 +155,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
             guard let providerConfiguration = tunnelProtocol.providerConfiguration else {
                 throw OpenVPNProviderConfigurationError.parameter(name: "protocolConfiguration.providerConfiguration")
             }
-            try appGroup = OpenVPNProvider.Configuration.appGroup(from: providerConfiguration)
-            try cfg = OpenVPNProvider.Configuration.parsed(from: providerConfiguration)
+            cfg = try fromDictionary(OpenVPN.ProviderConfiguration.self, providerConfiguration)
         } catch let e {
             var message: String?
             if let te = e as? OpenVPNProviderConfigurationError {
@@ -179,7 +173,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
 
         // prepare for logging (append)
-        if let content = cfg.existingLog(in: appGroup) {
+        if let content = cfg.debugLog {
             var existingLog = content.components(separatedBy: "\n")
             if let i = existingLog.firstIndex(of: logSeparator) {
                 existingLog.removeFirst(i + 2)
@@ -198,9 +192,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         // logging only ACTIVE from now on
         
         // override library configuration
-        if let masksPrivateData = cfg.masksPrivateData {
-            CoreConfiguration.masksPrivateData = masksPrivateData
-        }
+        CoreConfiguration.masksPrivateData = cfg.masksPrivateData
         if let versionIdentifier = cfg.versionIdentifier {
             CoreConfiguration.versionIdentifier = versionIdentifier
         }
@@ -218,21 +210,24 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
 
         log.info("Starting tunnel...")
-        cfg.clearLastError(in: appGroup)
+        cfg.lastError = nil
         
         guard OpenVPN.prepareRandomNumberGenerator(seedLength: prngSeedLength) else {
             completionHandler(OpenVPNProviderConfigurationError.prngInitialization)
             return
         }
 
-        cfg.print(appVersion: appVersion)
+        if let appVersion = appVersion {
+            log.info("App version: \(appVersion)")
+        }
+        cfg.print()
 
         // prepare to pick endpoints
-        strategy = ConnectionStrategy(configuration: cfg.sessionConfiguration)
+        strategy = ConnectionStrategy(configuration: cfg.configuration)
 
         let session: OpenVPNSession
         do {
-            session = try OpenVPNSession(queue: tunnelQueue, configuration: cfg.sessionConfiguration, cachesURL: cachesURL)
+            session = try OpenVPNSession(queue: tunnelQueue, configuration: cfg.configuration, cachesURL: cachesURL)
             refreshDataCount()
         } catch let e {
             completionHandler(e)
@@ -253,7 +248,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
     open override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         pendingStartHandler = nil
         log.info("Stopping tunnel...")
-        cfg.clearLastError(in: appGroup)
+        cfg.lastError = nil
 
         guard let session = session else {
             flushLog()
@@ -280,31 +275,6 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    open override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
-        var response: Data?
-        switch OpenVPNProvider.Message(messageData) {
-        case .requestLog:
-            response = memoryLog.description.data(using: .utf8)
-
-        case .dataCount:
-            if let session = session, let dataCount = session.dataCount() {
-                response = Data()
-                response?.append(UInt64(dataCount.0)) // inbound
-                response?.append(UInt64(dataCount.1)) // outbound
-            }
-            
-        case .serverConfiguration:
-            if let cfg = session?.serverConfiguration() as? OpenVPN.Configuration {
-                let encoder = JSONEncoder()
-                response = try? encoder.encode(cfg)
-            }
-            
-        default:
-            break
-        }
-        completionHandler?(response)
-    }
-
     // MARK: Wake/Sleep (debugging placeholders)
 
     open override func wake() {
@@ -348,7 +318,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
     
     private func connectTunnel(via socket: GenericSocket) {
         log.info("Will connect to \(socket)")
-        cfg.clearLastError(in: appGroup)
+        cfg.lastError = nil
 
         log.debug("Socket type is \(type(of: socket))")
         self.socket = socket
@@ -421,10 +391,10 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
             self?.refreshDataCount()
         }
         guard isCountingData, let session = session, let dataCount = session.dataCount() else {
-            defaults?.removeDataCountArray()
+            cfg.dataCount = nil
             return
         }
-        defaults?.dataCountArray = [dataCount.0, dataCount.1]
+        cfg.dataCount = dataCount
     }
 }
 
@@ -451,10 +421,10 @@ extension OpenVPNTunnelProvider: GenericSocketDelegate {
             return
         }
         if session.canRebindLink() {
-            session.rebindLink(producer.link(xorMask: cfg.sessionConfiguration.xorMask))
+            session.rebindLink(producer.link(xorMask: cfg.configuration.xorMask))
             reasserting = false
         } else {
-            session.setLink(producer.link(xorMask: cfg.sessionConfiguration.xorMask))
+            session.setLink(producer.link(xorMask: cfg.configuration.xorMask))
         }
     }
     
@@ -562,6 +532,8 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             }
         }
 
+        cfg.serverConfiguration = session.serverConfiguration() as? OpenVPN.Configuration
+
         bringNetworkUp(remoteAddress: remoteAddress, localOptions: session.configuration, options: options) { (error) in
 
             // FIXME: XPC queue
@@ -588,6 +560,8 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
     }
     
     public func sessionDidStop(_: OpenVPNSession, withError error: Error?, shouldReconnect: Bool) {
+        cfg.serverConfiguration = nil
+
         if let error = error {
             log.error("Session did stop with error: \(error)")
         } else {
@@ -681,10 +655,10 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         var dnsServers: [String] = []
         var dnsSettings: NEDNSSettings?
         if #available(iOS 14, macOS 11, *) {
-            switch cfg.sessionConfiguration.dnsProtocol {
+            switch cfg.configuration.dnsProtocol {
             case .https:
-                dnsServers = cfg.sessionConfiguration.dnsServers ?? []
-                guard let serverURL = cfg.sessionConfiguration.dnsHTTPSURL else {
+                dnsServers = cfg.configuration.dnsServers ?? []
+                guard let serverURL = cfg.configuration.dnsHTTPSURL else {
                     break
                 }
                 let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
@@ -694,11 +668,11 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                 log.info("\tHTTPS URL: \(serverURL.maskedDescription)")
 
             case .tls:
-                guard let dnsServers = cfg.sessionConfiguration.dnsServers else {
+                guard let dnsServers = cfg.configuration.dnsServers else {
                     session?.shutdown(error: OpenVPNProviderError.dnsFailure)
                     return
                 }
-                guard let serverName = cfg.sessionConfiguration.dnsTLSServerName else {
+                guard let serverName = cfg.configuration.dnsTLSServerName else {
                     break
                 }
                 let specific = NEDNSOverTLSSettings(servers: dnsServers)
@@ -715,7 +689,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         // fall back
         if dnsSettings == nil {
             dnsServers = []
-            if let servers = cfg.sessionConfiguration.dnsServers,
+            if let servers = cfg.configuration.dnsServers,
                !servers.isEmpty {
                 dnsServers = servers
             } else if let servers = options.dnsServers {
@@ -736,7 +710,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             dnsSettings?.matchDomains = [""]
         }
         
-        if let searchDomains = cfg.sessionConfiguration.searchDomains ?? options.searchDomains {
+        if let searchDomains = cfg.configuration.searchDomains ?? options.searchDomains {
             log.info("DNS: Using search domains \(searchDomains.maskedDescription)")
             dnsSettings?.domainName = searchDomains.first
             dnsSettings?.searchDomains = searchDomains
@@ -757,13 +731,13 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         }
         
         var proxySettings: NEProxySettings?
-        if let httpsProxy = cfg.sessionConfiguration.httpsProxy ?? options.httpsProxy {
+        if let httpsProxy = cfg.configuration.httpsProxy ?? options.httpsProxy {
             proxySettings = NEProxySettings()
             proxySettings?.httpsServer = httpsProxy.neProxy()
             proxySettings?.httpsEnabled = true
             log.info("Routing: Setting HTTPS proxy \(httpsProxy.address.maskedDescription):\(httpsProxy.port)")
         }
-        if let httpProxy = cfg.sessionConfiguration.httpProxy ?? options.httpProxy {
+        if let httpProxy = cfg.configuration.httpProxy ?? options.httpProxy {
             if proxySettings == nil {
                 proxySettings = NEProxySettings()
             }
@@ -771,7 +745,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             proxySettings?.httpEnabled = true
             log.info("Routing: Setting HTTP proxy \(httpProxy.address.maskedDescription):\(httpProxy.port)")
         }
-        if let pacURL = cfg.sessionConfiguration.proxyAutoConfigurationURL ?? options.proxyAutoConfigurationURL {
+        if let pacURL = cfg.configuration.proxyAutoConfigurationURL ?? options.proxyAutoConfigurationURL {
             if proxySettings == nil {
                 proxySettings = NEProxySettings()
             }
@@ -781,7 +755,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         }
 
         // only set if there is a proxy (proxySettings set to non-nil above)
-        if let bypass = cfg.sessionConfiguration.proxyBypassDomains ?? options.proxyBypassDomains {
+        if let bypass = cfg.configuration.proxyBypassDomains ?? options.proxyBypassDomains {
             proxySettings?.exceptionList = bypass
             log.info("Routing: Setting proxy by-pass list: \(bypass.maskedDescription)")
         }
@@ -828,7 +802,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         newSettings.ipv6Settings = ipv6Settings
         newSettings.dnsSettings = dnsSettings
         newSettings.proxySettings = proxySettings
-        if let mtu = cfg.sessionConfiguration.mtu {
+        if let mtu = cfg.configuration.mtu {
             newSettings.mtu = NSNumber(value: mtu)
         }
 
@@ -868,7 +842,7 @@ extension OpenVPNTunnelProvider {
     
     private func flushLog() {
         log.debug("Flushing log...")
-        if let url = cfg.urlForLog(in: appGroup) {
+        if let url = cfg.urlForDebugLog {
             memoryLog.flush(to: url)
         }
     }
@@ -891,7 +865,7 @@ extension OpenVPNTunnelProvider {
     // MARK: Errors
     
     private func setErrorStatus(with error: Error) {
-        defaults?.set(unifiedError(from: error).rawValue, forKey: OpenVPNProvider.Configuration.lastErrorKey)
+        cfg.lastError = unifiedError(from: error)
     }
     
     private func unifiedError(from error: Error) -> OpenVPNProviderError {

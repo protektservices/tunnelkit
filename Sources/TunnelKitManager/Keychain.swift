@@ -36,6 +36,11 @@
 
 import Foundation
 
+// Label -> Name
+// Description -> Kind
+// Service -> Where
+// Account -> Account
+
 /// Error raised by `Keychain` methods.
 public enum KeychainError: Error {
 
@@ -74,11 +79,12 @@ public class Keychain {
      - Parameter password: The password to set.
      - Parameter username: The username to set the password for.
      - Parameter context: An optional context.
+     - Parameter label: An optional label.
      - Returns: The reference to the password.
      - Throws: `KeychainError.add` if unable to add the password to the keychain.
      **/
     @discardableResult
-    public func set(password: String, for username: String, context: String? = nil) throws -> Data {
+    public func set(password: String, for username: String, context: String? = nil, label: String? = nil) throws -> Data {
         do {
             let currentPassword = try self.password(for: username, context: context)
             guard password != currentPassword else {
@@ -98,6 +104,7 @@ public class Keychain {
         var query = [String: Any]()
         setScope(query: &query, context: context)
         query[kSecClass as String] = kSecClassGenericPassword
+        query[kSecAttrLabel as String] = label
         query[kSecAttrAccount as String] = username
         query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
         query[kSecValueData as String] = password.data(using: .utf8)

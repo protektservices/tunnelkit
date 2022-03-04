@@ -1,5 +1,5 @@
 //
-//  VPNConfiguration.swift
+//  NetworkExtensionConfiguration.swift
 //  TunnelKit
 //
 //  Created by Davide De Rosa on 9/18/18.
@@ -24,10 +24,35 @@
 //
 
 import Foundation
+import NetworkExtension
 
-/// Generic marker for objects able to configure a `VPNProvider`.
-public protocol VPNConfiguration {
+/// :nodoc:
+public struct NetworkExtensionExtra {
+    public var passwordReference: Data?
+
+    public var onDemandRules: [NEOnDemandRule] = []
+
+    public var disconnectsOnSleep = false
+    
+    public init() {
+    }
+}
+
+/// Configuration object to feed to a `NetworkExtensionProvider`.
+public protocol NetworkExtensionConfiguration {
 
     /// The profile title in device settings.
     var title: String { get }
+    
+    /**
+     Returns a representation for use with tunnel implementations.
+     
+     - Parameter bundleIdentifier: The bundle identifier of the tunnel extension.
+     - Parameter extra: The optional `Extra` arguments.
+     - Returns An object to use with tunnel implementations.
+     */
+    func asTunnelProtocol(
+        withBundleIdentifier bundleIdentifier: String,
+        extra: NetworkExtensionExtra?
+    ) throws -> NETunnelProviderProtocol
 }

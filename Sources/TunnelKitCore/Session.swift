@@ -66,9 +66,9 @@ public protocol Session {
     /**
      Returns the current data bytes count.
      
-     - Returns: The current data bytes count as a pair, inbound first.
+     - Returns: The current data bytes count.
      */
-    func dataCount() -> (Int, Int)?
+    func dataCount() -> DataCount?
     
     /**
      Returns the current server configuration.

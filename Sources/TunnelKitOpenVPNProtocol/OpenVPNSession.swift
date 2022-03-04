@@ -276,7 +276,7 @@ public class OpenVPNSession: Session {
         loopTunnel()
     }
 
-    public func dataCount() -> (Int, Int)? {
+    public func dataCount() -> DataCount? {
         guard let _ = link else {
             return nil
         }

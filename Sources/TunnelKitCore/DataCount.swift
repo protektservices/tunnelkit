@@ -1,8 +1,8 @@
 //
-//  NetworkExtensionVPNConfiguration.swift
+//  DataCount.swift
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 8/25/21.
+//  Created by Davide De Rosa on 3/5/22.
 //  Copyright (c) 2022 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -24,22 +24,21 @@
 //
 
 import Foundation
-import NetworkExtension
 
-/// A `VPNConfiguration` built on top of NetworkExtension entities.
-public struct NetworkExtensionVPNConfiguration: VPNConfiguration {
+/// :nodoc:
+public struct DataCount: Equatable {
+    public let received: UInt
     
-    public var title: String
+    public let sent: UInt
+    
+    public init(_ received: UInt, _ sent: UInt) {
+        self.received = received
+        self.sent = sent
+    }
 
-    /// The `NEVPNProtocol` object embedding tunnel configuration.
-    public let protocolConfiguration: NEVPNProtocol
+    // MARK: Equatable
     
-    /// The on-demand rules to establish.
-    public let onDemandRules: [NEOnDemandRule]
-    
-    public init(title: String, protocolConfiguration: NEVPNProtocol, onDemandRules: [NEOnDemandRule]) {
-        self.title = title
-        self.protocolConfiguration = protocolConfiguration
-        self.onDemandRules = onDemandRules
+    public static func ==(lhs: DataCount, rhs: DataCount) -> Bool {
+        return lhs.up == rhs.up && lhs.down == rhs.down
     }
 }

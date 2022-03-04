@@ -2,7 +2,7 @@
 //  VPN.swift
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 6/12/18.
+//  Created by Davide De Rosa on 9/6/18.
 //  Copyright (c) 2022 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -25,15 +25,56 @@
 
 import Foundation
 
-/// Wrapper for shared access to VPN-related objects.
-public class VPN {
+/// Helps controlling a VPN without messing with underlying implementations.
+public protocol VPN {
+    associatedtype Manager
     
-    /// The VPN became ready to use.
-    public static let didPrepare = Notification.Name("VPNDidPrepare")
+    associatedtype Configuration
     
-    /// The VPN did change status.
-    public static let didChangeStatus = Notification.Name("VPNDidChangeStatus")
+    associatedtype Extra
+    
+    /**
+     Synchronizes with the current VPN state.
+     */
+    func prepare()
+    
+    /**
+     Installs the VPN profile.
 
-    /// The VPN profile did (re)install.
-    public static let didReinstall = Notification.Name("VPNDidReinstall")
+     - Parameter tunnelBundleIdentifier: The bundle identifier of the tunnel extension.
+     - Parameter configuration: The configuration to install.
+     - Parameter extra: Optional extra arguments.
+     - Parameter completionHandler: The completion handler.
+     */
+    func install(
+        _ tunnelBundleIdentifier: String,
+        configuration: Configuration,
+        extra: Extra?,
+        completionHandler: ((Result<Manager, Error>) -> Void)?
+    )
+
+    /**
+     Reconnects to the VPN.
+
+     - Parameter tunnelBundleIdentifier: The bundle identifier of the tunnel extension.
+     - Parameter configuration: The configuration to install.
+     - Parameter extra: Optional extra arguments.
+     - Parameter delay: The reconnection delay in seconds.
+     */
+    func reconnect(
+        _ tunnelBundleIdentifier: String,
+        configuration: Configuration,
+        extra: Extra?,
+        delay: Double?
+    )
+    
+    /**
+     Disconnects from the VPN.
+     */
+    func disconnect()
+    
+    /**
+     Uninstalls the VPN profile.
+     */
+    func uninstall()
 }

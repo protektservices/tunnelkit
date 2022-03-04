@@ -26,7 +26,6 @@
 import UIKit
 import TunnelKitManager
 import TunnelKitWireGuard
-import NetworkExtension
 
 private let appGroup = "group.com.algoritmico.TunnelKit.Demo"
 
@@ -45,7 +44,9 @@ class WireGuardViewController: UIViewController {
     
     @IBOutlet var buttonConnection: UIButton!
     
-    private let vpn = WireGuardProvider(bundleIdentifier: tunnelIdentifier)
+    private let vpn = NetworkExtensionVPN()
+    
+    private var vpnStatus: VPNStatus = .disconnected
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,15 +62,21 @@ class WireGuardViewController: UIViewController {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(VPNStatusDidChange(notification:)),
-            name: VPN.didChangeStatus,
+            name: VPNNotification.didChangeStatus,
             object: nil
         )
-        
-        vpn.prepare(completionHandler: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(VPNDidFail(notification:)),
+            name: VPNNotification.didFail,
+            object: nil
+        )
+
+        vpn.prepare()
     }
 
     @IBAction func connectionClicked(_ sender: Any) {
-        switch vpn.status {
+        switch vpnStatus {
         case .disconnected:
             connect()
             
@@ -86,6 +93,8 @@ class WireGuardViewController: UIViewController {
         let serverPort = textServerPort.text!
 
         guard let cfg = WireGuard.DemoConfiguration.make(
+            "TunnelKit.WireGuard",
+            appGroup: appGroup,
             clientPrivateKey: clientPrivateKey,
             clientAddress: clientAddress,
             serverPublicKey: serverPublicKey,
@@ -95,27 +104,21 @@ class WireGuardViewController: UIViewController {
             print("Configuration incomplete")
             return
         }
-        let proto = try! cfg.generatedTunnelProtocol(
-            withBundleIdentifier: tunnelIdentifier,
-            appGroup: appGroup,
-            context: tunnelIdentifier
-        )
 
-        let neCfg = NetworkExtensionVPNConfiguration(title: "TunnelKit.WireGuard", protocolConfiguration: proto, onDemandRules: [])
-        vpn.reconnect(configuration: neCfg) { (error) in
-            if let error = error {
-                print("configure error: \(error)")
-                return
-            }
-        }
+        vpn.reconnect(
+            tunnelIdentifier,
+            configuration: cfg,
+            extra: nil,
+            delay: nil
+        )
     }
     
     func disconnect() {
-        vpn.disconnect(completionHandler: nil)
+        vpn.disconnect()
     }
 
     func updateButton() {
-        switch vpn.status {
+        switch vpnStatus {
         case .connected, .connecting:
             buttonConnection.setTitle("Disconnect", for: .normal)
             
@@ -127,8 +130,12 @@ class WireGuardViewController: UIViewController {
         }
     }
     
-    @objc private func VPNStatusDidChange(notification: NSNotification) {
-        print("VPNStatusDidChange: \(vpn.status)")
+    @objc private func VPNStatusDidChange(notification: Notification) {
+        print("VPNStatusDidChange: \(notification.vpnStatus)")
         updateButton()
+    }
+
+    @objc private func VPNDidFail(notification: Notification) {
+        print("VPNStatusDidFail: \(notification.vpnError.localizedDescription)")
     }
 }

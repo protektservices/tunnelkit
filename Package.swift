@@ -15,10 +15,6 @@ let package = Package(
             targets: ["TunnelKit"]
         ),
         .library(
-            name: "TunnelKitIKE",
-            targets: ["TunnelKitIKE"]
-        ),
-        .library(
             name: "TunnelKitOpenVPN",
             targets: ["TunnelKitOpenVPN"]
         ),
@@ -74,11 +70,6 @@ let package = Package(
                 "TunnelKitCore"
             ]),
         .target(
-            name: "TunnelKitIKE",
-            dependencies: [
-                "TunnelKitManager"
-            ]),
-        .target(
             name: "TunnelKitOpenVPN",
             dependencies: [
                 "TunnelKitOpenVPNCore",
@@ -122,6 +113,7 @@ let package = Package(
         .target(
             name: "TunnelKitWireGuardCore",
             dependencies: [
+                "__TunnelKitUtils",
                 "WireGuardKit"
             ]),
         .target(
