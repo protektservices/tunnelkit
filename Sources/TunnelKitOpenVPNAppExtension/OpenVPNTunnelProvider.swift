@@ -751,7 +751,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             }
             proxySettings?.proxyAutoConfigurationURL = pacURL
             proxySettings?.autoProxyConfigurationEnabled = true
-            log.info("Routing: Setting PAC \(pacURL)")
+            log.info("Routing: Setting PAC \(pacURL.maskedDescription)")
         }
 
         // only set if there is a proxy (proxySettings set to non-nil above)

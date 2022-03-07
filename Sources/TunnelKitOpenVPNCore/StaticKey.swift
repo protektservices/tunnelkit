@@ -227,5 +227,9 @@ extension OpenVPN {
             try container.encode(secureData.toData(), forKey: .data)
             try container.encodeIfPresent(direction, forKey: .dir)
         }
+        
+        public var hexString: String {
+            return secureData.toHex()
+        }
     }
 }

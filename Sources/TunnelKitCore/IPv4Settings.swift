@@ -29,7 +29,7 @@ import Foundation
 public struct IPv4Settings: Codable, CustomStringConvertible {
     
     /// Represents an IPv4 route in the routing table.
-    public struct Route: Codable, CustomStringConvertible {
+    public struct Route: Codable, Hashable, CustomStringConvertible {
         
         /// The destination host or subnet.
         public let destination: String
@@ -46,6 +46,14 @@ public struct IPv4Settings: Codable, CustomStringConvertible {
             self.gateway = gateway
         }
         
+        // MARK: Hashable
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(destination)
+            hasher.combine(mask)
+            hasher.combine(gateway)
+        }
+
         // MARK: CustomStringConvertible
         
         public var description: String {

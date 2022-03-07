@@ -72,12 +72,6 @@ extension OpenVPN {
             return CryptoContainer(pem: decryptedPEM)
         }
 
-        // MARK: Equatable
-        
-        public static func ==(lhs: CryptoContainer, rhs: CryptoContainer) -> Bool {
-            return lhs.pem == rhs.pem
-        }
-
         // MARK: Codable
         
         public init(from decoder: Decoder) throws {

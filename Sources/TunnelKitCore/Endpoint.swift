@@ -37,12 +37,6 @@ public struct Endpoint: Codable, Equatable, CustomStringConvertible {
         self.proto = proto
     }
     
-    // MARK: Equatable
-    
-    public static func ==(lhs: Endpoint, rhs: Endpoint) -> Bool {
-        return lhs.address == rhs.address && lhs.proto == rhs.proto
-    }
-
     // MARK: CustomStringConvertible
     
     public var description: String {
@@ -83,12 +77,6 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     
     public var rawValue: String {
         return "\(socketType.rawValue):\(port)"
-    }
-    
-    // MARK: Equatable
-    
-    public static func ==(lhs: EndpointProtocol, rhs: EndpointProtocol) -> Bool {
-        return (lhs.socketType == rhs.socketType) && (lhs.port == rhs.port)
     }
     
     // MARK: CustomStringConvertible

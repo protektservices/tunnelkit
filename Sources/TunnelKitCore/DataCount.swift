@@ -35,10 +35,4 @@ public struct DataCount: Equatable {
         self.received = received
         self.sent = sent
     }
-
-    // MARK: Equatable
-    
-    public static func ==(lhs: DataCount, rhs: DataCount) -> Bool {
-        return lhs.up == rhs.up && lhs.down == rhs.down
-    }
 }

@@ -56,12 +56,6 @@ extension OpenVPN {
             self.username = username
             self.password = password
         }
-        
-        // MARK: Equatable
-
-        public static func ==(lhs: Credentials, rhs: Credentials) -> Bool {
-            return (lhs.username == rhs.username) && (lhs.password == rhs.password)
-        }
     }
 
     /// Encryption algorithm.
