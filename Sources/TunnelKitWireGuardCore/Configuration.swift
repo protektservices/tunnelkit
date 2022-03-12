@@ -27,110 +27,225 @@ import Foundation
 import WireGuardKit
 import NetworkExtension
 
+public protocol WireGuardConfigurationProviding {
+    var interface: InterfaceConfiguration { get }
+    
+    var peers: [PeerConfiguration] { get }
+    
+    var privateKey: String { get }
+
+    var publicKey: String { get }
+
+    var addresses: [String] { get }
+    
+    var dnsServers: [String] { get }
+
+    var dnsSearchDomains: [String] { get }
+
+    var mtu: UInt16? { get }
+
+    var peersCount: Int { get }
+
+    func publicKey(ofPeer peerIndex: Int) -> String
+
+    func preSharedKey(ofPeer peerIndex: Int) -> String?
+
+    func endpoint(ofPeer peerIndex: Int) -> String?
+
+    func allowedIPs(ofPeer peerIndex: Int) -> [String]
+
+    func keepAlive(ofPeer peerIndex: Int) -> UInt16?
+}
+
 extension WireGuard {
-    public struct Peer {
-        public var publicKey: String
+    public struct ConfigurationBuilder: WireGuardConfigurationProviding {
+        private static let defaultGateway4 = IPAddressRange(from: "0.0.0.0/0")!
         
-        public var preSharedKey: String?
+        private static let defaultGateway6 = IPAddressRange(from: "::/0")!
+        
+        public private(set) var interface: InterfaceConfiguration
 
-        public var endpoint: String?
+        public private(set) var peers: [PeerConfiguration]
         
-        public var allowedIPs: [String]?
-        
-        public var keepAliveInterval: UInt16?
-
-        public init(publicKey: String) {
-            self.publicKey = publicKey
+        public init() {
+            self.init(PrivateKey())
         }
-    }
 
-    public struct ConfigurationBuilder {
-        public var privateKey: String
-        
-        public var publicKey: String? {
-            return PrivateKey(base64Key: privateKey)?.publicKey.base64Key
+        public init(_ base64PrivateKey: String) throws {
+            guard let privateKey = PrivateKey(base64Key: base64PrivateKey) else {
+                throw WireGuard.ConfigurationError.invalidKey
+            }
+            self.init(privateKey)
         }
         
-        public var addresses: [String]?
-        
-        public var dns: [String]?
-
-        public var mtu: UInt16?
-        
-        public var peers: [Peer]
-        
-        public init(privateKey: String) {
-            self.privateKey = privateKey
+        private init(_ privateKey: PrivateKey) {
+            interface = InterfaceConfiguration(privateKey: privateKey)
             peers = []
         }
-
-        public func build() -> Configuration? {
-            guard let clientPrivateKey = PrivateKey(base64Key: privateKey) else {
-                return nil
+        
+        public init(_ tunnelConfiguration: TunnelConfiguration) {
+            interface = tunnelConfiguration.interface
+            peers = tunnelConfiguration.peers
+        }
+        
+        // MARK: WireGuardConfigurationProviding
+        
+        public var privateKey: String {
+            get {
+                return interface.privateKey.base64Key
             }
-
-            var interfaceConfiguration = InterfaceConfiguration(privateKey: clientPrivateKey)
-            if let clientAddresses = addresses?.mapOptional({ IPAddressRange(from: $0) }) {
-                interfaceConfiguration.addresses = clientAddresses
-            }
-            if let dnsServers = dns?.mapOptional({ DNSServer(from: $0) }) {
-                interfaceConfiguration.dns = dnsServers
-            }
-            interfaceConfiguration.mtu = mtu
-            
-            var peerConfigurations: [PeerConfiguration] = []
-            for peer in peers {
-                guard let publicKey = PublicKey(base64Key: peer.publicKey) else {
-                    continue
+            set {
+                guard let key = PrivateKey(base64Key: newValue) else {
+                    return
                 }
-                // XXX: this is actually optional in WireGuard
-                guard let endpointString = peer.endpoint, let endpoint = Endpoint(from: endpointString) else {
-                      return nil
-                }
-
-                var cfg = PeerConfiguration(publicKey: publicKey)
-                if let preSharedKey = peer.preSharedKey {
-                    cfg.preSharedKey = PreSharedKey(base64Key: preSharedKey)
-                }
-                if let allowedIPs = peer.allowedIPs?.mapOptional(IPAddressRange.init(from:)) {
-                    cfg.allowedIPs = allowedIPs
-                }
-                cfg.endpoint = endpoint
-                cfg.persistentKeepAlive = peer.keepAliveInterval
-
-                peerConfigurations.append(cfg)
+                interface.privateKey = key
             }
-            guard !peers.isEmpty else {
-                return nil
-            }
+        }
 
-            let tunnelConfiguration = TunnelConfiguration(name: nil, interface: interfaceConfiguration, peers: peerConfigurations)
+        public var addresses: [String] {
+            get {
+                return interface.addresses.map(\.stringRepresentation)
+            }
+            set {
+                interface.addresses = newValue.compactMap(IPAddressRange.init)
+            }
+        }
+        
+        public var dnsServers: [String] {
+            get {
+                return interface.dns.map(\.stringRepresentation)
+            }
+            set {
+                interface.dns = newValue.compactMap(DNSServer.init)
+            }
+        }
+
+        public var dnsSearchDomains: [String] {
+            get {
+                return interface.dnsSearch
+            }
+            set {
+                interface.dnsSearch = newValue
+            }
+        }
+
+        public var mtu: UInt16? {
+            get {
+                return interface.mtu
+            }
+            set {
+                interface.mtu = newValue
+            }
+        }
+        
+        // MARK: Modification
+
+        public mutating func addPeer(_ base64PublicKey: String, endpoint: String, allowedIPs: [String] = []) throws {
+            guard let publicKey = PublicKey(base64Key: base64PublicKey) else {
+                throw WireGuard.ConfigurationError.invalidKey
+            }
+            var peer = PeerConfiguration(publicKey: publicKey)
+            peer.endpoint = Endpoint(from: endpoint)
+            peer.allowedIPs = allowedIPs.compactMap(IPAddressRange.init)
+            peers.append(peer)
+        }
+
+        public mutating func setPreSharedKey(_ base64Key: String, ofPeer peerIndex: Int) throws {
+            guard let preSharedKey = PreSharedKey(base64Key: base64Key) else {
+                throw WireGuard.ConfigurationError.invalidKey
+            }
+            peers[peerIndex].preSharedKey = preSharedKey
+        }
+
+        public mutating func addDefaultGatewayIPv4(toPeer peerIndex: Int) {
+            peers[peerIndex].allowedIPs.append(Self.defaultGateway4)
+        }
+
+        public mutating func addDefaultGatewayIPv6(toPeer peerIndex: Int) {
+            peers[peerIndex].allowedIPs.append(Self.defaultGateway6)
+        }
+
+        public mutating func removeDefaultGatewayIPv4(fromPeer peerIndex: Int) {
+            peers[peerIndex].allowedIPs.removeAll {
+                $0 == Self.defaultGateway4
+            }
+        }
+
+        public mutating func removeDefaultGatewayIPv6(fromPeer peerIndex: Int) {
+            peers[peerIndex].allowedIPs.removeAll {
+                $0 == Self.defaultGateway6
+            }
+        }
+
+        public mutating func addAllowedIP(_ allowedIP: String, toPeer peerIndex: Int) {
+            guard let addr = IPAddressRange(from: allowedIP) else {
+                return
+            }
+            peers[peerIndex].allowedIPs.append(addr)
+        }
+
+        public mutating func removeAllowedIP(_ allowedIP: String, fromPeer peerIndex: Int) {
+            guard let addr = IPAddressRange(from: allowedIP) else {
+                return
+            }
+            peers[peerIndex].allowedIPs.removeAll {
+                $0 == addr
+            }
+        }
+
+        public mutating func setKeepAlive(_ keepAlive: UInt16, forPeer peerIndex: Int) {
+            peers[peerIndex].persistentKeepAlive = keepAlive
+        }
+        
+        public func build() -> Configuration {
+            let tunnelConfiguration = TunnelConfiguration(name: nil, interface: interface, peers: peers)
             return Configuration(tunnelConfiguration: tunnelConfiguration)
         }
     }
 
-    public struct Configuration: Codable {
+    public struct Configuration: Codable, WireGuardConfigurationProviding {
         public let tunnelConfiguration: TunnelConfiguration
+        
+        public var interface: InterfaceConfiguration {
+            return tunnelConfiguration.interface
+        }
+        
+        public var peers: [PeerConfiguration] {
+            return tunnelConfiguration.peers
+        }
         
         public init(tunnelConfiguration: TunnelConfiguration) {
             self.tunnelConfiguration = tunnelConfiguration
         }
         
         public func builder() -> WireGuard.ConfigurationBuilder {
-            let privateKey = tunnelConfiguration.interface.privateKey.base64Key
-            var builder = WireGuard.ConfigurationBuilder(privateKey: privateKey)
-            builder.addresses = tunnelConfiguration.interface.addresses.map(\.stringRepresentation)
-            builder.dns = tunnelConfiguration.interface.dns.map(\.stringRepresentation)
-            builder.mtu = tunnelConfiguration.interface.mtu
-            builder.peers = tunnelConfiguration.peers.map {
-                var peer = Peer(publicKey: $0.publicKey.base64Key)
-                peer.preSharedKey = $0.preSharedKey?.base64Key
-                peer.endpoint = $0.endpoint?.stringRepresentation
-                peer.allowedIPs = $0.allowedIPs.map(\.stringRepresentation)
-                peer.keepAliveInterval = $0.persistentKeepAlive
-                return peer
-            }
-            return builder
+            return WireGuard.ConfigurationBuilder(tunnelConfiguration)
+        }
+
+        // MARK: WireGuardConfigurationProviding
+        
+        public var privateKey: String {
+            return interface.privateKey.base64Key
+        }
+
+        public var publicKey: String {
+            return interface.privateKey.publicKey.base64Key
+        }
+
+        public var addresses: [String] {
+            return interface.addresses.map(\.stringRepresentation)
+        }
+        
+        public var dnsServers: [String] {
+            return interface.dns.map(\.stringRepresentation)
+        }
+
+        public var dnsSearchDomains: [String] {
+            return interface.dnsSearch
+        }
+
+        public var mtu: UInt16? {
+            return interface.mtu
         }
 
         // MARK: Codable
@@ -150,10 +265,32 @@ extension WireGuard {
     }
 }
 
-private extension Array {
-    func mapOptional<V>(_ transform: (Self.Element) throws -> V?) rethrows -> [V] {
-        return try map(transform)
-            .filter { $0 != nil }
-            .map { $0! }
+extension WireGuardConfigurationProviding {
+    public var publicKey: String {
+        return interface.privateKey.publicKey.base64Key
+    }
+
+    public var peersCount: Int {
+        return peers.count
+    }
+    
+    public func publicKey(ofPeer peerIndex: Int) -> String {
+        return peers[peerIndex].publicKey.base64Key
+    }
+
+    public func preSharedKey(ofPeer peerIndex: Int) -> String? {
+        return peers[peerIndex].preSharedKey?.base64Key
+    }
+
+    public func endpoint(ofPeer peerIndex: Int) -> String? {
+        return peers[peerIndex].endpoint?.stringRepresentation
+    }
+
+    public func allowedIPs(ofPeer peerIndex: Int) -> [String] {
+        return peers[peerIndex].allowedIPs.map(\.stringRepresentation)
+    }
+
+    public func keepAlive(ofPeer peerIndex: Int) -> UInt16? {
+        return peers[peerIndex].persistentKeepAlive
     }
 }

@@ -172,17 +172,19 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
 """)
 
         static func make(_ title: String, appGroup: String, hostname: String, port: UInt16, socketType: SocketType) -> OpenVPN.ProviderConfiguration {
-            var sessionBuilder = OpenVPN.ConfigurationBuilder()
-            sessionBuilder.ca = ca
-            sessionBuilder.cipher = .aes128cbc
-            sessionBuilder.digest = .sha1
-            sessionBuilder.compressionFraming = .compLZO
-            sessionBuilder.renegotiatesAfter = nil
-            sessionBuilder.remotes = [Endpoint(hostname, EndpointProtocol(socketType, port))]
-            sessionBuilder.clientCertificate = clientCertificate
-            sessionBuilder.clientKey = clientKey
-            sessionBuilder.mtu = 1350
-            var providerConfiguration = OpenVPN.ProviderConfiguration(title, appGroup: appGroup, configuration: sessionBuilder.build())
+            var builder = OpenVPN.ConfigurationBuilder()
+            builder.ca = ca
+            builder.cipher = .aes128cbc
+            builder.digest = .sha1
+            builder.compressionFraming = .compLZO
+            builder.renegotiatesAfter = nil
+            builder.remotes = [Endpoint(hostname, EndpointProtocol(socketType, port))]
+            builder.clientCertificate = clientCertificate
+            builder.clientKey = clientKey
+            builder.mtu = 1350
+            let cfg = builder.build()
+
+            var providerConfiguration = OpenVPN.ProviderConfiguration(title, appGroup: appGroup, configuration: cfg)
             providerConfiguration.shouldDebug = true
             providerConfiguration.masksPrivateData = false
             return providerConfiguration
@@ -201,18 +203,13 @@ extension WireGuard {
             serverAddress: String,
             serverPort: String
         ) -> WireGuard.ProviderConfiguration? {
-            var builder = WireGuard.ConfigurationBuilder(privateKey: clientPrivateKey)
+            var builder = try! WireGuard.ConfigurationBuilder(clientPrivateKey)
             builder.addresses = [clientAddress]
+            builder.dnsServers = ["1.1.1.1", "1.0.0.1"]
+            try! builder.addPeer(serverPublicKey, endpoint: "\(serverAddress):\(serverPort)")
+            builder.addDefaultGatewayIPv4(toPeer: 0)
+            let cfg = builder.build()
 
-            var peer = Peer(publicKey: serverPublicKey)
-            peer.endpoint = "\(serverAddress):\(serverPort)"
-            peer.allowedIPs = ["0.0.0.0/0"]
-            builder.peers = [peer]
-
-            builder.dns = ["1.1.1.1", "1.0.0.1"]
-            guard let cfg = builder.build() else {
-                return nil
-            }
             return WireGuard.ProviderConfiguration(title, appGroup: appGroup, configuration: cfg)
         }
     }

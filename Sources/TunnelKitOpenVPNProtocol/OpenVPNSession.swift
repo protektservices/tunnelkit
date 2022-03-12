@@ -188,7 +188,7 @@ public class OpenVPNSession: Session {
      */
     public init(queue: DispatchQueue, configuration: OpenVPN.Configuration, cachesURL: URL) throws {
         guard let ca = configuration.ca else {
-            throw ConfigurationError.missingConfiguration(option: "ca")
+            throw OpenVPN.ConfigurationError.missingConfiguration(option: "ca")
         }
         
         self.queue = queue
