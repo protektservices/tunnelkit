@@ -66,8 +66,8 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
     /// The log separator between sessions.
     public var logSeparator = "--- EOF ---"
     
-    /// The maximum number of lines in the log.
-    public var maxLogLines = 1000
+    /// The maximum size of the log.
+    public var maxLogSize = 20000
     
     /// The log level when `OpenVPNTunnelProvider.Configuration.shouldDebug` is enabled.
     public var debugLogLevel: SwiftyBeaver.Level = .debug
@@ -100,8 +100,8 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
     
     // MARK: Constants
     
-    private let memoryLog = MemoryDestination()
-
+    private var logFile: FileDestination?
+    
     private let tunnelQueue = DispatchQueue(label: OpenVPNTunnelProvider.description(), qos: .utility)
     
     private let prngSeedLength = 64
@@ -173,24 +173,16 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
 
         // prepare for logging (append)
-        if let content = cfg.debugLog {
-            var existingLog = content.components(separatedBy: "\n")
-            if let i = existingLog.firstIndex(of: logSeparator) {
-                existingLog.removeFirst(i + 2)
-            }
-            
-            existingLog.append("")
-            existingLog.append(logSeparator)
-            existingLog.append("")
-            memoryLog.start(with: existingLog)
-        }
         configureLogging(
             debug: cfg.shouldDebug,
             customFormat: cfg.debugLogFormat
         )
-        
+
         // logging only ACTIVE from now on
-        
+        log.info("")
+        log.info(logSeparator)
+        log.info("")
+
         // override library configuration
         CoreConfiguration.masksPrivateData = cfg.masksPrivateData
         if let versionIdentifier = cfg.versionIdentifier {
@@ -832,19 +824,23 @@ extension OpenVPNTunnelProvider {
             console.format = logFormat
             log.addDestination(console)
         }
-        
-        let memory = memoryLog
-        memory.minLevel = logLevel
-        memory.format = logFormat
-        memory.maxLines = maxLogLines
-        log.addDestination(memoryLog)
+
+        let file = FileDestination(logFileURL: cfg.urlForDebugLog)
+        file.minLevel = logLevel
+        file.format = logFormat
+        file.logFileMaxSize = maxLogSize
+        log.addDestination(file)
+
+        logFile = file
     }
     
     private func flushLog() {
         log.debug("Flushing log...")
-        if let url = cfg.urlForDebugLog {
-            memoryLog.flush(to: url)
-        }
+
+        // XXX: should enforce SwiftyBeaver flush?
+//        if let url = cfg.urlForDebugLog {
+//            memoryLog.flush(to: url)
+//        }
     }
 
     private func logCurrentSSID() {
