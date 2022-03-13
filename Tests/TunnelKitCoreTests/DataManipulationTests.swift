@@ -82,4 +82,19 @@ class DataManipulationTests: XCTestCase {
         v.append(Data(hex: "112233"))
         XCTAssertEqual(v.flatCount, 21)
     }
+
+    func testDataUnitDescription() {
+        XCTAssertEqual(0.descriptionAsDataUnit, "0B")
+        XCTAssertEqual(1.descriptionAsDataUnit, "1B")
+        XCTAssertEqual(1024.descriptionAsDataUnit, "1kB")
+        XCTAssertEqual(1025.descriptionAsDataUnit, "1kB")
+        XCTAssertEqual(548575.descriptionAsDataUnit, "0.52MB")
+        XCTAssertEqual(1048575.descriptionAsDataUnit, "1.00MB")
+        XCTAssertEqual(1048576.descriptionAsDataUnit, "1.00MB")
+        XCTAssertEqual(1048577.descriptionAsDataUnit, "1.00MB")
+        XCTAssertEqual(600000000.descriptionAsDataUnit, "0.56GB")
+        XCTAssertEqual(1073741823.descriptionAsDataUnit, "1.00GB")
+        XCTAssertEqual(1073741824.descriptionAsDataUnit, "1.00GB")
+        XCTAssertEqual(1073741825.descriptionAsDataUnit, "1.00GB")
+    }
 }
