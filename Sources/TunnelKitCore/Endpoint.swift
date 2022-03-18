@@ -26,7 +26,7 @@
 import Foundation
 
 /// Represents an endpoint.
-public struct Endpoint: Codable, Equatable, CustomStringConvertible {
+public struct Endpoint: RawRepresentable, Codable, Equatable, CustomStringConvertible {
     public let address: String
     
     public let proto: EndpointProtocol
@@ -37,10 +37,31 @@ public struct Endpoint: Codable, Equatable, CustomStringConvertible {
         self.proto = proto
     }
     
+    // MARK: RawRepresentable
+    
+    public init?(rawValue: String) {
+        let components = rawValue.components(separatedBy: ":")
+        guard components.count == 3 else {
+            return nil
+        }
+        let address = components[0]
+        guard let socketType = SocketType(rawValue: components[1]) else {
+            return nil
+        }
+        guard let port = UInt16(components[2]) else {
+            return nil
+        }
+        self.init(address, EndpointProtocol(socketType, port))
+    }
+
+    public var rawValue: String {
+        return "\(address):\(proto.socketType.rawValue):\(proto.port)"
+    }
+    
     // MARK: CustomStringConvertible
     
     public var description: String {
-        return "\(address.maskedDescription):\(proto)"
+        return "\(address.maskedDescription):\(proto.rawValue)"
     }
 }
 
