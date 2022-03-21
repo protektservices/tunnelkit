@@ -78,13 +78,14 @@ public class Keychain {
 
      - Parameter password: The password to set.
      - Parameter username: The username to set the password for.
-     - Parameter context: An optional context.
+     - Parameter context: The context.
+     - Parameter userDefined: Optional user-defined data.
      - Parameter label: An optional label.
      - Returns: The reference to the password.
      - Throws: `KeychainError.add` if unable to add the password to the keychain.
      **/
     @discardableResult
-    public func set(password: String, for username: String, context: String? = nil, label: String? = nil) throws -> Data {
+    public func set(password: String, for username: String, context: String, userDefined: String? = nil, label: String? = nil) throws -> Data {
         do {
             let currentPassword = try self.password(for: username, context: context)
             guard password != currentPassword else {
@@ -102,7 +103,7 @@ public class Keychain {
         }
 
         var query = [String: Any]()
-        setScope(query: &query, context: context)
+        setScope(query: &query, context: context, userDefined: userDefined)
         query[kSecClass as String] = kSecClassGenericPassword
         query[kSecAttrLabel as String] = label
         query[kSecAttrAccount as String] = username
@@ -122,12 +123,13 @@ public class Keychain {
      Removes a password.
 
      - Parameter username: The username to remove the password for.
-     - Parameter context: An optional context.
+     - Parameter context: The context.
+     - Parameter userDefined: Optional user-defined data.
      - Returns: `true` if the password was successfully removed.
      **/
-    @discardableResult public func removePassword(for username: String, context: String? = nil) -> Bool {
+    @discardableResult public func removePassword(for username: String, context: String, userDefined: String? = nil) -> Bool {
         var query = [String: Any]()
-        setScope(query: &query, context: context)
+        setScope(query: &query, context: context, userDefined: userDefined)
         query[kSecClass as String] = kSecClassGenericPassword
         query[kSecAttrAccount as String] = username
 
@@ -139,13 +141,14 @@ public class Keychain {
      Gets a password.
 
      - Parameter username: The username to get the password for.
-     - Parameter context: An optional context.
+     - Parameter context: The context.
+     - Parameter userDefined: Optional user-defined data.
      - Returns: The password for the input username.
      - Throws: `KeychainError.notFound` if unable to find the password in the keychain.
      **/
-    public func password(for username: String, context: String? = nil) throws -> String {
+    public func password(for username: String, context: String, userDefined: String? = nil) throws -> String {
         var query = [String: Any]()
-        setScope(query: &query, context: context)
+        setScope(query: &query, context: context, userDefined: userDefined)
         query[kSecClass as String] = kSecClassGenericPassword
         query[kSecAttrAccount as String] = username
         query[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -175,13 +178,14 @@ public class Keychain {
      Gets a password reference.
 
      - Parameter username: The username to get the password for.
-     - Parameter context: An optional context.
+     - Parameter context: The context.
+     - Parameter userDefined: Optional user-defined data.
      - Returns: The password reference for the input username.
      - Throws: `KeychainError.notFound` if unable to find the password in the keychain.
      **/
-    public func passwordReference(for username: String, context: String? = nil) throws -> Data {
+    public func passwordReference(for username: String, context: String, userDefined: String? = nil) throws -> Data {
         var query = [String: Any]()
-        setScope(query: &query, context: context)
+        setScope(query: &query, context: context, userDefined: userDefined)
         query[kSecClass as String] = kSecClassGenericPassword
         query[kSecAttrAccount as String] = username
         query[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -324,7 +328,8 @@ public class Keychain {
     
     // MARK: Helpers
     
-    private func setScope(query: inout [String: Any], context: String?) {
+    /// :nodoc:
+    public func setScope(query: inout [String: Any], context: String, userDefined: String?) {
         if let accessGroup = accessGroup {
             query[kSecAttrAccessGroup as String] = accessGroup
             #if os(macOS)
@@ -333,8 +338,9 @@ public class Keychain {
             }
             #endif
         }
-        if let context = context {
-            query[kSecAttrService as String] = context
+        query[kSecAttrService as String] = context
+        if let userDefined = userDefined {
+            query[kSecAttrGeneric as String] = userDefined
         }
     }
 }
