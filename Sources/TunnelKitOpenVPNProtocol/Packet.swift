@@ -63,7 +63,7 @@ extension ControlPacket {
 }
 
 extension OpenVPN {
-    class DataPacket {
+    struct DataPacket {
         static let pingString = Data(hex: "2a187bf3641eb4cb07ed2d0a981fc748")
     }
 

@@ -26,7 +26,7 @@
 import Foundation
 
 /// Encapsulates the IPv6 settings for the tunnel.
-public struct IPv6Settings: Codable, CustomStringConvertible {
+public struct IPv6Settings: Codable, Equatable, CustomStringConvertible {
     
     /// Represents an IPv6 route in the routing table.
     public struct Route: Codable, Hashable, CustomStringConvertible {

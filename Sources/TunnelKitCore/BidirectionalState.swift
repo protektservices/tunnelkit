@@ -26,7 +26,7 @@
 import Foundation
 
 /// A generic structure holding a pair of inbound/outbound states.
-public class BidirectionalState<T> {
+public struct BidirectionalState<T> {
     private let resetValue: T
 
     /// The inbound state.
@@ -58,7 +58,7 @@ public class BidirectionalState<T> {
     /**
      Resets state to the value provided with `init(withResetValue:)`.
      */
-    public func reset() {
+    public mutating func reset() {
         inbound = resetValue
         outbound = resetValue
     }

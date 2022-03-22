@@ -356,7 +356,7 @@ extension OpenVPN {
     }
     
     /// The immutable configuration for `OpenVPNSession`.
-    public struct Configuration: Codable {
+    public struct Configuration: Codable, Equatable {
 
         /// - Seealso: `ConfigurationBuilder.cipher`
         public let cipher: Cipher?

@@ -203,7 +203,7 @@ extension WireGuard {
         }
     }
 
-    public struct Configuration: Codable, WireGuardConfigurationProviding {
+    public struct Configuration: Codable, Equatable, WireGuardConfigurationProviding {
         public let tunnelConfiguration: TunnelConfiguration
         
         public var interface: InterfaceConfiguration {

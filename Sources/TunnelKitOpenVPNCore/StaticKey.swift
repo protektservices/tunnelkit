@@ -30,7 +30,7 @@ import CTunnelKitCore
 extension OpenVPN {
 
     /// Represents an OpenVPN static key file (as generated with --genkey)
-    public class StaticKey: Codable {
+    public struct StaticKey: Codable, Equatable {
         enum CodingKeys: CodingKey {
             case data
             
@@ -147,12 +147,12 @@ extension OpenVPN {
          - Parameter file: The text file containing the key.
          - Parameter direction: The key direction, or bidirectional if nil.
          */
-        public convenience init?(file: String, direction: Direction?) {
+        public init?(file: String, direction: Direction?) {
             let lines = file.split(separator: "\n")
             self.init(lines: lines, direction: direction)
         }
         
-        public convenience init?(lines: [Substring], direction: Direction?) {
+        public init?(lines: [Substring], direction: Direction?) {
             var isHead = true
             var hexLines: [Substring] = []
 
@@ -196,7 +196,7 @@ extension OpenVPN {
          
          - Parameter biData: The key data.
          */
-        public convenience init(biData data: Data) {
+        public init(biData data: Data) {
             self.init(data: data, direction: nil)
         }
         
@@ -216,7 +216,7 @@ extension OpenVPN {
         
         // MARK: Codable
         
-        public required init(from decoder: Decoder) throws {
+        public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             secureData = Z(try container.decode(Data.self, forKey: .data))
             direction = try container.decodeIfPresent(Direction.self, forKey: .dir)
