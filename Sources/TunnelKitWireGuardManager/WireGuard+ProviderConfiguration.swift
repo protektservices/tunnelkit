@@ -53,6 +53,8 @@ extension WireGuard {
 
         public var shouldDebug = false
 
+        public var debugLogFormat: String? = nil
+
         public init(_ title: String, appGroup: String, configuration: WireGuard.Configuration) {
             self.title = title
             self.appGroup = appGroup

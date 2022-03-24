@@ -813,7 +813,7 @@ extension OpenVPNTunnelProvider {
     
     // MARK: Logging
     
-    private func configureLogging(debug: Bool, customFormat: String? = nil) {
+    private func configureLogging(debug: Bool, customFormat: String?) {
         let logLevel: SwiftyBeaver.Level = (debug ? debugLogLevel : .info)
         let logFormat = customFormat ?? "$Dyyyy-MM-dd HH:mm:ss.SSS$d $L $N.$F:$l - $M"
         
