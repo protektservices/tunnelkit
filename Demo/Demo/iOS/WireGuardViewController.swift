@@ -131,6 +131,7 @@ class WireGuardViewController: UIViewController {
     }
     
     @objc private func VPNStatusDidChange(notification: Notification) {
+        vpnStatus = notification.vpnStatus
         print("VPNStatusDidChange: \(notification.vpnStatus)")
         updateButton()
     }

@@ -182,6 +182,7 @@ M69t86apMrAxkUxVJAWLRBd9fbYyzJgTW61tFqXWTZpiz6bhuWApSEzaHcL3/f5l
             builder.clientCertificate = clientCertificate
             builder.clientKey = clientKey
             builder.mtu = 1350
+            builder.routingPolicies = [.IPv4, .IPv6]
             let cfg = builder.build()
 
             var providerConfiguration = OpenVPN.ProviderConfiguration(title, appGroup: appGroup, configuration: cfg)
