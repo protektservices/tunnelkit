@@ -644,112 +644,116 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             return
         }
         
-        var dnsServers: [String] = []
         var dnsSettings: NEDNSSettings?
-        if #available(iOS 14, macOS 11, *) {
-            switch cfg.configuration.dnsProtocol {
-            case .https:
-                dnsServers = cfg.configuration.dnsServers ?? []
-                guard let serverURL = cfg.configuration.dnsHTTPSURL else {
+        if cfg.configuration.isDNSEnabled ?? true {
+            var dnsServers: [String] = []
+            if #available(iOS 14, macOS 11, *) {
+                switch cfg.configuration.dnsProtocol {
+                case .https:
+                    dnsServers = cfg.configuration.dnsServers ?? []
+                    guard let serverURL = cfg.configuration.dnsHTTPSURL else {
+                        break
+                    }
+                    let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
+                    specific.serverURL = serverURL
+                    dnsSettings = specific
+                    log.info("DNS over HTTPS: Using servers \(dnsServers.maskedDescription)")
+                    log.info("\tHTTPS URL: \(serverURL.maskedDescription)")
+
+                case .tls:
+                    guard let dnsServers = cfg.configuration.dnsServers else {
+                        session?.shutdown(error: OpenVPNProviderError.dnsFailure)
+                        return
+                    }
+                    guard let serverName = cfg.configuration.dnsTLSServerName else {
+                        break
+                    }
+                    let specific = NEDNSOverTLSSettings(servers: dnsServers)
+                    specific.serverName = serverName
+                    dnsSettings = specific
+                    log.info("DNS over TLS: Using servers \(dnsServers.maskedDescription)")
+                    log.info("\tTLS server name: \(serverName.maskedDescription)")
+
+                default:
                     break
                 }
-                let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
-                specific.serverURL = serverURL
-                dnsSettings = specific
-                log.info("DNS over HTTPS: Using servers \(dnsServers.maskedDescription)")
-                log.info("\tHTTPS URL: \(serverURL.maskedDescription)")
+            }
 
-            case .tls:
-                guard let dnsServers = cfg.configuration.dnsServers else {
-                    session?.shutdown(error: OpenVPNProviderError.dnsFailure)
-                    return
+            // fall back
+            if dnsSettings == nil {
+                dnsServers = []
+                if let servers = cfg.configuration.dnsServers,
+                   !servers.isEmpty {
+                    dnsServers = servers
+                } else if let servers = options.dnsServers {
+                    dnsServers = servers
                 }
-                guard let serverName = cfg.configuration.dnsTLSServerName else {
-                    break
-                }
-                let specific = NEDNSOverTLSSettings(servers: dnsServers)
-                specific.serverName = serverName
-                dnsSettings = specific
-                log.info("DNS over TLS: Using servers \(dnsServers.maskedDescription)")
-                log.info("\tTLS server name: \(serverName.maskedDescription)")
-
-            default:
-                break
-            }
-        }
-
-        // fall back
-        if dnsSettings == nil {
-            dnsServers = []
-            if let servers = cfg.configuration.dnsServers,
-               !servers.isEmpty {
-                dnsServers = servers
-            } else if let servers = options.dnsServers {
-                dnsServers = servers
-            }
-            if !dnsServers.isEmpty {
-                log.info("DNS: Using servers \(dnsServers.maskedDescription)")
-                dnsSettings = NEDNSSettings(servers: dnsServers)
-            } else {
-//                log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
-//                dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
-                log.warning("DNS: No settings provided, using current network settings")
-            }
-        }
-
-        // "hack" for split DNS (i.e. use VPN only for DNS)
-        if !isGateway {
-            dnsSettings?.matchDomains = [""]
-        }
-        
-        if let searchDomains = cfg.configuration.searchDomains ?? options.searchDomains {
-            log.info("DNS: Using search domains \(searchDomains.maskedDescription)")
-            dnsSettings?.domainName = searchDomains.first
-            dnsSettings?.searchDomains = searchDomains
-            if !isGateway {
-                dnsSettings?.matchDomains = dnsSettings?.searchDomains
-            }
-        }
-        
-        // add direct routes to DNS servers
-        if !isGateway {
-            for server in dnsServers {
-                if server.contains(":") {
-                    ipv6Settings?.includedRoutes?.insert(NEIPv6Route(destinationAddress: server, networkPrefixLength: 128), at: 0)
+                if !dnsServers.isEmpty {
+                    log.info("DNS: Using servers \(dnsServers.maskedDescription)")
+                    dnsSettings = NEDNSSettings(servers: dnsServers)
                 } else {
-                    ipv4Settings?.includedRoutes?.insert(NEIPv4Route(destinationAddress: server, subnetMask: "255.255.255.255"), at: 0)
+    //                log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
+    //                dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
+                    log.warning("DNS: No settings provided, using current network settings")
+                }
+            }
+
+            // "hack" for split DNS (i.e. use VPN only for DNS)
+            if !isGateway {
+                dnsSettings?.matchDomains = [""]
+            }
+            
+            if let searchDomains = cfg.configuration.searchDomains ?? options.searchDomains {
+                log.info("DNS: Using search domains \(searchDomains.maskedDescription)")
+                dnsSettings?.domainName = searchDomains.first
+                dnsSettings?.searchDomains = searchDomains
+                if !isGateway {
+                    dnsSettings?.matchDomains = dnsSettings?.searchDomains
+                }
+            }
+            
+            // add direct routes to DNS servers
+            if !isGateway {
+                for server in dnsServers {
+                    if server.contains(":") {
+                        ipv6Settings?.includedRoutes?.insert(NEIPv6Route(destinationAddress: server, networkPrefixLength: 128), at: 0)
+                    } else {
+                        ipv4Settings?.includedRoutes?.insert(NEIPv4Route(destinationAddress: server, subnetMask: "255.255.255.255"), at: 0)
+                    }
                 }
             }
         }
         
         var proxySettings: NEProxySettings?
-        if let httpsProxy = cfg.configuration.httpsProxy ?? options.httpsProxy {
-            proxySettings = NEProxySettings()
-            proxySettings?.httpsServer = httpsProxy.neProxy()
-            proxySettings?.httpsEnabled = true
-            log.info("Routing: Setting HTTPS proxy \(httpsProxy.address.maskedDescription):\(httpsProxy.port)")
-        }
-        if let httpProxy = cfg.configuration.httpProxy ?? options.httpProxy {
-            if proxySettings == nil {
+        if cfg.configuration.isProxyEnabled ?? true {
+            if let httpsProxy = cfg.configuration.httpsProxy ?? options.httpsProxy {
                 proxySettings = NEProxySettings()
+                proxySettings?.httpsServer = httpsProxy.neProxy()
+                proxySettings?.httpsEnabled = true
+                log.info("Routing: Setting HTTPS proxy \(httpsProxy.address.maskedDescription):\(httpsProxy.port)")
             }
-            proxySettings?.httpServer = httpProxy.neProxy()
-            proxySettings?.httpEnabled = true
-            log.info("Routing: Setting HTTP proxy \(httpProxy.address.maskedDescription):\(httpProxy.port)")
-        }
-        if let pacURL = cfg.configuration.proxyAutoConfigurationURL ?? options.proxyAutoConfigurationURL {
-            if proxySettings == nil {
-                proxySettings = NEProxySettings()
+            if let httpProxy = cfg.configuration.httpProxy ?? options.httpProxy {
+                if proxySettings == nil {
+                    proxySettings = NEProxySettings()
+                }
+                proxySettings?.httpServer = httpProxy.neProxy()
+                proxySettings?.httpEnabled = true
+                log.info("Routing: Setting HTTP proxy \(httpProxy.address.maskedDescription):\(httpProxy.port)")
             }
-            proxySettings?.proxyAutoConfigurationURL = pacURL
-            proxySettings?.autoProxyConfigurationEnabled = true
-            log.info("Routing: Setting PAC \(pacURL.maskedDescription)")
-        }
+            if let pacURL = cfg.configuration.proxyAutoConfigurationURL ?? options.proxyAutoConfigurationURL {
+                if proxySettings == nil {
+                    proxySettings = NEProxySettings()
+                }
+                proxySettings?.proxyAutoConfigurationURL = pacURL
+                proxySettings?.autoProxyConfigurationEnabled = true
+                log.info("Routing: Setting PAC \(pacURL.maskedDescription)")
+            }
 
-        // only set if there is a proxy (proxySettings set to non-nil above)
-        if let bypass = cfg.configuration.proxyBypassDomains ?? options.proxyBypassDomains {
-            proxySettings?.exceptionList = bypass
-            log.info("Routing: Setting proxy by-pass list: \(bypass.maskedDescription)")
+            // only set if there is a proxy (proxySettings set to non-nil above)
+            if let bypass = cfg.configuration.proxyBypassDomains ?? options.proxyBypassDomains {
+                proxySettings?.exceptionList = bypass
+                log.info("Routing: Setting proxy by-pass list: \(bypass.maskedDescription)")
+            }
         }
 
         // block LAN if desired

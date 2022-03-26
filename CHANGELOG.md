@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - OpenVPN: Parse authentication requirement from `--auth-user-pass`.
 - OpenVPN: Handle multiple `--remote` options correctly.
+- OpenVPN: Explicitly enable/disable DNS/proxy settings.
 
 ### Changed
 

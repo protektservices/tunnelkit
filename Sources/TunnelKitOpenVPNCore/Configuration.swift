@@ -252,6 +252,9 @@ extension OpenVPN {
         /// The settings for IPv6. `OpenVPNSession` only evaluates this server-side.
         public var ipv6: IPv6Settings?
         
+        /// Set false to ignore DNS settings, even when pushed.
+        public var isDNSEnabled: Bool?
+        
         /// The DNS protocol, defaults to `.plain` (iOS 14+ / macOS 11+).
         public var dnsProtocol: DNSProtocol?
 
@@ -281,6 +284,9 @@ extension OpenVPN {
 
         /// The Proxy Auto-Configuration (PAC) url.
         public var proxyAutoConfigurationURL: URL?
+        
+        /// Set false to ignore proxy settings, even when pushed.
+        public var isProxyEnabled: Bool?
         
         /// The HTTP proxy.
         public var httpProxy: Proxy?
@@ -341,11 +347,13 @@ extension OpenVPN {
                 peerId: peerId,
                 ipv4: ipv4,
                 ipv6: ipv6,
+                isDNSEnabled: isDNSEnabled,
                 dnsProtocol: dnsProtocol,
                 dnsServers: dnsServers,
                 dnsHTTPSURL: dnsHTTPSURL,
                 dnsTLSServerName: dnsTLSServerName,
                 searchDomains: searchDomains,
+                isProxyEnabled: isProxyEnabled,
                 httpProxy: httpProxy,
                 httpsProxy: httpsProxy,
                 proxyAutoConfigurationURL: proxyAutoConfigurationURL,
@@ -436,6 +444,9 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.ipv6`
         public let ipv6: IPv6Settings?
 
+        /// - Seealso: `ConfigurationBuilder.isDNSEnabled`
+        public let isDNSEnabled: Bool?
+
         /// - Seealso: `ConfigurationBuilder.dnsProtocol`
         public let dnsProtocol: DNSProtocol?
         
@@ -450,6 +461,9 @@ extension OpenVPN {
         
         /// - Seealso: `ConfigurationBuilder.searchDomains`
         public let searchDomains: [String]?
+
+        /// - Seealso: `ConfigurationBuilder.isProxyEnabled`
+        public let isProxyEnabled: Bool?
 
         /// - Seealso: `ConfigurationBuilder.httpProxy`
         public let httpProxy: Proxy?
@@ -519,11 +533,13 @@ extension OpenVPN.Configuration {
         builder.peerId = peerId
         builder.ipv4 = ipv4
         builder.ipv6 = ipv6
+        builder.isDNSEnabled = isDNSEnabled
         builder.dnsProtocol = dnsProtocol
         builder.dnsServers = dnsServers
         builder.dnsHTTPSURL = dnsHTTPSURL
         builder.dnsTLSServerName = dnsTLSServerName
         builder.searchDomains = searchDomains
+        builder.isProxyEnabled = isProxyEnabled
         builder.httpProxy = httpProxy
         builder.httpsProxy = httpsProxy
         builder.proxyAutoConfigurationURL = proxyAutoConfigurationURL
