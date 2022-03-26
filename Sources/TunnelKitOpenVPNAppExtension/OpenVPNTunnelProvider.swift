@@ -794,7 +794,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         newSettings.ipv6Settings = ipv6Settings
         newSettings.dnsSettings = dnsSettings
         newSettings.proxySettings = proxySettings
-        if let mtu = cfg.configuration.mtu {
+        if let mtu = cfg.configuration.mtu, mtu > 0 {
             newSettings.mtu = NSNumber(value: mtu)
         }
 
