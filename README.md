@@ -103,6 +103,7 @@ Therefore, make sure to follow the steps below for proper integration:
 - iOS 12.0+ / macOS 10.14+
 - SwiftPM 5.3
 - Git (preinstalled with Xcode Command Line Tools)
+- golang (for WireGuardKit)
 
 It's highly recommended to use the Git package provided by [Homebrew][dep-brew].
 
