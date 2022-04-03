@@ -153,16 +153,6 @@ extension OpenVPN {
         case blockLocal
     }
     
-    private struct Fallback {
-        static let cipher: Cipher = .aes128cbc
-        
-        static let digest: Digest = .sha1
-        
-        static let compressionFraming: CompressionFraming = .disabled
-        
-        static let compressionAlgorithm: CompressionAlgorithm = .disabled
-    }
-    
     /// The way to create a `Configuration` object for a `OpenVPNSession`.
     public struct ConfigurationBuilder {
 
@@ -307,10 +297,10 @@ extension OpenVPN {
          */
         public init(withFallbacks: Bool = false) {
             if withFallbacks {
-                cipher = Fallback.cipher
-                digest = Fallback.digest
-                compressionFraming = Fallback.compressionFraming
-                compressionAlgorithm = Fallback.compressionAlgorithm
+                cipher = Configuration.Fallback.cipher
+                digest = Configuration.Fallback.digest
+                compressionFraming = Configuration.Fallback.compressionFraming
+                compressionAlgorithm = Configuration.Fallback.compressionAlgorithm
             }
         }
         
@@ -366,6 +356,17 @@ extension OpenVPN {
     /// The immutable configuration for `OpenVPNSession`.
     public struct Configuration: Codable, Equatable {
 
+        /// :nodoc:
+        public struct Fallback {
+            public static let cipher: Cipher = .aes128cbc
+            
+            public static let digest: Digest = .sha1
+            
+            public static let compressionFraming: CompressionFraming = .disabled
+            
+            public static let compressionAlgorithm: CompressionAlgorithm = .disabled
+        }
+        
         /// - Seealso: `ConfigurationBuilder.cipher`
         public let cipher: Cipher?
         
@@ -508,11 +509,11 @@ extension OpenVPN.Configuration {
      */
     public func builder(withFallbacks: Bool = false) -> OpenVPN.ConfigurationBuilder {
         var builder = OpenVPN.ConfigurationBuilder()
-        builder.cipher = cipher ?? (withFallbacks ? OpenVPN.Fallback.cipher : nil)
+        builder.cipher = cipher ?? (withFallbacks ? Fallback.cipher : nil)
         builder.dataCiphers = dataCiphers
-        builder.digest = digest ?? (withFallbacks ? OpenVPN.Fallback.digest : nil)
-        builder.compressionFraming = compressionFraming ?? (withFallbacks ? OpenVPN.Fallback.compressionFraming : nil)
-        builder.compressionAlgorithm = compressionAlgorithm ?? (withFallbacks ? OpenVPN.Fallback.compressionAlgorithm : nil)
+        builder.digest = digest ?? (withFallbacks ? Fallback.digest : nil)
+        builder.compressionFraming = compressionFraming ?? (withFallbacks ? Fallback.compressionFraming : nil)
+        builder.compressionAlgorithm = compressionAlgorithm ?? (withFallbacks ? Fallback.compressionAlgorithm : nil)
         builder.ca = ca
         builder.clientCertificate = clientCertificate
         builder.clientKey = clientKey
