@@ -27,8 +27,6 @@ import Foundation
 
 /// Helps controlling a VPN without messing with underlying implementations.
 public protocol VPN {
-    associatedtype Manager
-    
     associatedtype Configuration
     
     associatedtype Extra
@@ -36,7 +34,7 @@ public protocol VPN {
     /**
      Synchronizes with the current VPN state.
      */
-    func prepare()
+    func prepare() async
     
     /**
      Installs the VPN profile.
@@ -44,14 +42,12 @@ public protocol VPN {
      - Parameter tunnelBundleIdentifier: The bundle identifier of the tunnel extension.
      - Parameter configuration: The configuration to install.
      - Parameter extra: Optional extra arguments.
-     - Parameter completionHandler: The completion handler.
      */
     func install(
         _ tunnelBundleIdentifier: String,
         configuration: Configuration,
-        extra: Extra?,
-        completionHandler: ((Result<Manager, Error>) -> Void)?
-    )
+        extra: Extra?
+    ) async throws
 
     /**
      Reconnects to the VPN.
@@ -59,22 +55,46 @@ public protocol VPN {
      - Parameter tunnelBundleIdentifier: The bundle identifier of the tunnel extension.
      - Parameter configuration: The configuration to install.
      - Parameter extra: Optional extra arguments.
-     - Parameter delay: The reconnection delay in seconds.
+     - Parameter after: The reconnection delay.
      */
     func reconnect(
         _ tunnelBundleIdentifier: String,
         configuration: Configuration,
         extra: Extra?,
-        delay: Double?
-    )
+        after: DispatchTimeInterval
+    ) async throws
     
     /**
      Disconnects from the VPN.
      */
-    func disconnect()
+    func disconnect() async
     
     /**
      Uninstalls the VPN profile.
      */
-    func uninstall()
+    func uninstall() async
+}
+
+extension DispatchTimeInterval {
+    public var nanoseconds: UInt64 {
+        switch self {
+        case .seconds(let sec):
+            return UInt64(sec) * NSEC_PER_SEC
+            
+        case .milliseconds(let msec):
+            return UInt64(msec) * NSEC_PER_MSEC
+            
+        case .microseconds(let usec):
+            return UInt64(usec) * NSEC_PER_USEC
+            
+        case .nanoseconds(let nsec):
+            return UInt64(nsec)
+            
+        case .never:
+            return 0
+            
+        @unknown default:
+            return 0
+        }
+    }
 }

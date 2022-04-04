@@ -125,17 +125,18 @@ class OpenVPNViewController: UIViewController {
 
         var extra = NetworkExtensionExtra()
         extra.passwordReference = passwordReference
-
         vpn.reconnect(
             tunnelIdentifier,
             configuration: cfg!,
             extra: extra,
-            delay: nil
+            after: .seconds(2)
         )
     }
     
     func disconnect() {
-        vpn.disconnect()
+        Task {
+            await vpn.disconnect()
+        }
     }
 
     @IBAction func displayLog() {

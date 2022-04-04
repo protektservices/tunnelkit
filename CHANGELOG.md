@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Manager package completely rewritten.
+- Manager package completely rewritten with Swift Concurrency.
 - WireGuard: Use entities from WireGuardKit directly.
 - Only enable on-demand if at least one rule is provided.
 - Dropped incomplete support for IPSec/IKEv2.

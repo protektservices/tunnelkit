@@ -31,6 +31,7 @@ private let log = SwiftyBeaver.self
 
 /// `VPN` based on the NetworkExtension framework.
 public class NetworkExtensionVPN: VPN {
+    private let semaphore = DispatchSemaphore(value: 1)
 
     /**
      Initializes a provider.
@@ -44,172 +45,204 @@ public class NetworkExtensionVPN: VPN {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    // MARK: Public
 
-    // MARK: VPN
-
-    public func prepare() {
-        NETunnelProviderManager.loadAllFromPreferences { managers, error in
+    public func prepare() async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            NETunnelProviderManager.loadAllFromPreferences { managers, error in
+                continuation.resume()
+            }
         }
     }
-    
+
     public func install(
         _ tunnelBundleIdentifier: String,
         configuration: NetworkExtensionConfiguration,
-        extra: NetworkExtensionExtra?,
-        completionHandler: ((Result<NETunnelProviderManager, Error>) -> Void)?
-    ) {
-        let proto: NETunnelProviderProtocol
-        do {
-            proto = try configuration.asTunnelProtocol(
-                withBundleIdentifier: tunnelBundleIdentifier,
-                extra: extra
-            )
-        } catch {
-            completionHandler?(.failure(error))
-            return
-        }
-        lookupAll { result in
-            switch result {
-            case .success(let managers):
-
-                // install (new or existing) then callback
-                let targetManager = managers.first {
-                    $0.isTunnel(withIdentifier: tunnelBundleIdentifier)
-                } ?? NETunnelProviderManager()
-                    
-                self.install(
-                    targetManager,
-                    title: configuration.title,
-                    protocolConfiguration: proto,
-                    onDemandRules: extra?.onDemandRules ?? [],
-                    completionHandler: completionHandler
-                )
-
-                // remove others afterwards (to avoid permission request)
-                managers.filter {
-                    !$0.isTunnel(withIdentifier: tunnelBundleIdentifier)
-                }.forEach {
-                    $0.removeFromPreferences(completionHandler: nil)
-                }
-                
-            case .failure(let error):
-                completionHandler?(.failure(error))
-                self.notifyError(error)
-            }
-        }
-    }
-    
-    public func reconnect(
-        _ tunnelBundleIdentifier: String,
-        configuration: NetworkExtensionConfiguration,
-        extra: Extra?,
-        delay: Double?
-    ) {
-        let delay = delay ?? 2.0
-        install(
+        extra: NetworkExtensionExtra?
+    ) async throws {
+        _ = try await installReturningManager(
             tunnelBundleIdentifier,
             configuration: configuration,
             extra: extra
-        ) { result in
-            switch result {
-            case .success(let manager):
-                if manager.connection.status != .disconnected {
-                    manager.connection.stopVPNTunnel()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        self.connect(manager)
-                    }
-                } else {
-                    self.connect(manager)
-                }
+        )
+    }
 
-            case .failure(let error):
-                self.notifyError(error)
+    public func reconnect(
+        _ tunnelBundleIdentifier: String,
+        configuration: NetworkExtensionConfiguration,
+        extra: NetworkExtensionExtra?,
+        after: DispatchTimeInterval
+    ) async throws {
+        do {
+            let manager = try await installReturningManager(
+                tunnelBundleIdentifier,
+                configuration: configuration,
+                extra: extra
+            )
+            if manager.connection.status != .disconnected {
+                manager.connection.stopVPNTunnel()
+                try await Task.sleep(nanoseconds: after.nanoseconds)
             }
+            try manager.connection.startVPNTunnel()
+        } catch {
+            notifyError(error)
+            throw error
         }
     }
     
-    public func disconnect() {
-        lookupAll {
-            if case .success(let managers) = $0 {
+    public func disconnect() async {
+        do {
+            let managers = try await lookupAll()
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                guard !managers.isEmpty else {
+                    continuation.resume()
+                    return
+                }
                 managers.forEach {
+                    let isLast = ($0 == managers.last)
                     $0.connection.stopVPNTunnel()
                     $0.isOnDemandEnabled = false
                     $0.isEnabled = false
-                    $0.saveToPreferences(completionHandler: nil)
+                    $0.saveToPreferences { _ in
+                        if isLast {
+                            continuation.resume()
+                        }
+                    }
                 }
             }
+        } catch {
         }
     }
     
-    public func uninstall() {
-        lookupAll {
-            if case .success(let managers) = $0 {
+    public func uninstall() async {
+        do {
+            let managers = try await lookupAll()
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                guard !managers.isEmpty else {
+                    continuation.resume()
+                    return
+                }
                 managers.forEach {
+                    let isLast = ($0 == managers.last)
                     $0.connection.stopVPNTunnel()
-                    $0.removeFromPreferences(completionHandler: nil)
+                    $0.removeFromPreferences { _ in
+                        if isLast {
+                            continuation.resume()
+                        }
+                    }
                 }
             }
+        } catch {
         }
     }
 
     // MARK: Helpers
+
+    @discardableResult
+    private func installReturningManager(
+        _ tunnelBundleIdentifier: String,
+        configuration: NetworkExtensionConfiguration,
+        extra: NetworkExtensionExtra?
+    ) async throws -> NETunnelProviderManager {
+        let proto = try configuration.asTunnelProtocol(
+            withBundleIdentifier: tunnelBundleIdentifier,
+            extra: extra
+        )
+        let managers = try await lookupAll()
+
+        // install (new or existing) then callback
+        let targetManager = managers.first {
+            $0.isTunnel(withIdentifier: tunnelBundleIdentifier)
+        } ?? NETunnelProviderManager()
+
+        _ = try await install(
+            targetManager,
+            title: configuration.title,
+            protocolConfiguration: proto,
+            onDemandRules: extra?.onDemandRules ?? []
+        )
+
+        // remove others afterwards (to avoid permission request)
+        await retainManagers(managers) {
+            $0.isTunnel(withIdentifier: tunnelBundleIdentifier)
+        }
+        
+        return targetManager
+    }
     
+    @discardableResult
     private func install(
         _ manager: NETunnelProviderManager,
         title: String,
         protocolConfiguration: NETunnelProviderProtocol,
-        onDemandRules: [NEOnDemandRule],
-        completionHandler: ((Result<NETunnelProviderManager, Error>) -> Void)?
-    ) {
-        manager.localizedDescription = title
-        manager.protocolConfiguration = protocolConfiguration
+        onDemandRules: [NEOnDemandRule]
+    ) async throws -> NETunnelProviderManager {
+        try await withCheckedThrowingContinuation { continuation in
+            manager.localizedDescription = title
+            manager.protocolConfiguration = protocolConfiguration
 
-        if !onDemandRules.isEmpty {
-            manager.onDemandRules = onDemandRules
-            manager.isOnDemandEnabled = true
-        } else {
-            manager.isOnDemandEnabled = false
-        }
-
-        manager.isEnabled = true
-        manager.saveToPreferences { error in
-            if let error = error {
+            if !onDemandRules.isEmpty {
+                manager.onDemandRules = onDemandRules
+                manager.isOnDemandEnabled = true
+            } else {
                 manager.isOnDemandEnabled = false
-                manager.isEnabled = false
-                completionHandler?(.failure(error))
-                self.notifyError(error)
-                return
             }
-            manager.loadFromPreferences { error in
+
+            manager.isEnabled = true
+            manager.saveToPreferences { error in
                 if let error = error {
-                    completionHandler?(.failure(error))
+                    manager.isOnDemandEnabled = false
+                    manager.isEnabled = false
+                    continuation.resume(throwing: error)
                     self.notifyError(error)
-                    return
+                } else {
+                    manager.loadFromPreferences { error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                            self.notifyError(error)
+                        } else {
+                            continuation.resume(returning: manager)
+                            self.notifyReinstall(manager)
+                        }
+                    }
                 }
-                completionHandler?(.success(manager))
-                self.notifyReinstall(manager)
             }
         }
     }
 
-    private func connect(_ manager: NETunnelProviderManager) {
-        do {
-            try manager.connection.startVPNTunnel()
-        } catch {
-            notifyError(error)
+    private func retainManagers(_ managers: [NETunnelProviderManager], isIncluded: (NETunnelProviderManager) -> Bool) async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            let others = managers.filter {
+                !isIncluded($0)
+            }
+            guard !others.isEmpty else {
+                continuation.resume()
+                return
+            }
+            others.forEach {
+                let isLast = ($0 == others.last)
+                $0.removeFromPreferences { _ in
+                    if isLast {
+                        continuation.resume()
+                    }
+                }
+            }
         }
     }
     
-    public func lookupAll(completionHandler: @escaping (Result<[NETunnelProviderManager], Error>) -> Void) {
-        NETunnelProviderManager.loadAllFromPreferences { managers, error in
-            if let error = error {
-                completionHandler(.failure(error))
-                return
+    private func lookupAll() async throws -> [NETunnelProviderManager] {
+        try await withCheckedThrowingContinuation { continuation in
+            NETunnelProviderManager.loadAllFromPreferences { managers, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: managers ?? [])
+                }
             }
-            completionHandler(.success(managers ?? []))
         }
     }
-
+    
     // MARK: Notifications
 
     @objc private func vpnDidUpdate(_ notification: Notification) {

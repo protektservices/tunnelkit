@@ -116,12 +116,11 @@ class OpenVPNViewController: NSViewController {
 
         var extra = NetworkExtensionExtra()
         extra.passwordReference = passwordReference
-
         vpn.reconnect(
             tunnelIdentifier,
             configuration: cfg!,
             extra: extra,
-            delay: nil
+            after: .seconds(2)
         )
     }
     

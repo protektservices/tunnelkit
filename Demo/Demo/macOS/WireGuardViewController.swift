@@ -109,7 +109,7 @@ class WireGuardViewController: NSViewController {
             tunnelIdentifier,
             configuration: cfg,
             extra: nil,
-            delay: nil
+            after: .seconds(2)
         )
     }
     

@@ -38,13 +38,21 @@ public class MockVPN: VPN {
         notifyStatus(.disconnected)
     }
     
-    public func install(_ tunnelBundleIdentifier: String, configuration: NetworkExtensionConfiguration, extra: Data?, completionHandler: ((Result<Void, Error>) -> Void)?) {
+    public func install(
+        _ tunnelBundleIdentifier: String,
+        configuration: NetworkExtensionConfiguration,
+        extra: Data?
+    ) {
         notifyReinstall(true)
         notifyStatus(.disconnected)
-        completionHandler?(.success(()))
     }
     
-    public func reconnect(_ tunnelBundleIdentifier: String, configuration: NetworkExtensionConfiguration, extra: Data?, delay: Double?) {
+    public func reconnect(
+        _ tunnelBundleIdentifier: String,
+        configuration: NetworkExtensionConfiguration,
+        extra: Data?,
+        after: DispatchTimeInterval
+    ) {
         notifyReinstall(true)
         notifyStatus(.connected)
     }

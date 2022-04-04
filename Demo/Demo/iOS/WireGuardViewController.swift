@@ -72,7 +72,9 @@ class WireGuardViewController: UIViewController {
             object: nil
         )
 
-        vpn.prepare()
+        Task {
+            await vpn.prepare()
+        }
     }
 
     @IBAction func connectionClicked(_ sender: Any) {
@@ -105,16 +107,20 @@ class WireGuardViewController: UIViewController {
             return
         }
 
-        vpn.reconnect(
-            tunnelIdentifier,
-            configuration: cfg,
-            extra: nil,
-            delay: nil
-        )
+        Task {
+            try await vpn.reconnect(
+                tunnelIdentifier,
+                configuration: cfg,
+                extra: nil,
+                after: .seconds(2)
+            )
+        }
     }
     
     func disconnect() {
-        vpn.disconnect()
+        Task {
+            await vpn.disconnect()
+        }
     }
 
     func updateButton() {
