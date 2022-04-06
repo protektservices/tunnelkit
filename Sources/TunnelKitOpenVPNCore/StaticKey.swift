@@ -214,6 +214,12 @@ extension OpenVPN {
             return try? JSONEncoder().encode(self)
         }
         
+        // MARK: Equatable
+        
+        public static func ==(lhs: Self, rhs: Self) -> Bool {
+            return lhs.secureData.toData() == rhs.secureData.toData()
+        }
+        
         // MARK: Codable
         
         public init(from decoder: Decoder) throws {
