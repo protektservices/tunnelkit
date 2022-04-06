@@ -46,14 +46,6 @@ public struct IPv6Settings: Codable, Equatable, CustomStringConvertible {
             self.gateway = gateway
         }
         
-        // MARK: Hashable
-
-        public func hash(into hasher: inout Hasher) {
-            hasher.combine(destination)
-            hasher.combine(prefixLength)
-            hasher.combine(gateway)
-        }
-
         // MARK: CustomStringConvertible
         
         public var description: String {
