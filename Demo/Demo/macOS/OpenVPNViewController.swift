@@ -75,7 +75,9 @@ class OpenVPNViewController: NSViewController {
             object: nil
         )
 
-        vpn.prepare()
+        Task {
+            await vpn.prepare()
+        }
         
 //        testFetchRef()
     }
@@ -114,18 +116,22 @@ class OpenVPNViewController: NSViewController {
             return
         }
 
-        var extra = NetworkExtensionExtra()
-        extra.passwordReference = passwordReference
-        vpn.reconnect(
-            tunnelIdentifier,
-            configuration: cfg!,
-            extra: extra,
-            after: .seconds(2)
-        )
+        Task {
+            var extra = NetworkExtensionExtra()
+            extra.passwordReference = passwordReference
+            try await vpn.reconnect(
+                tunnelIdentifier,
+                configuration: cfg!,
+                extra: extra,
+                after: .seconds(2)
+            )
+        }
     }
     
     func disconnect() {
-        vpn.disconnect()
+        Task {
+            await vpn.disconnect()
+        }
     }
 
     func updateButton() {
