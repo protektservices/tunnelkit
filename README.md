@@ -221,11 +221,11 @@ For more details please see [CONTRIBUTING][contrib-readme].
 
 ### OpenVPN
 
-Copyright (c) 2002-2018 OpenVPN Inc. - OpenVPN is a registered trademark of OpenVPN Inc.
+© Copyright 2022 OpenVPN | OpenVPN is a registered trademark of OpenVPN, Inc.
 
 ### WireGuard
 
-© Copyright 2015-2021 Jason A. Donenfeld. All Rights Reserved. "WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfeld.
+© Copyright 2015-2022 Jason A. Donenfeld. All Rights Reserved. "WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfeld.
 
 ### OpenSSL
 
