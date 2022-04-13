@@ -39,7 +39,7 @@ import NetworkExtension
 import SwiftyBeaver
 import TunnelKitCore
 import TunnelKitAppExtension
-import TunnelKitOpenVPN
+import TunnelKitOpenVPNCore
 
 private let log = SwiftyBeaver.self
 
