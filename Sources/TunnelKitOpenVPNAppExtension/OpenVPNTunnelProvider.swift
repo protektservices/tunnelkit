@@ -661,10 +661,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                     log.info("\tHTTPS URL: \(serverURL.maskedDescription)")
 
                 case .tls:
-                    guard let dnsServers = cfg.configuration.dnsServers else {
-                        session?.shutdown(error: OpenVPNProviderError.dnsFailure)
-                        return
-                    }
+                    dnsServers = cfg.configuration.dnsServers ?? []
                     guard let serverName = cfg.configuration.dnsTLSServerName else {
                         break
                     }
