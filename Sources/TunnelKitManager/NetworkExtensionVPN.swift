@@ -86,7 +86,7 @@ public class NetworkExtensionVPN: VPN {
             }
             try manager.connection.startVPNTunnel()
         } catch {
-            notifyError(error)
+            notifyInstallError(error)
             throw error
         }
     }
@@ -195,12 +195,12 @@ public class NetworkExtensionVPN: VPN {
                     manager.isOnDemandEnabled = false
                     manager.isEnabled = false
                     continuation.resume(throwing: error)
-                    self.notifyError(error)
+                    self.notifyInstallError(error)
                 } else {
                     manager.loadFromPreferences { error in
                         if let error = error {
                             continuation.resume(throwing: error)
-                            self.notifyError(error)
+                            self.notifyInstallError(error)
                         } else {
                             continuation.resume(returning: manager)
                             self.notifyReinstall(manager)
@@ -284,11 +284,12 @@ public class NetworkExtensionVPN: VPN {
         NotificationCenter.default.post(notification)
     }
     
-    private func notifyError(_ error: Error) {
-        log.error("VPN command failed: \(error))")
+    private func notifyInstallError(_ error: Error) {
+        log.error("VPN installation failed: \(error))")
 
         var notification = Notification(name: VPNNotification.didFail)
         notification.vpnError = error
+        notification.vpnIsEnabled = false
         NotificationCenter.default.post(notification)
     }
 }
