@@ -40,7 +40,7 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
             return
         }
         
-        configureLogging(debug: cfg.shouldDebug, customFormat: cfg.debugLogFormat)
+        configureLogging()
 
         // END: TunnelKit
 
@@ -125,11 +125,11 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
 }
 
 extension WireGuardTunnelProvider {
-    private func configureLogging(debug: Bool, customFormat: String?) {
-        let logLevel: SwiftyBeaver.Level = (debug ? .debug : .info)
-        let logFormat = customFormat ?? "$Dyyyy-MM-dd HH:mm:ss.SSS$d $L $N.$F:$l - $M"
+    private func configureLogging() {
+        let logLevel: SwiftyBeaver.Level = (cfg.shouldDebug ? .debug : .info)
+        let logFormat = cfg.debugLogFormat ?? "$Dyyyy-MM-dd HH:mm:ss.SSS$d $L $N.$F:$l - $M"
         
-        if debug {
+        if cfg.shouldDebug {
             let console = ConsoleDestination()
             console.useNSLog = true
             console.minLevel = logLevel

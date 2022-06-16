@@ -173,10 +173,7 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
         }
 
         // prepare for logging (append)
-        configureLogging(
-            debug: cfg.shouldDebug,
-            customFormat: cfg.debugLogFormat
-        )
+        configureLogging()
 
         // logging only ACTIVE from now on
         log.info("")
@@ -814,11 +811,11 @@ extension OpenVPNTunnelProvider {
     
     // MARK: Logging
     
-    private func configureLogging(debug: Bool, customFormat: String?) {
-        let logLevel: SwiftyBeaver.Level = (debug ? debugLogLevel : .info)
-        let logFormat = customFormat ?? "$Dyyyy-MM-dd HH:mm:ss.SSS$d $L $N.$F:$l - $M"
+    private func configureLogging() {
+        let logLevel: SwiftyBeaver.Level = (cfg.shouldDebug ? debugLogLevel : .info)
+        let logFormat = cfg.debugLogFormat ?? "$Dyyyy-MM-dd HH:mm:ss.SSS$d $L $N.$F:$l - $M"
         
-        if debug {
+        if cfg.shouldDebug {
             let console = ConsoleDestination()
             console.useNSLog = true
             console.minLevel = logLevel
