@@ -137,11 +137,14 @@ extension WireGuardTunnelProvider {
             SwiftyBeaver.addDestination(console)
         }
 
-        let file = FileDestination(logFileURL: cfg.urlForDebugLog)
+        let file = FileDestination(logFileURL: cfg._appexDebugLogURL)
         file.minLevel = logLevel
         file.format = logFormat
         file.logFileMaxSize = 20000
         SwiftyBeaver.addDestination(file)
+
+        // store path for clients
+        cfg._appexSetDebugLogPath()
     }
 }
 

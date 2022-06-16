@@ -37,11 +37,9 @@ extension OpenVPN {
 
     /// Specific configuration for OpenVPN.
     public struct ProviderConfiguration: Codable {
-        fileprivate enum Filenames: String {
-            case debugLog = "OpenVPN.Tunnel.log"
-        }
-        
         fileprivate enum Keys: String {
+            case logPath = "OpenVPN.LogPath"
+
             case dataCount = "OpenVPN.DataCount"
 
             case serverConfiguration = "OpenVPN.ServerConfiguration"
@@ -67,6 +65,9 @@ extension OpenVPN {
         /// Enables debugging.
         public var shouldDebug = false
         
+        /// Debug log path.
+        public var debugLogPath: String? = nil
+
         /// Optional debug log format (SwiftyBeaver format).
         public var debugLogFormat: String? = nil
         
@@ -147,16 +148,9 @@ extension OpenVPN.ProviderConfiguration {
      The URL of the latest debug log.
      */
     public var urlForDebugLog: URL? {
-        return FileManager.default.openVPNURLForDebugLog(appGroup: appGroup)
+        return defaults?.openVPNURLForDebugLog(appGroup: appGroup)
     }
 
-    /**
-     The content of the latest debug log.
-     */
-    public var debugLog: String? {
-        return FileManager.default.openVPNDebugLog(appGroup: appGroup)
-    }
-    
     private var defaults: UserDefaults? {
         return UserDefaults(suiteName: appGroup)
     }
@@ -175,10 +169,30 @@ extension OpenVPN.ProviderConfiguration {
     public func _appexSetLastError(_ newValue: OpenVPNProviderError?) {
         defaults?.openVPNLastError = newValue
     }
+
+    public var _appexDebugLogURL: URL? {
+        guard let path = debugLogPath else {
+            return nil
+        }
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup)?
+            .appendingPathComponent(path)
+    }
+
+    public func _appexSetDebugLogPath() {
+        defaults?.setValue(debugLogPath, forKey: OpenVPN.ProviderConfiguration.Keys.logPath.rawValue)
+    }
 }
 
 /// :nodoc:
 extension UserDefaults {
+    public func openVPNURLForDebugLog(appGroup: String) -> URL? {
+        guard let path = string(forKey: OpenVPN.ProviderConfiguration.Keys.logPath.rawValue) else {
+            return nil
+        }
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup)?
+            .appendingPathComponent(path)
+    }
+
     public fileprivate(set) var openVPNDataCount: DataCount? {
         get {
             guard let rawValue = openVPNDataCountArray else {
@@ -253,29 +267,5 @@ extension UserDefaults {
             }
             set(newValue.rawValue, forKey: OpenVPN.ProviderConfiguration.Keys.lastError.rawValue)
         }
-    }
-}
-
-/// :nodoc:
-extension FileManager {
-    public func openVPNURLForDebugLog(appGroup: String) -> URL? {
-        return documentsURL(appGroup: appGroup)?
-            .appendingPathComponent(OpenVPN.ProviderConfiguration.Filenames.debugLog.rawValue)
-    }
-
-    public func openVPNDebugLog(appGroup: String) -> String? {
-        guard let url = openVPNURLForDebugLog(appGroup: appGroup) else {
-            return nil
-        }
-        do {
-            return try String(contentsOf: url)
-        } catch {
-            log.error("Unable to access debug log: \(error)")
-            return nil
-        }
-    }
-
-    private func documentsURL(appGroup: String) -> URL? {
-        return containerURL(forSecurityApplicationGroupIdentifier: appGroup)
     }
 }

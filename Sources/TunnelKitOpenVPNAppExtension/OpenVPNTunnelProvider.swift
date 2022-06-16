@@ -100,8 +100,6 @@ open class OpenVPNTunnelProvider: NEPacketTunnelProvider {
     
     // MARK: Constants
     
-    private var logFile: FileDestination?
-    
     private let tunnelQueue = DispatchQueue(label: OpenVPNTunnelProvider.description(), qos: .utility)
     
     private let prngSeedLength = 64
@@ -823,13 +821,14 @@ extension OpenVPNTunnelProvider {
             log.addDestination(console)
         }
 
-        let file = FileDestination(logFileURL: cfg.urlForDebugLog)
+        let file = FileDestination(logFileURL: cfg._appexDebugLogURL)
         file.minLevel = logLevel
         file.format = logFormat
         file.logFileMaxSize = maxLogSize
         log.addDestination(file)
 
-        logFile = file
+        // store path for clients
+        cfg._appexSetDebugLogPath()
     }
     
     private func flushLog() {

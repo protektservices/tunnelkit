@@ -147,7 +147,10 @@ class OpenVPNViewController: UIViewController {
         guard let cfg = cfg else {
             return
         }
-        textLog.text = cfg.debugLog
+        guard let url = cfg.urlForDebugLog else {
+            return
+        }
+        textLog.text = try? String(contentsOf: url)
     }
     
     func updateButton() {
