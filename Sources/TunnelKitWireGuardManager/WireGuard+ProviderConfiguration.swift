@@ -92,14 +92,9 @@ extension WireGuard.ProviderConfiguration: NetworkExtensionConfiguration {
 
 extension WireGuard.ProviderConfiguration {
     public var lastError: WireGuardProviderError? {
-        get {
-            return defaults?.wireGuardLastError
-        }
-        set {
-            defaults?.wireGuardLastError = newValue
-        }
+        return defaults?.wireGuardLastError
     }
-
+    
     private var defaults: UserDefaults? {
         return UserDefaults(suiteName: appGroup)
     }
@@ -114,8 +109,15 @@ extension WireGuard.ProviderConfiguration {
 }
 
 /// :nodoc:
+extension WireGuard.ProviderConfiguration {
+    public func _appexSetLastError(_ newValue: WireGuardProviderError?) {
+        defaults?.wireGuardLastError = newValue
+    }
+}
+
+/// :nodoc:
 extension UserDefaults {
-    public var wireGuardLastError: WireGuardProviderError? {
+    public fileprivate(set) var wireGuardLastError: WireGuardProviderError? {
         get {
             guard let rawValue = string(forKey: WireGuard.ProviderConfiguration.Keys.lastError.rawValue) else {
                 return nil

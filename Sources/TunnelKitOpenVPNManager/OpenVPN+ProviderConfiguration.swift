@@ -126,38 +126,23 @@ extension OpenVPN.ProviderConfiguration {
      The most recent (received, sent) count in bytes.
      */
     public var dataCount: DataCount? {
-        get {
-            return defaults?.openVPNDataCount
-        }
-        set {
-            defaults?.openVPNDataCount = newValue
-        }
+        return defaults?.openVPNDataCount
     }
-    
+
     /**
      The server configuration pulled by the VPN.
      */
     public var serverConfiguration: OpenVPN.Configuration? {
-        get {
-            return defaults?.openVPNServerConfiguration
-        }
-        set {
-            defaults?.openVPNServerConfiguration = newValue
-        }
+        return defaults?.openVPNServerConfiguration
     }
 
     /**
      The last error reported by the tunnel, if any.
      */
     public var lastError: OpenVPNProviderError? {
-        get {
-            return defaults?.openVPNLastError
-        }
-        set {
-            defaults?.openVPNLastError = newValue
-        }
+        return defaults?.openVPNLastError
     }
-
+    
     /**
      The URL of the latest debug log.
      */
@@ -178,8 +163,23 @@ extension OpenVPN.ProviderConfiguration {
 }
 
 /// :nodoc:
+extension OpenVPN.ProviderConfiguration {
+    public func _appexSetDataCount(_ newValue: DataCount?) {
+        defaults?.openVPNDataCount = newValue
+    }
+
+    public func _appexSetServerConfiguration(_ newValue: OpenVPN.Configuration?) {
+        defaults?.openVPNServerConfiguration = newValue
+    }
+
+    public func _appexSetLastError(_ newValue: OpenVPNProviderError?) {
+        defaults?.openVPNLastError = newValue
+    }
+}
+
+/// :nodoc:
 extension UserDefaults {
-    public var openVPNDataCount: DataCount? {
+    public fileprivate(set) var openVPNDataCount: DataCount? {
         get {
             guard let rawValue = openVPNDataCountArray else {
                 return nil
@@ -211,7 +211,7 @@ extension UserDefaults {
         removeObject(forKey: OpenVPN.ProviderConfiguration.Keys.dataCount.rawValue)
     }
 
-    public var openVPNServerConfiguration: OpenVPN.Configuration? {
+    public fileprivate(set) var openVPNServerConfiguration: OpenVPN.Configuration? {
         get {
             guard let raw = data(forKey: OpenVPN.ProviderConfiguration.Keys.serverConfiguration.rawValue) else {
                 return nil
@@ -239,7 +239,7 @@ extension UserDefaults {
         }
     }
     
-    public var openVPNLastError: OpenVPNProviderError? {
+    public fileprivate(set) var openVPNLastError: OpenVPNProviderError? {
         get {
             guard let rawValue = string(forKey: OpenVPN.ProviderConfiguration.Keys.lastError.rawValue) else {
                 return nil
