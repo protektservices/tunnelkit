@@ -50,7 +50,16 @@ public protocol VPN {
     ) async throws
 
     /**
-     Reconnects to the VPN.
+     Reconnects to the VPN with current configuration.
+
+     - Parameter after: The reconnection delay.
+     **/
+    func reconnect(
+        after: DispatchTimeInterval
+    ) async throws
+
+    /**
+     Reconnects to the VPN installing a new configuration.
 
      - Parameter tunnelBundleIdentifier: The bundle identifier of the tunnel extension.
      - Parameter configuration: The configuration to install.

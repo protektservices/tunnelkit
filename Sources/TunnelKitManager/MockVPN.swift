@@ -47,6 +47,10 @@ public class MockVPN: VPN {
         notifyStatus(.disconnected)
     }
     
+    public func reconnect(after: DispatchTimeInterval) async throws {
+        notifyStatus(.connected)
+    }
+    
     public func reconnect(
         _ tunnelBundleIdentifier: String,
         configuration: NetworkExtensionConfiguration,

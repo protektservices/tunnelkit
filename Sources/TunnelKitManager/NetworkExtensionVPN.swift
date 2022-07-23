@@ -67,6 +67,18 @@ public class NetworkExtensionVPN: VPN {
             extra: extra
         )
     }
+    
+    public func reconnect(after: DispatchTimeInterval) async throws {
+        let managers = try await lookupAll()
+        guard let manager = managers.first else {
+            return
+        }
+        if manager.connection.status != .disconnected {
+            manager.connection.stopVPNTunnel()
+            try await Task.sleep(nanoseconds: after.nanoseconds)
+        }
+        try manager.connection.startVPNTunnel()
+    }
 
     public func reconnect(
         _ tunnelBundleIdentifier: String,
