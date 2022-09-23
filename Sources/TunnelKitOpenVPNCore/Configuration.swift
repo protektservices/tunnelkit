@@ -51,7 +51,6 @@ extension OpenVPN {
         /// The password.
         public let password: String
         
-        /// :nodoc
         public init(_ username: String, _ password: String) {
             self.username = username
             self.password = password
@@ -355,16 +354,14 @@ extension OpenVPN {
     
     /// The immutable configuration for `OpenVPNSession`.
     public struct Configuration: Codable, Equatable {
-
-        /// :nodoc:
-        public struct Fallback {
-            public static let cipher: Cipher = .aes128cbc
+        struct Fallback {
+            static let cipher: Cipher = .aes128cbc
             
-            public static let digest: Digest = .sha1
+            static let digest: Digest = .sha1
             
-            public static let compressionFraming: CompressionFraming = .disabled
+            static let compressionFraming: CompressionFraming = .disabled
             
-            public static let compressionAlgorithm: CompressionAlgorithm = .disabled
+            static let compressionAlgorithm: CompressionAlgorithm = .disabled
         }
         
         /// - Seealso: `ConfigurationBuilder.cipher`

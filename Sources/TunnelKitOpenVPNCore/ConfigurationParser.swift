@@ -38,6 +38,7 @@ extension OpenVPN {
 
         // XXX: parsing is very optimistic
         
+        /// Regexes used to parse OpenVPN options.
         public struct Regex {
             
             // MARK: General

@@ -74,15 +74,13 @@ extension OpenVPN {
         /// Mask private data in debug log (default is `true`).
         public var masksPrivateData = true
         
-        /// :nodoc:
-        public init(_ title: String, appGroup: String, configuration: OpenVPN.Configuration) {
+                public init(_ title: String, appGroup: String, configuration: OpenVPN.Configuration) {
             self.title = title
             self.appGroup = appGroup
             self.configuration = configuration
         }
 
-        /// :nodoc:
-        public func print() {
+                public func print() {
             if let versionIdentifier = versionIdentifier {
                 log.info("Tunnel version: \(versionIdentifier)")
             }
@@ -97,8 +95,7 @@ extension OpenVPN {
 
 extension OpenVPN.ProviderConfiguration: NetworkExtensionConfiguration {
 
-    /// :nodoc:
-    public func asTunnelProtocol(
+        public func asTunnelProtocol(
         withBundleIdentifier tunnelBundleIdentifier: String,
         extra: NetworkExtensionExtra?
     ) throws -> NETunnelProviderProtocol {
@@ -156,7 +153,6 @@ extension OpenVPN.ProviderConfiguration {
     }
 }
 
-/// :nodoc:
 extension OpenVPN.ProviderConfiguration {
     public func _appexSetDataCount(_ newValue: DataCount?) {
         defaults?.openVPNDataCount = newValue
@@ -183,7 +179,6 @@ extension OpenVPN.ProviderConfiguration {
     }
 }
 
-/// :nodoc:
 extension UserDefaults {
     public func openVPNURLForDebugLog(appGroup: String) -> URL? {
         guard let path = string(forKey: OpenVPN.ProviderConfiguration.Keys.logPath.rawValue) else {

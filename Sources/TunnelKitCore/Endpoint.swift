@@ -31,8 +31,7 @@ public struct Endpoint: RawRepresentable, Codable, Equatable, CustomStringConver
     
     public let proto: EndpointProtocol
 
-    /// :nodoc:
-    public init(_ address: String, _ proto: EndpointProtocol) {
+        public init(_ address: String, _ proto: EndpointProtocol) {
         self.address = address
         self.proto = proto
     }
@@ -74,8 +73,7 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     /// The remote port.
     public let port: UInt16
 
-    /// :nodoc:
-    public init(_ socketType: SocketType, _ port: UInt16) {
+        public init(_ socketType: SocketType, _ port: UInt16) {
         self.socketType = socketType
         self.port = port
     }

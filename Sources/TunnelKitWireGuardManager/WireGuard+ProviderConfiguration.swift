@@ -73,8 +73,7 @@ extension WireGuard {
 
 extension WireGuard.ProviderConfiguration: NetworkExtensionConfiguration {
 
-    /// :nodoc:
-    public func asTunnelProtocol(
+        public func asTunnelProtocol(
         withBundleIdentifier tunnelBundleIdentifier: String,
         extra: NetworkExtensionExtra?
     ) throws -> NETunnelProviderProtocol {
@@ -105,7 +104,6 @@ extension WireGuard.ProviderConfiguration {
     }
 }
 
-/// :nodoc:
 extension WireGuard.ProviderConfiguration {
     public func _appexSetLastError(_ newValue: WireGuardProviderError?) {
         defaults?.wireGuardLastError = newValue
@@ -124,7 +122,6 @@ extension WireGuard.ProviderConfiguration {
     }
 }
 
-/// :nodoc:
 extension UserDefaults {
     public func wireGuardURLForDebugLog(appGroup: String) -> URL? {
         guard let path = string(forKey: WireGuard.ProviderConfiguration.Keys.logPath.rawValue) else {

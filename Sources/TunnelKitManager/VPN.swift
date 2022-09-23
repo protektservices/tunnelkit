@@ -85,6 +85,8 @@ public protocol VPN {
 }
 
 extension DispatchTimeInterval {
+
+    /// Returns self in nanoseconds.
     public var nanoseconds: UInt64 {
         switch self {
         case .seconds(let sec):
