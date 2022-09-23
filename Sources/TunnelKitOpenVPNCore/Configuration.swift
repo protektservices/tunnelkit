@@ -491,6 +491,10 @@ extension OpenVPN {
         public var fallbackCompressionFraming: CompressionFraming {
             return compressionFraming ?? Fallback.compressionFraming
         }
+
+        public var fallbackCompressionAlgorithm: CompressionAlgorithm {
+            return compressionAlgorithm ?? Fallback.compressionAlgorithm
+        }
     }
 }
 
@@ -559,12 +563,8 @@ extension OpenVPN.Configuration {
         log.info("\tCipher: \(fallbackCipher)")
         log.info("\tDigest: \(fallbackDigest)")
         log.info("\tCompression framing: \(fallbackCompressionFraming)")
+        log.info("\tCompression algorithm: \(fallbackCompressionAlgorithm)")
         log.info("\tUsername authentication: \(authUserPass ?? false)")
-        if let compressionAlgorithm = compressionAlgorithm, compressionAlgorithm != .disabled {
-            log.info("\tCompression algorithm: \(compressionAlgorithm)")
-        } else {
-            log.info("\tCompression algorithm: disabled")
-        }
         if let _ = clientCertificate {
             log.info("\tClient verification: enabled")
         } else {
