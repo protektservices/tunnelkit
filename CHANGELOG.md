@@ -12,13 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenVPN: Parse authentication requirement from `--auth-user-pass`.
 - OpenVPN: Handle multiple `--remote` options correctly.
 - OpenVPN: Explicitly enable/disable DNS/proxy settings.
+- Reconnect with current manager and configuration.
+- Customize tunnel log path.
 
 ### Changed
 
-- Manager package completely rewritten with Swift Concurrency.
+- Rewrite Manager package with Swift Concurrency.
 - WireGuard: Use entities from WireGuardKit directly.
 - Only enable on-demand if at least one rule is provided.
-- Dropped incomplete support for IPSec/IKEv2.
+- Drop incomplete support for IPSec/IKEv2.
+- Upgrade OpenSSL to 1.1.1o.
+
+### Fixed
+
+- OpenVPN: Bug in StaticKey equality comparison.
 
 ## 4.1.0 (2022-02-09)
 
