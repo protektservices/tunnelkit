@@ -640,13 +640,13 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         }
         
         var dnsSettings: NEDNSSettings?
-        if cfg.configuration.isDNSEnabled ?? true {
+        if localOptions.isDNSEnabled ?? true {
             var dnsServers: [String] = []
             if #available(iOS 14, macOS 11, *) {
-                switch cfg.configuration.dnsProtocol {
+                switch localOptions.dnsProtocol {
                 case .https:
-                    dnsServers = cfg.configuration.dnsServers ?? []
-                    guard let serverURL = cfg.configuration.dnsHTTPSURL else {
+                    dnsServers = localOptions.dnsServers ?? []
+                    guard let serverURL = localOptions.dnsHTTPSURL else {
                         break
                     }
                     let specific = NEDNSOverHTTPSSettings(servers: dnsServers)
@@ -656,8 +656,8 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                     log.info("\tHTTPS URL: \(serverURL.maskedDescription)")
 
                 case .tls:
-                    dnsServers = cfg.configuration.dnsServers ?? []
-                    guard let serverName = cfg.configuration.dnsTLSServerName else {
+                    dnsServers = localOptions.dnsServers ?? []
+                    guard let serverName = localOptions.dnsTLSServerName else {
                         break
                     }
                     let specific = NEDNSOverTLSSettings(servers: dnsServers)
@@ -674,7 +674,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             // fall back
             if dnsSettings == nil {
                 dnsServers = []
-                if let servers = cfg.configuration.dnsServers,
+                if let servers = localOptions.dnsServers,
                    !servers.isEmpty {
                     dnsServers = servers
                 } else if let servers = options.dnsServers {
@@ -695,7 +695,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                 dnsSettings?.matchDomains = [""]
             }
             
-            if let searchDomains = cfg.configuration.searchDomains ?? options.searchDomains {
+            if let searchDomains = localOptions.searchDomains ?? options.searchDomains {
                 log.info("DNS: Using search domains \(searchDomains.maskedDescription)")
                 dnsSettings?.domainName = searchDomains.first
                 dnsSettings?.searchDomains = searchDomains
@@ -717,14 +717,14 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         }
         
         var proxySettings: NEProxySettings?
-        if cfg.configuration.isProxyEnabled ?? true {
+        if localOptions.isProxyEnabled ?? true {
             if let httpsProxy = cfg.configuration.httpsProxy ?? options.httpsProxy {
                 proxySettings = NEProxySettings()
                 proxySettings?.httpsServer = httpsProxy.neProxy()
                 proxySettings?.httpsEnabled = true
                 log.info("Routing: Setting HTTPS proxy \(httpsProxy.address.maskedDescription):\(httpsProxy.port)")
             }
-            if let httpProxy = cfg.configuration.httpProxy ?? options.httpProxy {
+            if let httpProxy = localOptions.httpProxy ?? options.httpProxy {
                 if proxySettings == nil {
                     proxySettings = NEProxySettings()
                 }
@@ -732,7 +732,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                 proxySettings?.httpEnabled = true
                 log.info("Routing: Setting HTTP proxy \(httpProxy.address.maskedDescription):\(httpProxy.port)")
             }
-            if let pacURL = cfg.configuration.proxyAutoConfigurationURL ?? options.proxyAutoConfigurationURL {
+            if let pacURL = localOptions.proxyAutoConfigurationURL ?? options.proxyAutoConfigurationURL {
                 if proxySettings == nil {
                     proxySettings = NEProxySettings()
                 }
@@ -742,7 +742,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
             }
 
             // only set if there is a proxy (proxySettings set to non-nil above)
-            if let bypass = cfg.configuration.proxyBypassDomains ?? options.proxyBypassDomains {
+            if let bypass = localOptions.proxyBypassDomains ?? options.proxyBypassDomains {
                 proxySettings?.exceptionList = bypass
                 log.info("Routing: Setting proxy by-pass list: \(bypass.maskedDescription)")
             }
@@ -790,7 +790,7 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
         newSettings.ipv6Settings = ipv6Settings
         newSettings.dnsSettings = dnsSettings
         newSettings.proxySettings = proxySettings
-        if let mtu = cfg.configuration.mtu, mtu > 0 {
+        if let mtu = localOptions.mtu, mtu > 0 {
             newSettings.mtu = NSNumber(value: mtu)
         }
 
