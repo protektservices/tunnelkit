@@ -210,6 +210,10 @@ By contributing to this project you are agreeing to the terms stated in the [Con
 
 For more details please see [CONTRIBUTING][contrib-readme].
 
+### Other licenses
+
+A custom TunnelKit license, e.g. for use in proprietary software, may be negotiated [on request][license-contact].
+
 ## Credits
 
 - [lzo][dep-lzo-website] - Copyright (c) 1996-2017 Markus F.X.J. Oberhumer
@@ -250,6 +254,7 @@ Website: [passepartoutvpn.app][about-website]
 [license-content]: LICENSE
 [license-signal]: https://github.com/signalapp/libsignal-protocol-c#license
 [license-mit]: https://choosealicense.com/licenses/mit/
+[license-contact]: mailto:license@passepartoutvpn.app
 [contrib-cla]: CLA.rst
 [contrib-readme]: CONTRIBUTING.md
 
