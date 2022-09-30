@@ -80,7 +80,7 @@ extension OpenVPN {
             self.configuration = configuration
         }
 
-                public func print() {
+        public func print() {
             if let versionIdentifier = versionIdentifier {
                 log.info("Tunnel version: \(versionIdentifier)")
             }
