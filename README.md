@@ -59,7 +59,7 @@ TunnelKit can parse .ovpn configuration files. Below are a few details worth men
 - External file references (inline `<block>` only)
 - Static key encryption (non-TLS)
 - `<connection>` blocks
-- `vpn_gateway` and `net_gateway` literals in routes
+- `net_gateway` literals in routes
 
 #### Ignored
 
