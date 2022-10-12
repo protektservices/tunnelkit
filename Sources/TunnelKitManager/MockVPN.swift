@@ -28,59 +28,83 @@ import NetworkExtension
 
 /// Simulates a VPN provider.
 public class MockVPN: VPN {
-    public init() {
+    private var tunnelBundleIdentifier: String?
+    
+    private var currentIsEnabled = false
+    
+    private let delayNanoseconds: UInt64
+    
+    public init(delay: Int = 1) {
+        delayNanoseconds = DispatchTimeInterval.seconds(delay).nanoseconds
     }
-
+    
     // MARK: VPN
-
+    
     public func prepare() {
-        notifyReinstall(false)
-        notifyStatus(.disconnected)
     }
     
     public func install(
         _ tunnelBundleIdentifier: String,
         configuration: NetworkExtensionConfiguration,
-        extra: Data?
+        extra: NetworkExtensionExtra?
     ) {
+        self.tunnelBundleIdentifier = tunnelBundleIdentifier
         notifyReinstall(true)
         notifyStatus(.disconnected)
     }
     
     public func reconnect(after: DispatchTimeInterval) async throws {
+        await delay()
         notifyStatus(.connected)
     }
     
     public func reconnect(
         _ tunnelBundleIdentifier: String,
         configuration: NetworkExtensionConfiguration,
-        extra: Data?,
+        extra: NetworkExtensionExtra?,
         after: DispatchTimeInterval
-    ) {
+    ) async throws {
+        self.tunnelBundleIdentifier = tunnelBundleIdentifier
         notifyReinstall(true)
+        await delay()
+        notifyStatus(.connecting)
+        await delay()
         notifyStatus(.connected)
     }
     
-    public func disconnect() {
+    public func disconnect() async {
         notifyReinstall(false)
+        await delay()
+        notifyStatus(.disconnecting)
+        await delay()
         notifyStatus(.disconnected)
     }
     
-    public func uninstall() {
+    public func uninstall() async {
+        await delay()
         notifyReinstall(false)
     }
     
     // MARK: Helpers
-
+    
     private func notifyReinstall(_ isEnabled: Bool) {
+        currentIsEnabled = isEnabled
+        
         var notification = Notification(name: VPNNotification.didReinstall)
+        notification.vpnBundleIdentifier = tunnelBundleIdentifier
         notification.vpnIsEnabled = isEnabled
         NotificationCenter.default.post(notification)
     }
-
+    
     private func notifyStatus(_ status: VPNStatus) {
         var notification = Notification(name: VPNNotification.didChangeStatus)
+        notification.vpnBundleIdentifier = tunnelBundleIdentifier
+        notification.vpnIsEnabled = currentIsEnabled
         notification.vpnStatus = status
         NotificationCenter.default.post(notification)
+    }
+
+    private func delay() async {
+        try? await Task.sleep(nanoseconds: delayNanoseconds)
     }
 }
