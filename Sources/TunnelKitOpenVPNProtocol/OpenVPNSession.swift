@@ -50,9 +50,10 @@ public protocol OpenVPNSessionDelegate: AnyObject {
      Called after starting a session.
      
      - Parameter remoteAddress: The address of the VPN server.
+     - Parameter remoteProtocol: The protocol of the VPN server, if specified.
      - Parameter options: The pulled tunnel settings.
      */
-    func sessionDidStart(_: OpenVPNSession, remoteAddress: String, options: OpenVPN.Configuration)
+    func sessionDidStart(_: OpenVPNSession, remoteAddress: String, remoteProtocol: String?, options: OpenVPN.Configuration)
     
     /**
      Called after stopping a session.
@@ -981,7 +982,12 @@ public class OpenVPNSession: Session {
         guard let remoteAddress = link?.remoteAddress else {
             fatalError("Could not resolve link remote address")
         }
-        delegate?.sessionDidStart(self, remoteAddress: remoteAddress, options: reply.options)
+        delegate?.sessionDidStart(
+            self,
+            remoteAddress: remoteAddress,
+            remoteProtocol: link?.remoteProtocol,
+            options: reply.options
+        )
 
         scheduleNextPing()
     }

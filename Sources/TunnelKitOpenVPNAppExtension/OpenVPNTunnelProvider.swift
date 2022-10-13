@@ -480,11 +480,14 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
     
     // MARK: OpenVPNSessionDelegate (tunnel queue)
     
-    public func sessionDidStart(_ session: OpenVPNSession, remoteAddress: String, options: OpenVPN.Configuration) {
+    public func sessionDidStart(_ session: OpenVPNSession, remoteAddress: String, remoteProtocol: String?, options: OpenVPN.Configuration) {
         log.info("Session did start")
-        
+        log.info("\tAddress: \(remoteAddress.maskedDescription)")
+        if let proto = remoteProtocol {
+            log.info("\tProtocol: \(proto)")
+        }
+
         log.info("Returned ifconfig parameters:")
-        log.info("\tRemote: \(remoteAddress.maskedDescription)")
         log.info("\tIPv4: \(options.ipv4?.description ?? "not configured")")
         log.info("\tIPv6: \(options.ipv6?.description ?? "not configured")")
         if let routingPolicies = options.routingPolicies {
