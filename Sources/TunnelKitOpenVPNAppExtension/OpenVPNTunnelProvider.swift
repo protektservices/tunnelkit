@@ -707,9 +707,13 @@ extension OpenVPNTunnelProvider: OpenVPNSessionDelegate {
                     log.info("DNS: Using servers \(dnsServers.maskedDescription)")
                     dnsSettings = NEDNSSettings(servers: dnsServers)
                 } else {
-    //                log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
-    //                dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
-                    log.warning("DNS: No settings provided, using current network settings")
+//                    log.warning("DNS: No servers provided, using fall-back servers: \(fallbackDNSServers.maskedDescription)")
+//                    dnsSettings = NEDNSSettings(servers: fallbackDNSServers)
+                    if isGateway {
+                        log.warning("DNS: No settings provided, using current network settings")
+                    } else {
+                        log.warning("DNS: No settings provided")
+                    }
                 }
             }
 
