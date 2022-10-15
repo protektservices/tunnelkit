@@ -30,12 +30,24 @@ import NetworkExtension
 public class MockVPN: VPN {
     private var tunnelBundleIdentifier: String?
     
-    private var currentIsEnabled = false
+    private var isEnabled: Bool {
+        didSet {
+            notifyReinstall(isEnabled)
+        }
+    }
+    
+    private var vpnStatus: VPNStatus {
+        didSet {
+            notifyStatus(vpnStatus)
+        }
+    }
     
     private let delayNanoseconds: UInt64
     
     public init(delay: Int = 1) {
         delayNanoseconds = DispatchTimeInterval.seconds(delay).nanoseconds
+        isEnabled = false
+        vpnStatus = .disconnected
     }
     
     // MARK: VPN
@@ -49,13 +61,18 @@ public class MockVPN: VPN {
         extra: NetworkExtensionExtra?
     ) {
         self.tunnelBundleIdentifier = tunnelBundleIdentifier
-        notifyReinstall(true)
-        notifyStatus(.disconnected)
+        isEnabled = true
+        vpnStatus = .disconnected
     }
     
     public func reconnect(after: DispatchTimeInterval) async throws {
+        if vpnStatus == .connected {
+            vpnStatus = .disconnecting
+            await delay()
+        }
+        vpnStatus = .connecting
         await delay()
-        notifyStatus(.connected)
+        vpnStatus = .connected
     }
     
     public func reconnect(
@@ -65,31 +82,34 @@ public class MockVPN: VPN {
         after: DispatchTimeInterval
     ) async throws {
         self.tunnelBundleIdentifier = tunnelBundleIdentifier
-        notifyReinstall(true)
+        isEnabled = true
+        if vpnStatus == .connected {
+            vpnStatus = .disconnecting
+            await delay()
+        }
+        vpnStatus = .connecting
         await delay()
-        notifyStatus(.connecting)
-        await delay()
-        notifyStatus(.connected)
+        vpnStatus = .connected
     }
     
     public func disconnect() async {
-        notifyReinstall(false)
+        guard vpnStatus != .disconnected else {
+            return
+        }
+        vpnStatus = .disconnecting
         await delay()
-        notifyStatus(.disconnecting)
-        await delay()
-        notifyStatus(.disconnected)
+        vpnStatus = .disconnected
+        isEnabled = false
     }
     
     public func uninstall() async {
-        await delay()
-        notifyReinstall(false)
+        vpnStatus = .disconnected
+        isEnabled = false
     }
     
     // MARK: Helpers
     
     private func notifyReinstall(_ isEnabled: Bool) {
-        currentIsEnabled = isEnabled
-        
         var notification = Notification(name: VPNNotification.didReinstall)
         notification.vpnBundleIdentifier = tunnelBundleIdentifier
         notification.vpnIsEnabled = isEnabled
@@ -99,7 +119,7 @@ public class MockVPN: VPN {
     private func notifyStatus(_ status: VPNStatus) {
         var notification = Notification(name: VPNNotification.didChangeStatus)
         notification.vpnBundleIdentifier = tunnelBundleIdentifier
-        notification.vpnIsEnabled = currentIsEnabled
+        notification.vpnIsEnabled = isEnabled
         notification.vpnStatus = status
         NotificationCenter.default.post(notification)
     }
