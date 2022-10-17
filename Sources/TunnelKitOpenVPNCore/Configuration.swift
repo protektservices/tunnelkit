@@ -229,6 +229,9 @@ extension OpenVPN {
         /// Picks endpoint from `remotes` randomly.
         public var randomizeEndpoint: Bool?
         
+        /// Prepend hostnames with a number of random bytes defined in `Configuration.randomHostnamePrefixLength`.
+        public var randomizeHostnames: Bool?
+        
         /// Server is patched for the PIA VPN provider.
         public var usesPIAPatches: Bool?
         
@@ -345,6 +348,7 @@ extension OpenVPN {
                 checksSANHost: checksSANHost,
                 sanHost: sanHost,
                 randomizeEndpoint: randomizeEndpoint,
+                randomizeHostnames: randomizeHostnames,
                 usesPIAPatches: usesPIAPatches,
                 mtu: mtu,
                 authUserPass: authUserPass,
@@ -380,6 +384,8 @@ extension OpenVPN {
             
             static let compressionAlgorithm: CompressionAlgorithm = .disabled
         }
+        
+        private static let randomHostnamePrefixLength = 6
         
         /// - Seealso: `ConfigurationBuilder.cipher`
         public let cipher: Cipher?
@@ -438,6 +444,9 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.randomizeEndpoint`
         public let randomizeEndpoint: Bool?
         
+        /// - Seealso: `ConfigurationBuilder.randomizeHostnames`
+        public var randomizeHostnames: Bool?
+
         /// - Seealso: `ConfigurationBuilder.usesPIAPatches`
         public let usesPIAPatches: Bool?
         
@@ -524,6 +533,28 @@ extension OpenVPN {
             let pulled = Array(Set(all).subtracting(notPulled))
             return !pulled.isEmpty ? pulled : nil
         }
+        
+        // MARK: Computed
+        
+        public var processedRemotes: [Endpoint]? {
+            guard var processedRemotes = remotes else {
+                return nil
+            }
+            if randomizeEndpoint ?? false {
+                processedRemotes.shuffle()
+            }
+            if let randomPrefixLength = (randomizeHostnames ?? false) ? Self.randomHostnamePrefixLength : nil {
+                processedRemotes = processedRemotes.compactMap {
+                    do {
+                        return try $0.withRandomPrefixLength(randomPrefixLength)
+                    } catch {
+                        log.warning("Could not prepend random prefix: \(error)")
+                        return nil
+                    }
+                }
+            }
+            return processedRemotes
+        }
     }
 }
 
@@ -558,6 +589,7 @@ extension OpenVPN.Configuration {
         builder.checksSANHost = checksSANHost
         builder.sanHost = sanHost
         builder.randomizeEndpoint = randomizeEndpoint
+        builder.randomizeHostnames = randomizeHostnames
         builder.usesPIAPatches = usesPIAPatches
         builder.mtu = mtu
         builder.authUserPass = authUserPass
@@ -637,6 +669,9 @@ extension OpenVPN.Configuration {
         }
         if randomizeEndpoint ?? false {
             log.info("\tRandomize endpoint: true")
+        }
+        if randomizeHostnames ?? false {
+            log.info("\tRandomize hostnames: true")
         }
         if let routingPolicies = routingPolicies {
             log.info("\tGateway: \(routingPolicies.map { $0.rawValue })")
