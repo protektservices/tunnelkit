@@ -172,10 +172,10 @@ extension NetworkSettingsBuilder {
     
     var hasGateway: Bool {
         var hasGateway = false
-        if isIPv4Gateway && computedIPv4Settings != nil {
+        if isIPv4Gateway && remoteOptions.ipv4 != nil {
             hasGateway = true
         }
-        if isIPv6Gateway && computedIPv6Settings != nil {
+        if isIPv6Gateway && remoteOptions.ipv6 != nil {
             hasGateway = true
         }
         return hasGateway
