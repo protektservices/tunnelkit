@@ -674,7 +674,7 @@ extension OpenVPN.Configuration {
             log.info("\tRandomize hostnames: true")
         }
         if let routingPolicies = routingPolicies {
-            log.info("\tGateway: \(routingPolicies.map { $0.rawValue })")
+            log.info("\tGateway: \(routingPolicies.map(\.rawValue))")
         } else {
             log.info("\tGateway: not configured")
         }

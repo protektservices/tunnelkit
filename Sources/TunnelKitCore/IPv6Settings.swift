@@ -75,6 +75,6 @@ public struct IPv6Settings: Codable, Equatable, CustomStringConvertible {
     // MARK: CustomStringConvertible
     
     public var description: String {
-        return "addr \(address.maskedDescription)/\(addressPrefixLength) gw \(defaultGateway.maskedDescription) routes \(routes.map { $0.maskedDescription })"
+        return "addr \(address.maskedDescription)/\(addressPrefixLength) gw \(defaultGateway.maskedDescription) routes \(routes.map(\.maskedDescription))"
     }
 }

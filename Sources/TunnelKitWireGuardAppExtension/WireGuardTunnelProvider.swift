@@ -62,7 +62,7 @@ open class WireGuardTunnelProvider: NEPacketTunnelProvider {
                 completionHandler(WireGuardProviderError.couldNotDetermineFileDescriptor)
 
             case .dnsResolution(let dnsErrors):
-                let hostnamesWithDnsResolutionFailure = dnsErrors.map { $0.address }
+                let hostnamesWithDnsResolutionFailure = dnsErrors.map(\.address)
                     .joined(separator: ", ")
                 wg_log(.error, message: "DNS resolution failed for the following hostnames: \(hostnamesWithDnsResolutionFailure)")
                 self.cfg._appexSetLastError(.dnsResolutionFailure)

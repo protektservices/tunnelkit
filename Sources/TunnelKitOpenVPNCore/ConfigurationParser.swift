@@ -378,11 +378,11 @@ extension OpenVPN {
                             optClientKey = CryptoContainer(pem: currentBlock.joined(separator: "\n"))
                             
                         case "tls-auth":
-                            optTLSKeyLines = currentBlock.map { Substring($0) }
+                            optTLSKeyLines = currentBlock.map(Substring.init(_:))
                             optTLSStrategy = .auth
                             
                         case "tls-crypt":
-                            optTLSKeyLines = currentBlock.map { Substring($0) }
+                            optTLSKeyLines = currentBlock.map(Substring.init(_:))
                             optTLSStrategy = .crypt
                             
                         default:
