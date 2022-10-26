@@ -30,7 +30,7 @@ import __TunnelKitUtils
 public struct Endpoint: RawRepresentable, Codable, Equatable, CustomStringConvertible {
 
     // XXX: simplistic match
-    private static let rx = NSRegularExpression("^([0-9A-Fa-f\\.:]+):(UDP[46]?|TCP[46]?):(\\d+)$")
+    private static let rx = NSRegularExpression("^([^\\s]+):(UDP[46]?|TCP[46]?):(\\d+)$")
 
     public let address: String
     
