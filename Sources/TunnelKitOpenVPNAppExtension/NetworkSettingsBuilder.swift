@@ -117,27 +117,27 @@ extension NetworkSettingsBuilder {
             return nil
         }
         let ipv4Settings = NEIPv4Settings(addresses: [ipv4.address], subnetMasks: [ipv4.addressMask])
-        if pullRoutes {
-            var routes: [NEIPv4Route] = []
-            
-            // route all traffic to VPN?
-            if isIPv4Gateway {
-                let defaultRoute = NEIPv4Route.default()
-                defaultRoute.gatewayAddress = ipv4.defaultGateway
-                routes.append(defaultRoute)
-                log.info("Routing.IPv4: Setting default gateway to \(ipv4.defaultGateway)")
-            }
-            
-            for r in ipv4.routes {
-                let ipv4Route = NEIPv4Route(destinationAddress: r.destination, subnetMask: r.mask)
-                ipv4Route.gatewayAddress = r.gateway
-                routes.append(ipv4Route)
-                log.info("Routing.IPv4: Adding route \(r.destination)/\(r.mask) -> \(r.gateway)")
-            }
-            
-            ipv4Settings.includedRoutes = routes
-            ipv4Settings.excludedRoutes = []
+        var routes: [NEIPv4Route] = []
+        
+        // route all traffic to VPN?
+        if isIPv4Gateway {
+            let defaultRoute = NEIPv4Route.default()
+            defaultRoute.gatewayAddress = ipv4.defaultGateway
+            routes.append(defaultRoute)
+            log.info("Routing.IPv4: Setting default gateway to \(ipv4.defaultGateway)")
         }
+        
+        // FIXME: this is ineffective until #278 is fixed (localOptions.ipv4 is always nil)
+        let computedRoutes = (pullRoutes ? (remoteOptions.ipv4?.routes ?? localOptions.ipv4?.routes) : localOptions.ipv4?.routes) ?? []
+        for r in computedRoutes {
+            let ipv4Route = NEIPv4Route(destinationAddress: r.destination, subnetMask: r.mask)
+            ipv4Route.gatewayAddress = r.gateway
+            routes.append(ipv4Route)
+            log.info("Routing.IPv4: Adding route \(r.destination)/\(r.mask) -> \(r.gateway)")
+        }
+
+        ipv4Settings.includedRoutes = routes
+        ipv4Settings.excludedRoutes = []
         return ipv4Settings
     }
     
@@ -146,27 +146,27 @@ extension NetworkSettingsBuilder {
             return nil
         }
         let ipv6Settings = NEIPv6Settings(addresses: [ipv6.address], networkPrefixLengths: [ipv6.addressPrefixLength as NSNumber])
-        if pullRoutes {
-            var routes: [NEIPv6Route] = []
-            
-            // route all traffic to VPN?
-            if isIPv6Gateway {
-                let defaultRoute = NEIPv6Route.default()
-                defaultRoute.gatewayAddress = ipv6.defaultGateway
-                routes.append(defaultRoute)
-                log.info("Routing.IPv6: Setting default gateway to \(ipv6.defaultGateway)")
-            }
-            
-            for r in ipv6.routes {
-                let ipv6Route = NEIPv6Route(destinationAddress: r.destination, networkPrefixLength: r.prefixLength as NSNumber)
-                ipv6Route.gatewayAddress = r.gateway
-                routes.append(ipv6Route)
-                log.info("Routing.IPv6: Adding route \(r.destination)/\(r.prefixLength) -> \(r.gateway)")
-            }
-            
-            ipv6Settings.includedRoutes = routes
-            ipv6Settings.excludedRoutes = []
+        var routes: [NEIPv6Route] = []
+        
+        // route all traffic to VPN?
+        if isIPv6Gateway {
+            let defaultRoute = NEIPv6Route.default()
+            defaultRoute.gatewayAddress = ipv6.defaultGateway
+            routes.append(defaultRoute)
+            log.info("Routing.IPv6: Setting default gateway to \(ipv6.defaultGateway)")
         }
+        
+        // FIXME: this is ineffective until #278 is fixed (localOptions.ipv6 is always nil)
+        let computedRoutes = (pullRoutes ? (remoteOptions.ipv6?.routes ?? localOptions.ipv6?.routes) : localOptions.ipv6?.routes) ?? []
+        for r in computedRoutes {
+            let ipv6Route = NEIPv6Route(destinationAddress: r.destination, networkPrefixLength: r.prefixLength as NSNumber)
+            ipv6Route.gatewayAddress = r.gateway
+            routes.append(ipv6Route)
+            log.info("Routing.IPv6: Adding route \(r.destination)/\(r.prefixLength) -> \(r.gateway)")
+        }
+
+        ipv6Settings.includedRoutes = routes
+        ipv6Settings.excludedRoutes = []
         return ipv6Settings
     }
     
