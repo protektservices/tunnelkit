@@ -88,13 +88,13 @@ public struct Endpoint: RawRepresentable, Codable, Equatable, CustomStringConver
     }
 
     public var rawValue: String {
-        return "\(address):\(proto.socketType.rawValue):\(proto.port)"
+        "\(address):\(proto.socketType.rawValue):\(proto.port)"
     }
     
     // MARK: CustomStringConvertible
     
     public var description: String {
-        return "\(address.maskedDescription):\(proto.rawValue)"
+        "\(address.maskedDescription):\(proto.rawValue)"
     }
 }
 
@@ -107,7 +107,7 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     /// The remote port.
     public let port: UInt16
 
-        public init(_ socketType: SocketType, _ port: UInt16) {
+    public init(_ socketType: SocketType, _ port: UInt16) {
         self.socketType = socketType
         self.port = port
     }
@@ -129,13 +129,13 @@ public struct EndpointProtocol: RawRepresentable, Equatable, CustomStringConvert
     }
     
     public var rawValue: String {
-        return "\(socketType.rawValue):\(port)"
+        "\(socketType.rawValue):\(port)"
     }
     
     // MARK: CustomStringConvertible
     
     public var description: String {
-        return rawValue
+        rawValue
     }
 }
 

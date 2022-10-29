@@ -84,6 +84,6 @@ public struct IPv6Settings: Codable, Equatable, CustomStringConvertible {
     // MARK: CustomStringConvertible
     
     public var description: String {
-        "addr \(address.maskedDescription)/\(addressPrefixLength) gw \(defaultGateway.maskedDescription)"
+        "addr \(address)/\(addressPrefixLength) gw \(defaultGateway)"
     }
 }

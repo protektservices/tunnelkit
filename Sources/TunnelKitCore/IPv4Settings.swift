@@ -49,7 +49,7 @@ public struct IPv4Settings: Codable, Equatable, CustomStringConvertible {
         // MARK: CustomStringConvertible
         
         public var description: String {
-            "{\(destination.maskedDescription)/\(mask) \(gateway?.maskedDescription ?? "*")}"
+            "{\(destination)/\(mask) \(gateway?.description ?? "*")}"
         }
     }
     
@@ -84,6 +84,6 @@ public struct IPv4Settings: Codable, Equatable, CustomStringConvertible {
     // MARK: CustomStringConvertible
     
     public var description: String {
-        "addr \(address.maskedDescription) netmask \(addressMask) gw \(defaultGateway.maskedDescription)"
+        "addr \(address) netmask \(addressMask) gw \(defaultGateway)"
     }
 }
