@@ -104,19 +104,17 @@ extension NetworkSettingsBuilder {
         routingPolicies?.contains(.IPv6) ?? false
     }
     
-    // FIXME: local routes are empty, localOptions.ipv4 is always nil (#278)
     private var allRoutes4: [IPv4Settings.Route] {
-        var routes = localOptions.ipv4?.routes ?? []
-        if pullRoutes, let remoteRoutes = remoteOptions.ipv4?.routes {
+        var routes = localOptions.routes4 ?? []
+        if pullRoutes, let remoteRoutes = remoteOptions.routes4 {
             routes.append(contentsOf: remoteRoutes)
         }
         return routes
     }
     
-    // FIXME: local routes are empty, localOptions.ipv6 is always nil (#278)
     private var allRoutes6: [IPv6Settings.Route] {
-        var routes = localOptions.ipv6?.routes ?? []
-        if pullRoutes, let remoteRoutes = remoteOptions.ipv6?.routes {
+        var routes = localOptions.routes6 ?? []
+        if pullRoutes, let remoteRoutes = remoteOptions.routes6 {
             routes.append(contentsOf: remoteRoutes)
         }
         return routes
@@ -169,9 +167,10 @@ extension NetworkSettingsBuilder {
         
         for r in allRoutes4 {
             let ipv4Route = NEIPv4Route(destinationAddress: r.destination, subnetMask: r.mask)
-            ipv4Route.gatewayAddress = r.gateway
+            let gw = r.gateway ?? ipv4.defaultGateway
+            ipv4Route.gatewayAddress = gw
             neRoutes.append(ipv4Route)
-            log.info("Routing.IPv4: Adding route \(r.destination)/\(r.mask) -> \(r.gateway)")
+            log.info("Routing.IPv4: Adding route \(r.destination)/\(r.mask) -> \(gw)")
         }
 
         ipv4Settings.includedRoutes = neRoutes
@@ -196,9 +195,10 @@ extension NetworkSettingsBuilder {
         
         for r in allRoutes6 {
             let ipv6Route = NEIPv6Route(destinationAddress: r.destination, networkPrefixLength: r.prefixLength as NSNumber)
-            ipv6Route.gatewayAddress = r.gateway
+            let gw = r.gateway ?? ipv6.defaultGateway
+            ipv6Route.gatewayAddress = gw
             neRoutes.append(ipv6Route)
-            log.info("Routing.IPv6: Adding route \(r.destination)/\(r.prefixLength) -> \(r.gateway)")
+            log.info("Routing.IPv6: Adding route \(r.destination)/\(r.prefixLength) -> \(gw)")
         }
 
         ipv6Settings.includedRoutes = neRoutes
