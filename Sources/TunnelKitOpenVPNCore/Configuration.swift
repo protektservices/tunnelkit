@@ -633,8 +633,6 @@ extension OpenVPN.Configuration {
 // MARK: Encoding
 
 extension OpenVPN.Configuration {
-
-    // TODO: unmask things
     public func print(isLocal: Bool) {
         if isLocal {
             guard let remotes = remotes else {
