@@ -89,6 +89,7 @@ extension OpenVPN {
             }
             log.info("Debug: \(shouldDebug)")
             log.info("Masks private data: \(masksPrivateData)")
+            log.info("Local options:")
             configuration.print(isLocal: true)
         }
     }
