@@ -92,7 +92,7 @@ extension WireGuard {
         
         public var privateKey: String {
             get {
-                return interface.privateKey.base64Key
+                interface.privateKey.base64Key
             }
             set {
                 guard let key = PrivateKey(base64Key: newValue) else {
@@ -104,7 +104,7 @@ extension WireGuard {
 
         public var addresses: [String] {
             get {
-                return interface.addresses.map(\.stringRepresentation)
+                interface.addresses.map(\.stringRepresentation)
             }
             set {
                 interface.addresses = newValue.compactMap(IPAddressRange.init)
@@ -113,7 +113,7 @@ extension WireGuard {
         
         public var dnsServers: [String] {
             get {
-                return interface.dns.map(\.stringRepresentation)
+                interface.dns.map(\.stringRepresentation)
             }
             set {
                 interface.dns = newValue.compactMap(DNSServer.init)
@@ -122,7 +122,7 @@ extension WireGuard {
 
         public var dnsSearchDomains: [String] {
             get {
-                return interface.dnsSearch
+                interface.dnsSearch
             }
             set {
                 interface.dnsSearch = newValue
@@ -131,7 +131,7 @@ extension WireGuard {
 
         public var mtu: UInt16? {
             get {
-                return interface.mtu
+                interface.mtu
             }
             set {
                 interface.mtu = newValue
@@ -219,11 +219,11 @@ extension WireGuard {
         public let tunnelConfiguration: TunnelConfiguration
         
         public var interface: InterfaceConfiguration {
-            return tunnelConfiguration.interface
+            tunnelConfiguration.interface
         }
         
         public var peers: [PeerConfiguration] {
-            return tunnelConfiguration.peers
+            tunnelConfiguration.peers
         }
         
         public init(tunnelConfiguration: TunnelConfiguration) {
@@ -231,33 +231,33 @@ extension WireGuard {
         }
         
         public func builder() -> WireGuard.ConfigurationBuilder {
-            return WireGuard.ConfigurationBuilder(tunnelConfiguration)
+            WireGuard.ConfigurationBuilder(tunnelConfiguration)
         }
 
         // MARK: WireGuardConfigurationProviding
         
         public var privateKey: String {
-            return interface.privateKey.base64Key
+            interface.privateKey.base64Key
         }
 
         public var publicKey: String {
-            return interface.privateKey.publicKey.base64Key
+            interface.privateKey.publicKey.base64Key
         }
 
         public var addresses: [String] {
-            return interface.addresses.map(\.stringRepresentation)
+            interface.addresses.map(\.stringRepresentation)
         }
         
         public var dnsServers: [String] {
-            return interface.dns.map(\.stringRepresentation)
+            interface.dns.map(\.stringRepresentation)
         }
 
         public var dnsSearchDomains: [String] {
-            return interface.dnsSearch
+            interface.dnsSearch
         }
 
         public var mtu: UInt16? {
-            return interface.mtu
+            interface.mtu
         }
 
         // MARK: Codable
@@ -279,30 +279,30 @@ extension WireGuard {
 
 extension WireGuardConfigurationProviding {
     public var publicKey: String {
-        return interface.privateKey.publicKey.base64Key
+        interface.privateKey.publicKey.base64Key
     }
 
     public var peersCount: Int {
-        return peers.count
+        peers.count
     }
     
     public func publicKey(ofPeer peerIndex: Int) -> String {
-        return peers[peerIndex].publicKey.base64Key
+        peers[peerIndex].publicKey.base64Key
     }
 
     public func preSharedKey(ofPeer peerIndex: Int) -> String? {
-        return peers[peerIndex].preSharedKey?.base64Key
+        peers[peerIndex].preSharedKey?.base64Key
     }
 
     public func endpoint(ofPeer peerIndex: Int) -> String? {
-        return peers[peerIndex].endpoint?.stringRepresentation
+        peers[peerIndex].endpoint?.stringRepresentation
     }
 
     public func allowedIPs(ofPeer peerIndex: Int) -> [String] {
-        return peers[peerIndex].allowedIPs.map(\.stringRepresentation)
+        peers[peerIndex].allowedIPs.map(\.stringRepresentation)
     }
 
     public func keepAlive(ofPeer peerIndex: Int) -> UInt16? {
-        return peers[peerIndex].persistentKeepAlive
+        peers[peerIndex].persistentKeepAlive
     }
 }

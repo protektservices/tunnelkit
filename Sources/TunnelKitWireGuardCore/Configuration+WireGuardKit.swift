@@ -40,7 +40,7 @@ extension WireGuard.Configuration {
     }
 
     public func asWgQuickConfig() -> String {
-        return tunnelConfiguration.asWgQuickConfig()
+        tunnelConfiguration.asWgQuickConfig()
     }
 
     public var endpointRepresentation: String {
