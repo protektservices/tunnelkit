@@ -209,9 +209,6 @@ extension OpenVPN {
         /// The number of seconds after which a renegotiation should be initiated. If `nil`, the client will never initiate a renegotiation.
         public var renegotiatesAfter: TimeInterval?
         
-        /// A byte to xor all packet payloads with.
-        public var xorMask: UInt8?
-        
         // MARK: Client
         
         /// The list of server endpoints.
@@ -314,6 +311,11 @@ extension OpenVPN {
         /// Server settings that must not be pulled.
         public var noPullMask: [PullMask]?
 
+        // MARK: Extra
+        
+        /// The method to follow in regards to the XOR patch.
+        public var xorMethod: XORMethod?
+        
         /**
          Creates a `ConfigurationBuilder`.
          
@@ -348,7 +350,6 @@ extension OpenVPN {
                 keepAliveInterval: keepAliveInterval,
                 keepAliveTimeout: keepAliveTimeout,
                 renegotiatesAfter: renegotiatesAfter,
-                xorMask: xorMask,
                 remotes: remotes,
                 checksEKU: checksEKU,
                 checksSANHost: checksSANHost,
@@ -376,7 +377,8 @@ extension OpenVPN {
                 proxyAutoConfigurationURL: proxyAutoConfigurationURL,
                 proxyBypassDomains: proxyBypassDomains,
                 routingPolicies: routingPolicies,
-                noPullMask: noPullMask
+                noPullMask: noPullMask,
+                xorMethod: xorMethod
             )
         }
     }
@@ -434,9 +436,6 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.renegotiatesAfter`
         public let renegotiatesAfter: TimeInterval?
 
-        /// - Seealso: `ConfigurationBuilder.xorMask`
-        public let xorMask: UInt8?
-        
         /// - Seealso: `ConfigurationBuilder.remotes`
         public let remotes: [Endpoint]?
 
@@ -521,6 +520,9 @@ extension OpenVPN {
         /// - Seealso: `ConfigurationBuilder.noPullMask`
         public let noPullMask: [PullMask]?
         
+        /// - Seealso: `ConfigurationBuilder.xorMethod`
+        public let xorMethod: XORMethod?
+        
         // MARK: Shortcuts
         
         public var fallbackCipher: Cipher {
@@ -597,7 +599,6 @@ extension OpenVPN.Configuration {
         builder.keepAliveInterval = keepAliveInterval
         builder.keepAliveTimeout = keepAliveTimeout
         builder.renegotiatesAfter = renegotiatesAfter
-        builder.xorMask = xorMask
         builder.remotes = remotes
         builder.checksEKU = checksEKU
         builder.checksSANHost = checksSANHost
@@ -626,6 +627,7 @@ extension OpenVPN.Configuration {
         builder.proxyBypassDomains = proxyBypassDomains
         builder.routingPolicies = routingPolicies
         builder.noPullMask = noPullMask
+        builder.xorMethod = xorMethod
         return builder
     }
 }

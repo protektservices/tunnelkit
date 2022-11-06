@@ -46,10 +46,20 @@ TunnelKit can parse .ovpn configuration files. Below are a few details worth men
 
 #### Non-standard
 
-- Single-byte XOR masking
-    - Via `--scramble xormask <character>`
-    - XOR all incoming and outgoing bytes by the ASCII value of the character argument
-    - See [Tunnelblick website][about-tunnelblick-xor] for more details
+- XOR-patch functionality:
+    - Multi-byte XOR Masking
+        - Via `--scramble xormask <passphrase>`
+        - XOR all incoming and outgoing bytes by the passphrase given
+    - XOR Position Masking
+        - Via `--scramble xorptrpos`
+        - XOR all bytes by their position in the array
+    - Packet Reverse Scramble
+        - Via `--scramble reverse`
+        - Keeps the first byte and reverses the rest of the array
+    - XOR Scramble Obfuscate
+        - Via `--scramble obfuscate <passphrase>`
+        - Performs a combination of the three above (specifically `xormask <passphrase>` -> `xorptrpos` -> `reverse` -> `xorptrpos` for reading, and the opposite for writing) 
+    - See [Tunnelblick website][about-tunnelblick-xor] for more details (Patch was written in accordance with Tunnelblick's patch for compatibility)
 
 #### Unsupported
 
@@ -221,6 +231,7 @@ A custom TunnelKit license, e.g. for use in proprietary software, may be negotia
 - [SURFnet][ppl-surfnet]
 - [SwiftyBeaver][dep-swiftybeaver-repo] - Copyright (c) 2015 Sebastian Kreutzberger
 - [XMB5][ppl-xmb5] for the [XOR patch][ppl-xmb5-xor] - Copyright (c) 2020 Sam Foxman
+- [tmthecoder][ppl-tmthecoder] for the complete [XOR patch][ppl-tmthecoder-xor] - Copyright (c) 2022 Tejas Mehta
 - [eduVPN][ppl-eduvpn] for the convenient WireGuardKitGo script
 
 ### OpenVPN
@@ -264,6 +275,8 @@ Website: [passepartoutvpn.app][about-website]
 [ppl-surfnet]: https://www.surf.nl/en/about-surf/subsidiaries/surfnet
 [ppl-xmb5]: https://github.com/XMB5
 [ppl-xmb5-xor]: https://github.com/passepartoutvpn/tunnelkit/pull/170
+[ppl-tmthecoder]: https://github.com/tmthecoder
+[ppl-tmthecoder-xor]: https://github.com/passepartoutvpn/tunnelkit/pull/255
 [ppl-eduvpn]: https://github.com/eduvpn/apple
 [about-tunnelblick-xor]: https://tunnelblick.net/cOpenvpn_xorpatch.html
 [about-pr-bitcode]: https://github.com/passepartoutvpn/tunnelkit/issues/51

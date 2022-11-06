@@ -1,8 +1,8 @@
 //
-//  PacketStream.h
+//  XORMethodNative.h
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 4/25/19.
+//  Created by Davide De Rosa on 11/4/22.
 //  Copyright (c) 2022 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -24,25 +24,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "XORMethodNative.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface PacketStream : NSObject
-
-+ (NSArray<NSData *> *)packetsFromInboundStream:(NSData *)stream
-                                          until:(NSInteger *)until
-                                      xorMethod:(XORMethodNative)xorMethod
-                                        xorMask:(nullable NSData *)xorMask;
-
-+ (NSData *)outboundStreamFromPacket:(NSData *)packet
-                           xorMethod:(XORMethodNative)xorMethod
-                             xorMask:(nullable NSData *)xorMask;
-
-+ (NSData *)outboundStreamFromPackets:(NSArray<NSData *> *)packets
-                            xorMethod:(XORMethodNative)xorMethod
-                              xorMask:(nullable NSData *)xorMask;
-
-@end
-
-NS_ASSUME_NONNULL_END
+typedef NS_ENUM(NSInteger, XORMethodNative) {
+    XORMethodNativeNone,
+    XORMethodNativeMask,
+    XORMethodNativePtrPos,
+    XORMethodNativeReverse,
+    XORMethodNativeObfuscate
+};

@@ -27,18 +27,20 @@ import Foundation
 import NetworkExtension
 import TunnelKitCore
 import TunnelKitAppExtension
+import TunnelKitOpenVPNCore
+import TunnelKitOpenVPNProtocol
 
 class NEUDPLink: LinkInterface {
     private let impl: NWUDPSession
     
     private let maxDatagrams: Int
     
-    let xorMask: UInt8
-    
-    init(impl: NWUDPSession, maxDatagrams: Int? = nil, xorMask: UInt8?) {
+    private let xor: XORProcessor
+
+    init(impl: NWUDPSession, maxDatagrams: Int? = nil, xorMethod: OpenVPN.XORMethod?) {
         self.impl = impl
         self.maxDatagrams = maxDatagrams ?? 200
-        self.xorMask = xorMask ?? 0
+        xor = XORProcessor(method: xorMethod)
     }
     
     // MARK: LinkInterface
@@ -68,12 +70,8 @@ class NEUDPLink: LinkInterface {
                 return
             }
             var packetsToUse: [Data]?
-            if let packets = packets, self.xorMask != 0 {
-                packetsToUse = packets.map { packet in
-                    Data(bytes: packet.map { $0 ^ self.xorMask }, count: packet.count)
-                }
-            } else {
-                packetsToUse = packets
+            if let packets = packets {
+                packetsToUse = self.xor.processPackets(packets, outbound: false)
             }
             queue.sync {
                 handler(packetsToUse, error)
@@ -82,26 +80,14 @@ class NEUDPLink: LinkInterface {
     }
     
     func writePacket(_ packet: Data, completionHandler: ((Error?) -> Void)?) {
-        var dataToUse: Data
-        if xorMask != 0 {
-            dataToUse = Data(bytes: packet.map { $0 ^ xorMask }, count: packet.count)
-        } else {
-            dataToUse = packet
-        }
+        let dataToUse = xor.processPacket(packet, outbound: true)
         impl.writeDatagram(dataToUse) { error in
             completionHandler?(error)
         }
     }
     
     func writePackets(_ packets: [Data], completionHandler: ((Error?) -> Void)?) {
-        var packetsToUse: [Data]
-        if xorMask != 0 {
-            packetsToUse = packets.map { packet in
-                Data(bytes: packet.map { $0 ^ xorMask }, count: packet.count)
-            }
-        } else {
-            packetsToUse = packets
-        }
+        let packetsToUse = xor.processPackets(packets, outbound: true)
         impl.writeMultipleDatagrams(packetsToUse) { error in
             completionHandler?(error)
         }
@@ -109,7 +95,8 @@ class NEUDPLink: LinkInterface {
 }
 
 extension NEUDPSocket: LinkProducer {
-    public func link(xorMask: UInt8?) -> LinkInterface {
-        return NEUDPLink(impl: impl, maxDatagrams: nil, xorMask: xorMask)
+    public func link(userObject: Any?) -> LinkInterface {
+        let xorMethod = userObject as? OpenVPN.XORMethod
+        return NEUDPLink(impl: impl, maxDatagrams: nil, xorMethod: xorMethod)
     }
 }

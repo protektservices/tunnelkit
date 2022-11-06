@@ -27,19 +27,23 @@ import Foundation
 import NetworkExtension
 import TunnelKitCore
 import TunnelKitAppExtension
+import TunnelKitOpenVPNCore
 import CTunnelKitOpenVPNProtocol
 
 class NETCPLink: LinkInterface {
     private let impl: NWTCPConnection
     
     private let maxPacketSize: Int
-    
-    let xorMask: UInt8
-    
-    init(impl: NWTCPConnection, maxPacketSize: Int? = nil, xorMask: UInt8?) {
+
+    private let xorMethod: OpenVPN.XORMethod?
+
+    private let xorMask: Data?
+
+    init(impl: NWTCPConnection, maxPacketSize: Int? = nil, xorMethod: OpenVPN.XORMethod?) {
         self.impl = impl
         self.maxPacketSize = maxPacketSize ?? (512 * 1024)
-        self.xorMask = xorMask ?? 0
+        self.xorMethod = xorMethod
+        xorMask = xorMethod?.mask
     }
     
     // MARK: LinkInterface
@@ -81,7 +85,12 @@ class NETCPLink: LinkInterface {
                 var newBuffer = buffer
                 newBuffer.append(contentsOf: data)
                 var until = 0
-                let packets = PacketStream.packets(fromStream: newBuffer, until: &until, xorMask: self.xorMask)
+                let packets = PacketStream.packets(
+                    fromInboundStream: newBuffer,
+                    until: &until,
+                    xorMethod: self.xorMethod?.native ?? .none,
+                    xorMask: self.xorMask
+                )
                 newBuffer = newBuffer.subdata(in: until..<newBuffer.count)
                 self.loopReadPackets(queue, newBuffer, handler)
                 
@@ -91,14 +100,22 @@ class NETCPLink: LinkInterface {
     }
     
     func writePacket(_ packet: Data, completionHandler: ((Error?) -> Void)?) {
-        let stream = PacketStream.stream(fromPacket: packet, xorMask: xorMask)
+        let stream = PacketStream.outboundStream(
+            fromPacket: packet,
+            xorMethod: xorMethod?.native ?? .none,
+            xorMask: xorMask
+        )
         impl.write(stream) { (error) in
             completionHandler?(error)
         }
     }
     
     func writePackets(_ packets: [Data], completionHandler: ((Error?) -> Void)?) {
-        let stream = PacketStream.stream(fromPackets: packets, xorMask: xorMask)
+        let stream = PacketStream.outboundStream(
+            fromPackets: packets,
+            xorMethod: xorMethod?.native ?? .none,
+            xorMask: xorMask
+        )
         impl.write(stream) { (error) in
             completionHandler?(error)
         }
@@ -106,7 +123,8 @@ class NETCPLink: LinkInterface {
 }
 
 extension NETCPSocket: LinkProducer {
-    public func link(xorMask: UInt8?) -> LinkInterface {
-        return NETCPLink(impl: impl, maxPacketSize: nil, xorMask: xorMask)
+    public func link(userObject: Any?) -> LinkInterface {
+        let xorMethod = userObject as? OpenVPN.XORMethod
+        return NETCPLink(impl: impl, maxPacketSize: nil, xorMethod: xorMethod)
     }
 }

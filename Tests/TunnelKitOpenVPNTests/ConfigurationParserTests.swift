@@ -127,11 +127,19 @@ class ConfigurationParserTests: XCTestCase {
     func testXOR() throws {
         let cfg = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble xormask F"])
         XCTAssertNil(cfg.warning)
-        XCTAssertEqual(cfg.configuration.xorMask, Character("F").asciiValue)
-
-        let cfg2 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble xormask FFFF"])
+        XCTAssertEqual(cfg.configuration.xorMethod, OpenVPN.XORMethod.xormask(mask: Data(repeating: Character("F").asciiValue!, count:1)))
+        
+        let cfg2 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble reverse"])
         XCTAssertNil(cfg.warning)
-        XCTAssertNil(cfg2.configuration.xorMask)
+        XCTAssertEqual(cfg2.configuration.xorMethod, OpenVPN.XORMethod.reverse)
+        
+        let cfg3 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble xorptrpos"])
+        XCTAssertNil(cfg.warning)
+        XCTAssertEqual(cfg3.configuration.xorMethod, OpenVPN.XORMethod.xorptrpos)
+        
+        let cfg4 = try OpenVPN.ConfigurationParser.parsed(fromLines: ["scramble obfuscate FFFF"])
+        XCTAssertNil(cfg.warning)
+        XCTAssertEqual(cfg4.configuration.xorMethod, OpenVPN.XORMethod.obfuscate(mask: Data(repeating: Character("F").asciiValue!, count:4)))
     }
     
     private func privateTestEncryptedCertificateKey(pkcs: String) throws {
