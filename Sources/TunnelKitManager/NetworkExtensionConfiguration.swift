@@ -38,6 +38,9 @@ public struct NetworkExtensionExtra {
     /// Disconnects on sleep if `true`.
     public var disconnectsOnSleep = false
     
+    /// Enables best-effort kill switch.
+    public var killSwitch = false
+    
     public init() {
     }
 }
