@@ -198,7 +198,7 @@ Contains the `NEPacketTunnelProvider` implementation of a WireGuard tunnel.
 
 ## License
 
-Copyright (c) 2022 Davide De Rosa. All rights reserved.
+Copyright (c) 2023 Davide De Rosa. All rights reserved.
 
 ### Part I
 
