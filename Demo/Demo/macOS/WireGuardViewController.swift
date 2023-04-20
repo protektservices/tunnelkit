@@ -94,15 +94,15 @@ class WireGuardViewController: NSViewController {
         let serverAddress = textServerAddress.stringValue
         let serverPort = textServerPort.stringValue
 
-        guard let cfg = WireGuard.DemoConfiguration.make(
-            "TunnelKit.WireGuard",
+        guard let cfg = WireGuard.DemoConfiguration.make(params: .init(
+            title: "TunnelKit.WireGuard",
             appGroup: appGroup,
             clientPrivateKey: clientPrivateKey,
             clientAddress: clientAddress,
             serverPublicKey: serverPublicKey,
             serverAddress: serverAddress,
             serverPort: serverPort
-        ) else {
+        )) else {
             print("Configuration incomplete")
             return
         }

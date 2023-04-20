@@ -108,13 +108,13 @@ class OpenVPNViewController: UIViewController {
         let socketType: SocketType = switchTCP.isOn ? .tcp : .udp
 
         let credentials = OpenVPN.Credentials(textUsername.text!, textPassword.text!)
-        cfg = OpenVPN.DemoConfiguration.make(
-            "TunnelKit.OpenVPN",
+        cfg = OpenVPN.DemoConfiguration.make(params: .init(
+            title: "TunnelKit.OpenVPN",
             appGroup: appGroup,
             hostname: hostname,
             port: port,
             socketType: socketType
-        )
+        ))
         cfg?.username = credentials.username
 
         let passwordReference: Data

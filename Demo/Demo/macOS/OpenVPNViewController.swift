@@ -99,13 +99,13 @@ class OpenVPNViewController: NSViewController {
         let port = UInt16(textPort.stringValue)!
 
         let credentials = OpenVPN.Credentials(textUsername.stringValue, textPassword.stringValue)
-        cfg = OpenVPN.DemoConfiguration.make(
-            "TunnelKit.OpenVPN",
+        cfg = OpenVPN.DemoConfiguration.make(params: .init(
+            title: "TunnelKit.OpenVPN",
             appGroup: appGroup,
             hostname: hostname,
             port: port,
             socketType: .udp
-        )
+        ))
         cfg?.username = credentials.username
 
         let passwordReference: Data
