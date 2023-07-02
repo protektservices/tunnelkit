@@ -82,8 +82,8 @@ class ControlChannelTests: XCTestCase {
         let packet: ControlPacket
         do {
             packet = try client.deserialize(data: original, start: 0, end: nil)
-        } catch let e {
-            XCTAssertNil(e)
+        } catch {
+            XCTAssertNil(error)
             return
         }
         XCTAssertEqual(packet.code, .hardResetClientV2)
@@ -94,8 +94,8 @@ class ControlChannelTests: XCTestCase {
         let raw: Data
         do {
             raw = try server.serialize(packet: packet, timestamp: timestamp)
-        } catch let e {
-            XCTAssertNil(e)
+        } catch {
+            XCTAssertNil(error)
             return
         }
         print("raw: \(raw.toHex())")
@@ -113,8 +113,8 @@ class ControlChannelTests: XCTestCase {
         let packet: ControlPacket
         do {
             packet = try client.deserialize(data: original, start: 0, end: nil)
-        } catch let e {
-            XCTAssertNil(e)
+        } catch {
+            XCTAssertNil(error)
             return
         }
         XCTAssertEqual(packet.code, .hardResetServerV2)
@@ -126,8 +126,8 @@ class ControlChannelTests: XCTestCase {
         let raw: Data
         do {
             raw = try server.serialize(packet: packet, timestamp: timestamp)
-        } catch let e {
-            XCTAssertNil(e)
+        } catch {
+            XCTAssertNil(error)
             return
         }
         print("raw: \(raw.toHex())")

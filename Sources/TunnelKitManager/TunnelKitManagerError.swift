@@ -1,8 +1,8 @@
 //
-//  ConfigurationError.swift
+//  TunnelKitManagerError.swift
 //  TunnelKit
 //
-//  Created by Davide De Rosa on 4/3/19.
+//  Created by Davide De Rosa on 6/16/23.
 //  Copyright (c) 2023 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
@@ -25,27 +25,7 @@
 
 import Foundation
 
-extension OpenVPN {
-
-    /// Error raised by the configuration parser, with details about the line that triggered it.
-    public enum ConfigurationError: Error {
-
-        /// Option syntax is incorrect.
-        case malformed(option: String)
-
-        /// A required option is missing.
-        case missingConfiguration(option: String)
-
-        /// An option is unsupported.
-        case unsupportedConfiguration(option: String)
-
-        /// Passphrase required to decrypt private keys.
-        case encryptionPassphrase
-
-        /// Encryption passphrase is incorrect or key is corrupt.
-        case unableToDecrypt(error: Error)
-
-        /// The PUSH_REPLY is multipart.
-        case continuationPushReply
-    }
+/// Errors returned by Core library.
+public enum TunnelKitManagerError: Error {
+    case keychain(_ error: KeychainError)
 }

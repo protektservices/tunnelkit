@@ -35,9 +35,10 @@
 //
 
 import Foundation
+import CTunnelKitOpenVPNCore
 
 /// The possible errors raised/thrown during `OpenVPNSession` operation.
-public enum OpenVPNError: String, Error {
+public enum OpenVPNError: Error {
 
     /// The negotiation timed out.
     case negotiationTimeout
@@ -51,14 +52,14 @@ public enum OpenVPNError: String, Error {
     /// The connection key is wrong or wasn't expected.
     case badKey
 
+    /// Control channel failure.
+    case controlChannel(message: String)
+
     /// The control packet has an incorrect prefix payload.
     case wrongControlDataPrefix
 
     /// The provided credentials failed authentication.
     case badCredentials
-
-    /// The PUSH_REPLY is multipart.
-    case continuationPushReply
 
     /// The reply to PUSH_REQUEST is malformed.
     case malformedPushReply
@@ -80,4 +81,17 @@ public enum OpenVPNError: String, Error {
 
     /// Remote server shut down (--explicit-exit-notify).
     case serverShutdown
+
+    /// NSError from ObjC layer.
+    case native(code: OpenVPNErrorCode)
+}
+
+extension Error {
+    public var asNativeOpenVPNError: OpenVPNError? {
+        let nativeError = self as NSError
+        guard nativeError.domain == OpenVPNErrorDomain, let code = OpenVPNErrorCode(rawValue: nativeError.code) else {
+            return nil
+        }
+        return .native(code: code)
+    }
 }

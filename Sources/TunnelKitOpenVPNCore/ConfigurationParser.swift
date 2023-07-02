@@ -339,7 +339,7 @@ extension OpenVPN {
                     isContinuation = ($0.first == "2")
                 }
                 guard !isContinuation else {
-                    throw OpenVPNError.continuationPushReply
+                    throw ConfigurationError.continuationPushReply
                 }
 
                 // MARK: Inline content
@@ -805,8 +805,8 @@ extension OpenVPN {
                 }
                 do {
                     sessionBuilder.clientKey = try clientKey.decrypted(with: passphrase)
-                } catch let e {
-                    throw ConfigurationError.unableToDecrypt(error: e)
+                } catch {
+                    throw ConfigurationError.unableToDecrypt(error: error)
                 }
             } else {
                 sessionBuilder.clientKey = optClientKey
