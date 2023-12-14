@@ -41,6 +41,7 @@ import XCTest
 @testable import TunnelKitOpenVPNAppExtension
 import CTunnelKitOpenVPNProtocol
 
+// avg on MBA M1 w/ OpenSSL 3.2.0
 class DataPathPerformanceTests: XCTestCase {
     private var dataPath: DataPath!
 
@@ -85,7 +86,7 @@ class DataPathPerformanceTests: XCTestCase {
 //        XCTAssertEqual(decryptedPackets, packets)
 //    }
 
-    // 16ms
+    // 0.007
     func testPointerBased() {
         let packets = TestUtils.generateDataSuite(1200, 1000)
         var encryptedPackets: [Data]!

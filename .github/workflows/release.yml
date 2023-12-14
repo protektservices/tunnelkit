@@ -1,8 +1,11 @@
 name: Release
 
 on:
-  milestone:
-    types: closed
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: "Version number"
+        required: true
 
 jobs:
   run_tests:
@@ -34,7 +37,7 @@ jobs:
           git_push_gpgsign: false
       - name: Tag release
         env:
-          VERSION: ${{ github.event.milestone.title }}
+          VERSION: ${{ github.event.inputs.version_number }}
         run: |
           DATE=`date "+%Y-%m-%d"`
           COMMIT_MESSAGE="[ci skip] Set release date"
