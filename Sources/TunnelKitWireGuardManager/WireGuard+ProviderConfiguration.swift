@@ -25,6 +25,7 @@
 
 import Foundation
 import NetworkExtension
+import TunnelKitCore
 import TunnelKitManager
 import TunnelKitWireGuardCore
 import WireGuardKit
@@ -41,6 +42,8 @@ extension WireGuard {
             case logPath = "WireGuard.LogPath"
 
             case lastError = "WireGuard.LastError"
+
+            case dataCount = "WireGuard.DataCount"
         }
 
         public let title: String
@@ -91,6 +94,12 @@ extension WireGuard.ProviderConfiguration: NetworkExtensionConfiguration {
 // MARK: Shared data
 
 extension WireGuard.ProviderConfiguration {
+
+    /// The most recent (received, sent) count in bytes.
+    public var dataCount: DataCount? {
+        return defaults?.wireGuardDataCount
+    }
+
     public var lastError: TunnelKitWireGuardError? {
         return defaults?.wireGuardLastError
     }
@@ -102,9 +111,14 @@ extension WireGuard.ProviderConfiguration {
     private var defaults: UserDefaults? {
         return UserDefaults(suiteName: appGroup)
     }
+
 }
 
 extension WireGuard.ProviderConfiguration {
+    public func _appexSetDataCount(_ newValue: DataCount?) {
+        defaults?.wireGuardDataCount = newValue
+    }
+
     public func _appexSetLastError(_ newValue: TunnelKitWireGuardError?) {
         defaults?.wireGuardLastError = newValue
     }
@@ -145,5 +159,36 @@ extension UserDefaults {
             }
             set(newValue.rawValue, forKey: WireGuard.ProviderConfiguration.Keys.lastError.rawValue)
         }
+    }
+
+    public fileprivate(set) var wireGuardDataCount: DataCount? {
+        get {
+            guard let rawValue = wireGuardDataCountArray else {
+                return nil
+            }
+            guard rawValue.count == 2 else {
+                return nil
+            }
+            return DataCount(rawValue[0], rawValue[1])
+        }
+        set {
+            guard let newValue = newValue else {
+                wireGuardRemoveDataCountArray()
+                return
+            }
+            wireGuardDataCountArray = [newValue.received, newValue.sent]
+        }
+    }
+
+    @objc private var wireGuardDataCountArray: [UInt]? {
+        get {
+            return array(forKey: WireGuard.ProviderConfiguration.Keys.dataCount.rawValue) as? [UInt]
+        }
+        set {
+            set(newValue, forKey: WireGuard.ProviderConfiguration.Keys.dataCount.rawValue)
+        }
+    }
+    private func wireGuardRemoveDataCountArray() {
+        removeObject(forKey: WireGuard.ProviderConfiguration.Keys.dataCount.rawValue)
     }
 }
