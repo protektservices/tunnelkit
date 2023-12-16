@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0E05419E25A2343500EFC5FF"
-               BuildableName = "TunnelKitDemoOpenVPNTunnel-iOS.appex"
-               BlueprintName = "TunnelKitDemoOpenVPNTunnel-iOS"
+               BlueprintIdentifier = "0E9FFE112B2D8750002C93D7"
+               BuildableName = "TunnelKitDemoWireGuardTunnel-tvOS.appex"
+               BlueprintName = "TunnelKitDemoWireGuardTunnel-tvOS"
                ReferencedContainer = "container:TunnelKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,9 +29,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0E05416825A232FD00EFC5FF"
-               BuildableName = "TunnelKitDemo-iOS.app"
-               BlueprintName = "TunnelKitDemo-iOS"
+               BlueprintIdentifier = "0ED1A5E92B2A6AE400A0EA90"
+               BuildableName = "TunnelKitDemo-tvOS.app"
+               BlueprintName = "TunnelKitDemo-tvOS"
                ReferencedContainer = "container:TunnelKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -41,9 +41,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
-      <Testables>
-      </Testables>
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -57,6 +56,16 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "0ED1A5E92B2A6AE400A0EA90"
+            BuildableName = "TunnelKitDemo-tvOS.app"
+            BlueprintName = "TunnelKitDemo-tvOS"
+            ReferencedContainer = "container:TunnelKit.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -66,15 +75,16 @@
       debugDocumentVersioning = "YES"
       askForAppToLaunch = "Yes"
       launchAutomaticallySubstyle = "2">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0E05419E25A2343500EFC5FF"
-            BuildableName = "TunnelKitDemoOpenVPNTunnel-iOS.appex"
-            BlueprintName = "TunnelKitDemoOpenVPNTunnel-iOS"
+            BlueprintIdentifier = "0ED1A5E92B2A6AE400A0EA90"
+            BuildableName = "TunnelKitDemo-tvOS.app"
+            BlueprintName = "TunnelKitDemo-tvOS"
             ReferencedContainer = "container:TunnelKit.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

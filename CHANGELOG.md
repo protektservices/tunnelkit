@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Apple TV. [#337](https://github.com/passepartoutvpn/tunnelkit/issues/337)
 - Attach user data to VPN configuration. [#400](https://github.com/passepartoutvpn/tunnelkit/pull/400)
 
+### Changed
+
+- Demo rewritten in SwiftUI. [#399](https://github.com/passepartoutvpn/tunnelkit/issues/399)
+
 ## 6.2.0 (2023-12-14)
 
 ### Changed
