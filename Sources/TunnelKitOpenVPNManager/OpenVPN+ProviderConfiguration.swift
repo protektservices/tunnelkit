@@ -113,7 +113,9 @@ extension OpenVPN.ProviderConfiguration: NetworkExtensionConfiguration {
         }
         protocolConfiguration.disconnectOnSleep = extra?.disconnectsOnSleep ?? false
         protocolConfiguration.providerConfiguration = try asDictionary()
+        #if !os(tvOS)
         protocolConfiguration.includeAllNetworks = extra?.killSwitch ?? false
+        #endif
         return protocolConfiguration
     }
 }

@@ -38,8 +38,10 @@ public struct NetworkExtensionExtra {
     /// Disconnects on sleep if `true`.
     public var disconnectsOnSleep = false
 
+    #if !os(tvOS)
     /// Enables best-effort kill switch.
     public var killSwitch = false
+    #endif
 
     /// Extra user configuration data.
     public var userData: [String: Any]?

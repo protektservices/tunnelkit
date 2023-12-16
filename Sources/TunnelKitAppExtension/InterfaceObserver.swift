@@ -38,7 +38,7 @@ import Foundation
 #if os(iOS)
 import NetworkExtension
 import SystemConfiguration.CaptiveNetwork
-#else
+#elseif os(macOS)
 import CoreWLAN
 #endif
 import SwiftyBeaver
@@ -116,10 +116,12 @@ public class InterfaceObserver: NSObject {
         NEHotspotNetwork.fetchCurrent {
             completionHandler($0?.ssid)
         }
-        #else
+        #elseif os(macOS)
         let client = CWWiFiClient.shared()
         let ssid = client.interfaces()?.compactMap { $0.ssid() }.first
         completionHandler(ssid)
+        #else
+        completionHandler(nil)
         #endif
     }
 }

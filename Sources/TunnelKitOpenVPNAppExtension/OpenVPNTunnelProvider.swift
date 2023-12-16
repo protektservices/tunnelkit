@@ -38,7 +38,7 @@ import NetworkExtension
 import SwiftyBeaver
 #if os(iOS)
 import SystemConfiguration.CaptiveNetwork
-#else
+#elseif os(macOS)
 import CoreWLAN
 #endif
 import TunnelKitCore

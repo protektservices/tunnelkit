@@ -1,34 +1,32 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "openssl-apple",
-        "repositoryURL": "https://github.com/passepartoutvpn/openssl-apple",
-        "state": {
-          "branch": null,
-          "revision": "026702febcaebcbf9ea68f2fa66b017eba998cdf",
-          "version": "3.2.105"
-        }
-      },
-      {
-        "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver",
-        "state": {
-          "branch": null,
-          "revision": "12b5acf96d98f91d50de447369bd18df74600f1a",
-          "version": "1.9.6"
-        }
-      },
-      {
-        "package": "WireGuardKit",
-        "repositoryURL": "https://github.com/passepartoutvpn/wireguard-apple",
-        "state": {
-          "branch": null,
-          "revision": "73d9152fa0cb661db0348a1ac11dbbf998422a50",
-          "version": "1.0.17"
-        }
+  "pins" : [
+    {
+      "identity" : "openssl-apple",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/passepartoutvpn/openssl-apple",
+      "state" : {
+        "revision" : "026702febcaebcbf9ea68f2fa66b017eba998cdf",
+        "version" : "3.2.105"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "swiftybeaver",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver",
+      "state" : {
+        "revision" : "12b5acf96d98f91d50de447369bd18df74600f1a",
+        "version" : "1.9.6"
+      }
+    },
+    {
+      "identity" : "wireguard-apple",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/passepartoutvpn/wireguard-apple",
+      "state" : {
+        "branch" : "develop",
+        "revision" : "b79f0f150356d8200a64922ecf041dd020140aa0"
+      }
+    }
+  ],
+  "version" : 2
 }
