@@ -228,8 +228,10 @@ public class NetworkExtensionVPN: VPN {
     }
 
     private func notifyReinstall(_ manager: NETunnelProviderManager) {
-        let bundleId = manager.tunnelBundleIdentifier
-        log.debug("VPN did reinstall (\(bundleId ?? "?")): isEnabled=\(manager.isEnabled)")
+        guard let bundleId = manager.tunnelBundleIdentifier else {
+            return
+        }
+        log.debug("VPN did reinstall (\(bundleId)): isEnabled=\(manager.isEnabled)")
 
         var notification = Notification(name: VPNNotification.didReinstall)
         notification.vpnBundleIdentifier = bundleId
@@ -242,8 +244,10 @@ public class NetworkExtensionVPN: VPN {
             log.verbose("Ignoring VPN notification from bogus manager")
             return
         }
-        let bundleId = connection.manager.tunnelBundleIdentifier
-        log.debug("VPN status did change (\(bundleId ?? "?")): isEnabled=\(connection.manager.isEnabled), status=\(connection.status.rawValue)")
+        guard let bundleId = connection.manager.tunnelBundleIdentifier else {
+            return
+        }
+        log.debug("VPN status did change (\(bundleId)): isEnabled=\(connection.manager.isEnabled), status=\(connection.status.rawValue)")
         var notification = Notification(name: VPNNotification.didChangeStatus)
         notification.vpnBundleIdentifier = bundleId
         notification.vpnIsEnabled = connection.manager.isEnabled
@@ -265,6 +269,7 @@ public class NetworkExtensionVPN: VPN {
 private extension NEVPNManager {
     var tunnelBundleIdentifier: String? {
         guard let proto = protocolConfiguration as? NETunnelProviderProtocol else {
+            log.warning("No bundle identifier found because protocolConfiguration is not NETunnelProviderProtocol (\(type(of: protocolConfiguration))")
             return nil
         }
         return proto.providerBundleIdentifier
