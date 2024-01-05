@@ -1,5 +1,6 @@
 ![iOS 15+](https://img.shields.io/badge/ios-15+-green.svg)
 ![macOS 12+](https://img.shields.io/badge/macos-12+-green.svg)
+![tvOS 17+](https://img.shields.io/badge/tvos-17+-green.svg)
 [![License GPLv3](https://img.shields.io/badge/license-GPLv3-lightgray.svg)](LICENSE)
 
 [![Unit Tests](https://github.com/passepartoutvpn/tunnelkit/actions/workflows/test.yml/badge.svg)](https://github.com/passepartoutvpn/tunnelkit/actions/workflows/test.yml)
@@ -110,7 +111,7 @@ Therefore, make sure to follow the steps below for proper integration:
 
 ### Requirements
 
-- iOS 15+ / macOS 12+
+- iOS 15+ / macOS 12+ / tvOS 17+
 - SwiftPM 5.3
 - Git (preinstalled with Xcode Command Line Tools)
 - golang (for WireGuardKit)
@@ -141,7 +142,7 @@ Download the library codebase locally:
 
     $ git clone https://github.com/passepartoutvpn/tunnelkit.git
 
-There are demo targets containing a simple app for testing the tunnels. Open `Demo/TunnelKit.xcodeproject` in Xcode and run it on both iOS and macOS.
+There are demo targets containing a simple app for testing the tunnels. Open `Demo/TunnelKit.xcodeproject` in Xcode and run it.
 
 For the VPN to work properly, the demo requires:
 
