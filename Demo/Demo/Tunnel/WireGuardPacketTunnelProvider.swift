@@ -23,7 +23,12 @@
 //  along with TunnelKit.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import Foundation
 import TunnelKitWireGuardAppExtension
 
 class PacketTunnelProvider: WireGuardTunnelProvider {
+    override func startTunnel(options: [String: NSObject]? = nil) async throws {
+        dataCountInterval = 3
+        try await super.startTunnel(options: options)
+    }
 }

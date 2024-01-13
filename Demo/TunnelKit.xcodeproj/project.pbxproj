@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0E05418925A2334500EFC5FF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E05414525A231D500EFC5FF /* Assets.xcassets */; };
-		0E05418B25A2334900EFC5FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0E05414625A231D500EFC5FF /* LaunchScreen.storyboard */; };
 		0E0541A125A2343500EFC5FF /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E0541A025A2343500EFC5FF /* NetworkExtension.framework */; };
 		0E0541A925A2343500EFC5FF /* TunnelKitDemoOpenVPNTunnel-iOS.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0E05419F25A2343500EFC5FF /* TunnelKitDemoOpenVPNTunnel-iOS.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0E0541D125A2354500EFC5FF /* OpenVPNPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E05413825A231D500EFC5FF /* OpenVPNPacketTunnelProvider.swift */; };
@@ -195,7 +194,6 @@
 		0E05413D25A231D500EFC5FF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0E05414025A231D500EFC5FF /* Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Demo.entitlements; sourceTree = "<group>"; };
 		0E05414525A231D500EFC5FF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0E05414725A231D500EFC5FF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0E05414A25A231D500EFC5FF /* Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Demo.entitlements; sourceTree = "<group>"; };
 		0E05416925A232FD00EFC5FF /* TunnelKitDemo-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TunnelKitDemo-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0E05419F25A2343500EFC5FF /* TunnelKitDemoOpenVPNTunnel-iOS.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TunnelKitDemoOpenVPNTunnel-iOS.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -333,7 +331,6 @@
 				0E05414A25A231D500EFC5FF /* Demo.entitlements */,
 				0E05413925A231D500EFC5FF /* DemoTunnel.entitlements */,
 				0E05414525A231D500EFC5FF /* Assets.xcassets */,
-				0E05414625A231D500EFC5FF /* LaunchScreen.storyboard */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -810,7 +807,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0E05418B25A2334900EFC5FF /* LaunchScreen.storyboard in Resources */,
 				0E05418925A2334500EFC5FF /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1071,17 +1067,6 @@
 		};
 /* End PBXTargetDependency section */
 
-/* Begin PBXVariantGroup section */
-		0E05414625A231D500EFC5FF /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0E05414725A231D500EFC5FF /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
 		0E05417B25A2330100EFC5FF /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1092,7 +1077,6 @@
 				CODE_SIGN_ENTITLEMENTS = Demo/iOS/Demo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DTDYD63ZX9;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1114,7 +1098,6 @@
 				CODE_SIGN_ENTITLEMENTS = Demo/iOS/Demo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DTDYD63ZX9;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1329,6 +1312,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 6.0.0;
@@ -1393,6 +1377,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 6.0.0;
@@ -1688,7 +1673,6 @@
 				DEVELOPMENT_TEAM = DTDYD63ZX9;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1722,7 +1706,6 @@
 				DEVELOPMENT_TEAM = DTDYD63ZX9;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
