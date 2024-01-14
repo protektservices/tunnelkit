@@ -3,7 +3,7 @@
 //  Passepartout
 //
 //  Created by Yevgeny Yezub on 11/17/23.
-//  Copyright (c) 2023 Yevgeny Yezub. All rights reserved.
+//  Copyright (c) 2024 Yevgeny Yezub. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
 //

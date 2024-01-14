@@ -3,7 +3,7 @@
 //  TunnelKit
 //
 //  Created by Tejas Mehta on 5/24/22.
-//  Copyright (c) 2023 Davide De Rosa. All rights reserved.
+//  Copyright (c) 2024 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
 //

@@ -3,7 +3,7 @@
 //  TunnelKitOpenVPNTests
 //
 //  Created by Davide De Rosa on 10/23/17.
-//  Copyright (c) 2023 Davide De Rosa. All rights reserved.
+//  Copyright (c) 2024 Davide De Rosa. All rights reserved.
 //
 //  https://github.com/passepartoutvpn
 //
