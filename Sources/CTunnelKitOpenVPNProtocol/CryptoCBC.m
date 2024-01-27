@@ -50,8 +50,8 @@ const NSInteger CryptoCBCMaxHMACLength = 100;
 
 @property (nonatomic, unsafe_unretained) const EVP_CIPHER *cipher;
 @property (nonatomic, unsafe_unretained) const EVP_MD *digest;
-@property (nonatomic, unsafe_unretained) const char *utfCipherName;
-@property (nonatomic, unsafe_unretained) const char *utfDigestName;
+@property (nonatomic, unsafe_unretained) char *utfCipherName;
+@property (nonatomic, unsafe_unretained) char *utfDigestName;
 @property (nonatomic, assign) int cipherKeyLength;
 @property (nonatomic, assign) int cipherIVLength;
 @property (nonatomic, assign) int hmacKeyLength;
